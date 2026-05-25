@@ -117,6 +117,13 @@ try {
                 ]);
                 respond(["message" => "Dossier mis à jour"]);
             } elseif ($method === 'DELETE' && $id) {
+                // Optionnel : On peut vérifier si des factures sont liées avant de supprimer
+                $check = $pdo->prepare("SELECT COUNT(*) FROM factures WHERE dossier_id = ?");
+                $check->execute([$id]);
+                if ($check->fetchColumn() > 0) {
+                    respond(["error" => "Impossible de supprimer ce dossier car il est lié à une facture."], 400);
+                }
+                
                 $pdo->prepare("DELETE FROM dossiers WHERE id = ?")->execute([$id]);
                 respond(["message" => "Dossier supprimé"]);
             }
