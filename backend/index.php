@@ -113,6 +113,7 @@ try {
                     $input['expediteur'] ?? null, $input['natureMarchandise'] ?? null,
                     $input['nombresColis'] ?? null, $input['typeConteneur'] ?? null,
                     $input['poids'] ?? null, $input['volume'] ?? null, $input['valeurMarchandise'] ?? null,
+                    $input['statutFacturation'] ?? 'À Facturer',
                     $id
                 ]);
                 respond(["message" => "Dossier mis à jour"]);

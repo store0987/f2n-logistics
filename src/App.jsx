@@ -185,7 +185,7 @@ function App() {
           <div className="data-table-container">
             <div className="data-table-header">
               <h2 style={{ fontSize: '1.1rem', fontWeight: '600' }}>Opérations Récentes</h2>
-              <button className="btn btn-outline" style={{ fontSize: '0.75rem', padding: '6px 12px' }}>Voir tout</button>
+              <button onClick={() => setActiveTab('dossiers')} className="btn btn-outline" style={{ fontSize: '0.75rem', padding: '6px 12px' }}>Voir tout</button>
             </div>
             <table className="data-table">
               <thead>
