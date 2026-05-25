@@ -100,6 +100,25 @@ try {
                     $input['dateCreation'] ?? date("Y-m-d")
                 ]);
                 respond(["id" => $newId, "message" => "Dossier créé"]);
+            } elseif ($method === 'PUT' && $id) {
+                $sql = "UPDATE dossiers SET typeOperation=?, modeTransport=?, numBL=?, incoterm=?, compagnie=?, navire=?, numVoyage=?, etd=?, eta=?, origine=?, destination=?, client_id=?, expediteur=?, natureMarchandise=?, nombresColis=?, typeConteneur=?, poids=?, volume=?, valeurMarchandise=? WHERE id=?";
+                $pdo->prepare($sql)->execute([
+                    $input['typeOperation'] ?? 'Import',
+                    $input['modeTransport'] ?? null, $input['numBL'] ?? null, $input['incoterm'] ?? null,
+                    $input['compagnie'] ?? null, $input['navire'] ?? null, $input['numVoyage'] ?? null,
+                    !empty($input['etd']) ? $input['etd'] : null,
+                    !empty($input['eta']) ? $input['eta'] : null,
+                    $input['origine'] ?? null, $input['destination'] ?? null,
+                    !empty($input['client_id']) ? $input['client_id'] : null,
+                    $input['expediteur'] ?? null, $input['natureMarchandise'] ?? null,
+                    $input['nombresColis'] ?? null, $input['typeConteneur'] ?? null,
+                    $input['poids'] ?? null, $input['volume'] ?? null, $input['valeurMarchandise'] ?? null,
+                    $id
+                ]);
+                respond(["message" => "Dossier mis à jour"]);
+            } elseif ($method === 'DELETE' && $id) {
+                $pdo->prepare("DELETE FROM dossiers WHERE id = ?")->execute([$id]);
+                respond(["message" => "Dossier supprimé"]);
             }
             break;
 
