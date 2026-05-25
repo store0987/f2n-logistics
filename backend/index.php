@@ -21,17 +21,17 @@ try {
 
 // --- ROUTAGE SIMPLE ---
 $method = $_SERVER['REQUEST_METHOD'];
-$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-// Nettoyage de l'URI pour obtenir la ressource (ex: /api/clients -> clients)
-$uri_parts = explode('/', trim($uri, '/'));
-// On suppose que le script est dans /api/, donc la ressource est après
-$resource = end($uri_parts);
+$uri = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
+$uri_parts = explode('/', $uri);
+
+// On cherche la ressource juste après "api" dans l'URL
+$api_pos = array_search('api', $uri_parts);
+$resource = ($api_pos !== false && isset($uri_parts[$api_pos + 1])) ? $uri_parts[$api_pos + 1] : '';
 $id = null;
 
-// Gestion des IDs dans l'URL (ex: /api/clients/5)
-if (is_numeric($resource) || strpos($resource, '-') !== false) {
-    $id = $resource;
-    $resource = $uri_parts[count($uri_parts) - 2];
+// Si on a un ID après la ressource (ex: /api/clients/123)
+if ($api_pos !== false && isset($uri_parts[$api_pos + 2])) {
+    $id = $uri_parts[$api_pos + 2];
 }
 
 $input = json_decode(file_get_contents('php://input'), true);

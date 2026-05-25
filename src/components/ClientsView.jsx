@@ -4,10 +4,10 @@ import { Users, Plus, Building, Phone, Mail, MapPin, Edit, Trash2 } from 'lucide
 
 const ClientsView = ({ onCancel }) => {
   const [showForm, setShowForm] = useState(false);
-  
+
   // Liste des entités
   const [entities, setEntities] = useState([]);
-  
+
   const [formData, setFormData] = useState({
     type: 'Client',
     nom: '',
@@ -80,8 +80,8 @@ const ClientsView = ({ onCancel }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const url = editId 
-      ? `${API_BASE_URL}/api/clients/${editId}` 
+    const url = editId
+      ? `${API_BASE_URL}/api/clients/${editId}`
       : `${API_BASE_URL}/api/clients`;
     const method = editId ? 'PUT' : 'POST';
 
@@ -95,7 +95,8 @@ const ClientsView = ({ onCancel }) => {
         await fetchClients();
         handleCancelForm();
       } else {
-        alert("Erreur lors de l'enregistrement");
+        const errorData = await response.json();
+        alert(`Erreur lors de l'enregistrement: ${errorData.error || response.statusText}`);
       }
     } catch (error) {
       console.error("Erreur lors de l'enregistrement du client:", error);
@@ -230,15 +231,15 @@ const ClientsView = ({ onCancel }) => {
                   <input type="text" className="form-control" name="contact" value={formData.contact} onChange={handleChange} required placeholder="ex: Amadou Diop" />
                 </div>
                 <div className="form-group">
-                  <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Phone size={14}/> Téléphone</label>
+                  <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Phone size={14} /> Téléphone</label>
                   <input type="tel" className="form-control" name="tel" value={formData.tel} onChange={handleChange} required placeholder="ex: +221 77 000 00 00" />
                 </div>
                 <div className="form-group">
-                  <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Mail size={14}/> Adresse Email</label>
+                  <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Mail size={14} /> Adresse Email</label>
                   <input type="email" className="form-control" name="email" value={formData.email} onChange={handleChange} required placeholder="ex: contact@entreprise.sn" />
                 </div>
                 <div className="form-group full-width">
-                  <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><MapPin size={14}/> Adresse Physique</label>
+                  <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><MapPin size={14} /> Adresse Physique</label>
                   <input type="text" className="form-control" name="adresse" value={formData.adresse} onChange={handleChange} placeholder="ex: Zone Industrielle, Dakar" />
                 </div>
                 <div className="form-group">
