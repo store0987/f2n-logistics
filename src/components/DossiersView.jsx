@@ -54,7 +54,8 @@ const DossiersView = () => {
         setShowForm(false);
         setEditDossier(null);
       } else {
-        alert("Erreur lors de l'enregistrement du dossier.");
+        const errorData = await response.json();
+        alert(`Erreur lors de l'enregistrement du dossier: ${errorData.error || response.statusText}`);
       }
     } catch (error) {
       console.error("Erreur lors de l'enregistrement du dossier:", error);
