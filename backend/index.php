@@ -15,6 +15,7 @@ try {
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
+    http_response_code(500);
     die(json_encode(["error" => "Erreur de connexion : " . $e->getMessage()]));
 }
 
@@ -41,68 +42,68 @@ function respond($data, $status = 200) {
     exit;
 }
 
-switch ($resource) {
-    case 'clients':
-        if ($method === 'GET') {
-            $stmt = $pdo->query("SELECT * FROM clients");
-            respond($stmt->fetchAll());
-        } elseif ($method === 'POST') {
-            $sql = "INSERT INTO clients (type, nom, nif, rccm, contact, email, tel, adresse, ville) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            $pdo->prepare($sql)->execute([
-                $input['type'], $input['nom'], $input['nif'] ?? null, $input['rccm'] ?? null, 
-                $input['contact'] ?? null, $input['email'] ?? null, $input['tel'] ?? null, 
-                $input['adresse'] ?? null, $input['ville'] ?? null
-            ]);
-            respond(["id" => $pdo->lastInsertId(), "message" => "Client ajouté"]);
-        } elseif ($method === 'PUT' && $id) {
-            $sql = "UPDATE clients SET type=?, nom=?, nif=?, rccm=?, contact=?, email=?, tel=?, adresse=?, ville=? WHERE id=?";
-            $pdo->prepare($sql)->execute([
-                $input['type'], $input['nom'], $input['nif'], $input['rccm'], 
-                $input['contact'], $input['email'], $input['tel'], $input['adresse'], $input['ville'], $id
-            ]);
-            respond(["message" => "Client mis à jour"]);
-        } elseif ($method === 'DELETE' && $id) {
-            $pdo->prepare("DELETE FROM clients WHERE id = ?")->execute([$id]);
-            respond(["message" => "Client supprimé"]);
-        }
-        break;
-
-    case 'dossiers':
-        if ($method === 'GET') {
-            $sql = "SELECT d.*, c.nom as client_nom FROM dossiers d LEFT JOIN clients c ON d.client_id = c.id";
-            respond($pdo->query($sql)->fetchAll());
-        } elseif ($method === 'POST') {
-            $prefix = ($input['typeOperation'] === 'Import') ? 'IMP' : (($input['typeOperation'] === 'Export') ? 'EXP' : 'TRS');
-            $year = date("Y");
-            $pattern = "$prefix-$year-%";
-            $stmt = $pdo->prepare("SELECT id FROM dossiers WHERE id LIKE ? ORDER BY id DESC LIMIT 1");
-            $stmt->execute([$pattern]);
-            $last = $stmt->fetchColumn();
-            
-            $nextNum = 1;
-            if ($last) {
-                $parts = explode('-', $last);
-                $nextNum = intval(end($parts)) + 1;
+try {
+    switch ($resource) {
+        case 'clients':
+            if ($method === 'GET') {
+                $stmt = $pdo->query("SELECT * FROM clients");
+                respond($stmt->fetchAll());
+            } elseif ($method === 'POST') {
+                $sql = "INSERT INTO clients (type, nom, nif, rccm, contact, email, tel, adresse, ville) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                $pdo->prepare($sql)->execute([
+                    $input['type'] ?? '', $input['nom'] ?? '', $input['nif'] ?? null, $input['rccm'] ?? null, 
+                    $input['contact'] ?? null, $input['email'] ?? null, $input['tel'] ?? null, 
+                    $input['adresse'] ?? null, $input['ville'] ?? null
+                ]);
+                respond(["id" => $pdo->lastInsertId(), "message" => "Client ajouté"]);
+            } elseif ($method === 'PUT' && $id) {
+                $sql = "UPDATE clients SET type=?, nom=?, nif=?, rccm=?, contact=?, email=?, tel=?, adresse=?, ville=? WHERE id=?";
+                $pdo->prepare($sql)->execute([
+                    $input['type'] ?? '', $input['nom'] ?? '', $input['nif'] ?? null, $input['rccm'] ?? null, 
+                    $input['contact'] ?? null, $input['email'] ?? null, $input['tel'] ?? null, 
+                    $input['adresse'] ?? null, $input['ville'] ?? null, $id
+                ]);
+                respond(["message" => "Client mis à jour"]);
+            } elseif ($method === 'DELETE' && $id) {
+                $pdo->prepare("DELETE FROM clients WHERE id = ?")->execute([$id]);
+                respond(["message" => "Client supprimé"]);
             }
-            $newId = $input['id'] ?? ($prefix . "-" . $year . "-" . str_pad($nextNum, 3, '0', STR_PAD_LEFT));
-            
-            $sql = "INSERT INTO dossiers (id, typeOperation, modeTransport, numBL, incoterm, compagnie, navire, numVoyage, etd, eta, origine, destination, client_id, expediteur, natureMarchandise, nombresColis, typeConteneur, poids, volume, valeurMarchandise, dateCreation) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-            $pdo->prepare($sql)->execute([
-                $newId, $input['typeOperation'], $input['modeTransport'], $input['numBL'], $input['incoterm'],
-                $input['compagnie'], $input['navire'], $input['numVoyage'], $input['etd'], $input['eta'],
-                $input['origine'], $input['destination'], $input['client_id'], $input['expediteur'],
-                $input['natureMarchandise'], $input['nombresColis'], $input['typeConteneur'],
-                $input['poids'], $input['volume'], $input['valeurMarchandise'],
-                $input['dateCreation'] ?? date("Y-m-d")
-            ]);
-            respond(["id" => $newId, "message" => "Dossier créé"]);
-        } elseif ($method === 'DELETE' && $id) {
-            $pdo->prepare("DELETE FROM dossiers WHERE id = ?")->execute([$id]);
-            respond(["message" => "Dossier supprimé"]);
-        }
-        break;
+            break;
 
-    case 'next-facture-number':
+        case 'dossiers':
+            if ($method === 'GET') {
+                $sql = "SELECT d.*, c.nom as client_nom FROM dossiers d LEFT JOIN clients c ON d.client_id = c.id";
+                respond($pdo->query($sql)->fetchAll());
+            } elseif ($method === 'POST') {
+                $typeOp = $input['typeOperation'] ?? 'Import';
+                $prefix = ($typeOp === 'Import') ? 'IMP' : (($typeOp === 'Export') ? 'EXP' : 'TRS');
+                $year = date("Y");
+                $pattern = "$prefix-$year-%";
+                $stmt = $pdo->prepare("SELECT id FROM dossiers WHERE id LIKE ? ORDER BY id DESC LIMIT 1");
+                $stmt->execute([$pattern]);
+                $last = $stmt->fetchColumn();
+                
+                $nextNum = 1;
+                if ($last) {
+                    $parts = explode('-', $last);
+                    $nextNum = intval(end($parts)) + 1;
+                }
+                $newId = $input['id'] ?? ($prefix . "-" . $year . "-" . str_pad($nextNum, 3, '0', STR_PAD_LEFT));
+                
+                $sql = "INSERT INTO dossiers (id, typeOperation, modeTransport, numBL, incoterm, compagnie, navire, numVoyage, etd, eta, origine, destination, client_id, expediteur, natureMarchandise, nombresColis, typeConteneur, poids, volume, valeurMarchandise, dateCreation) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                $pdo->prepare($sql)->execute([
+                    $newId, $typeOp, $input['modeTransport'] ?? null, $input['numBL'] ?? null, $input['incoterm'] ?? null,
+                    $input['compagnie'] ?? null, $input['navire'] ?? null, $input['numVoyage'] ?? null, $input['etd'] ?? null, $input['eta'] ?? null,
+                    $input['origine'] ?? null, $input['destination'] ?? null, $input['client_id'] ?? null, $input['expediteur'] ?? null,
+                    $input['natureMarchandise'] ?? null, $input['nombresColis'] ?? null, $input['typeConteneur'] ?? null,
+                    $input['poids'] ?? null, $input['volume'] ?? null, $input['valeurMarchandise'] ?? null,
+                    $input['dateCreation'] ?? date("Y-m-d")
+                ]);
+                respond(["id" => $newId, "message" => "Dossier créé"]);
+            }
+            break;
+
+        case 'next-facture-number':
         // Note: l'URL attendue est /api/next-facture-number/PRO ou FACT
         $type = $id; // Dans ce cas, l'ID est le type (PRO ou FACT)
         $year = date("Y");
@@ -119,7 +120,7 @@ switch ($resource) {
         respond(["number" => $type . "-" . $year . "-" . str_pad($nextNum, 3, '0', STR_PAD_LEFT)]);
         break;
 
-    case 'factures':
+        case 'factures':
         if ($method === 'GET') {
             if ($id) {
                 // Détails d'une facture spécifique
@@ -175,7 +176,12 @@ switch ($resource) {
         }
         break;
 
-    default:
-        respond(["error" => "Route non trouvée : " . $resource], 404);
+        default:
+            respond(["error" => "Route non trouvée : " . $resource], 404);
+            break;
+    }
+} catch (Exception $e) {
+    respond(["error" => $e->getMessage()], 500);
 }
+
 ?>
