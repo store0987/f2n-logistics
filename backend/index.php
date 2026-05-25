@@ -1,4 +1,6 @@
 <?php
+require_once 'config.php';
+
 header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
@@ -8,14 +10,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-// --- CONFIGURATION BDD (À remplir avec vos infos InfinityFree) ---
-$host = 'sql112.infinityfree.com'; // À récupérer sur votre panel
-$db_name = 'if0_42018398_logistics_billing'; // À récupérer sur votre panel
-$username = 'if0_42018398'; // À récupérer sur votre panel
-$password = 'Jennylove237'; // Votre mot de passe de compte
-
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$db_name;charset=utf8", $username, $password);
+    $pdo = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8", DB_USER, DB_PASS);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 } catch (PDOException $e) {

@@ -12,12 +12,21 @@ Currently, two official plugins are available:
 Ce projet contient un frontend React/Vite et un backend **PHP/MySQL** pour InfinityFree.
 
 - Le frontend utilise `API_BASE_URL` pour appeler l'API PHP.
-- Pour le déploiement sur InfinityFree :
-  1. Exportez votre base de données locale vers MySQL InfinityFree (via phpMyAdmin).
-  2. Modifiez `backend/api/index.php` avec vos identifiants MySQL fournis par InfinityFree.
-  3. Build du frontend : `npm run build`.
-  4. Transférez le contenu de `dist/` à la racine de `htdocs/`.
-  5. Transférez le dossier `backend/api/` dans `htdocs/api/`.
+- **Déploiement sur InfinityFree (via GitHub Actions) :**
+  1.  **Préparation de la base de données MySQL :**
+      *   Créez une base de données MySQL sur InfinityFree via le cPanel.
+      *   Utilisez phpMyAdmin pour exécuter les scripts SQL de création de tables (fournis précédemment).
+  2.  **Configuration des identifiants de base de données :**
+      *   Créez le fichier `backend/api/config.php` (il est ignoré par Git pour des raisons de sécurité).
+      *   Remplissez-le avec vos identifiants MySQL d'InfinityFree.
+      *   **Téléchargez manuellement ce fichier `config.php` via FTP** dans le dossier `/htdocs/api/` sur votre hébergement InfinityFree.
+  3.  **Configuration des `.htaccess` :**
+      *   Créez un fichier `.htaccess` à la racine de `/htdocs/` pour le routage de l'application React (SPA).
+      *   Créez un fichier `.htaccess` dans `/htdocs/api/` pour le routage de l'API PHP.
+      *   Ces fichiers doivent être téléchargés manuellement via FTP.
+  4.  **Configuration des Secrets GitHub :**
+      *   Ajoutez vos identifiants FTP (serveur, nom d'utilisateur, mot de passe) comme secrets de dépôt GitHub (`FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSWORD`).
+  5.  **Déploiement automatique :** Chaque `git push` sur la branche `main` déclenchera une GitHub Action qui construira le frontend et déploiera automatiquement le frontend (`dist/` vers `/htdocs/`) et le backend PHP (`backend/api/` vers `/htdocs/api/`) via FTP.
 - Pour exécuter localement avec Docker, utilisez :
   - `docker compose up --build`
 - Pour déployer avec Docker, construisez l'image : `docker build -t logistics-billing .`
