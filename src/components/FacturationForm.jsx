@@ -16,7 +16,9 @@ const FacturationForm = ({ onCancel, editData }) => {
 
   const fetchDossiers = async () => {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/dossiers`);
+      const response = await fetch(`${API_BASE_URL}/api/dossiers`);
+      const data = await response.json();
+      setAvailableDossiers(data);
       if (data.length > 0 && !editData) {
         setFactureInfo(prev => ({ ...prev, dossierLie: data[0].id }));
       }
@@ -76,7 +78,8 @@ const FacturationForm = ({ onCancel, editData }) => {
     poids: '-',
     volume: '-',
     nombresColis: '-',
-    client_id: null
+    client_id: null,
+    numVoyage: ''
   };
 
   const tvaRate = 0.18;

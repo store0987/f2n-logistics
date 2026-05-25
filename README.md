@@ -9,11 +9,15 @@ Currently, two official plugins are available:
 
 ## Déploiement
 
-Ce projet contient un frontend React/Vite et un backend Express dans `backend/`.
+Ce projet contient un frontend React/Vite et un backend **PHP/MySQL** pour InfinityFree.
 
-- Le frontend utilise maintenant la variable d'environnement `VITE_API_URL` pour appeler l'API.
-- Ajoutez un fichier `.env` avec `VITE_API_URL=https://votre-backend.example.com` ou configurez cette variable dans votre hébergeur.
-- Le backend peut être lancé avec `cd backend && npm install && npm start`.
+- Le frontend utilise `API_BASE_URL` pour appeler l'API PHP.
+- Pour le déploiement sur InfinityFree :
+  1. Exportez votre base de données locale vers MySQL InfinityFree (via phpMyAdmin).
+  2. Modifiez `backend/api/index.php` avec vos identifiants MySQL fournis par InfinityFree.
+  3. Build du frontend : `npm run build`.
+  4. Transférez le contenu de `dist/` à la racine de `htdocs/`.
+  5. Transférez le dossier `backend/api/` dans `htdocs/api/`.
 - Pour exécuter localement avec Docker, utilisez :
   - `docker compose up --build`
 - Pour déployer avec Docker, construisez l'image : `docker build -t logistics-billing .`

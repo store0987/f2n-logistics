@@ -42,15 +42,22 @@ const FacturesView = ({ onCreateFacture, onViewFacture }) => {
   };
 
   // Filtrer les factures
-  const filteredFactures = factures.filter(f => 
-    f.numeroFacture.toLowerCase().includes(search.toLowerCase()) ||
-    (f.client_nom && f.client_nom.toLowerCase().includes(search.toLowerCase())) ||
-    (f.dossier_id && f.dossier_id.toLowerCase().includes(search.toLowerCase()))
-  );
+  const filteredFactures = React.useMemo(() => {
+    return factures.filter(f =>
+      f.numeroFacture?.toLowerCase().includes(search.toLowerCase()) ||
+      f.client_nom?.toLowerCase().includes(search.toLowerCase()) ||
+      f.dossier_id?.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [factures, search]);
 
   // Totaux statistiques
-  const totalCA = factures.filter(f => f.statut === 'Validée').reduce((sum, f) => sum + f.totalTtc, 0);
-  const totalProforma = factures.filter(f => f.statut === 'Proforma').reduce((sum, f) => sum + f.totalTtc, 0);
+  const { totalCA, totalProforma } = React.useMemo(() => {
+    return factures.reduce((acc, f) => {
+      if (f.statut === 'Validée') acc.totalCA += f.totalTtc;
+      if (f.statut === 'Proforma') acc.totalProforma += f.totalTtc;
+      return acc;
+    }, { totalCA: 0, totalProforma: 0 });
+  }, [factures]);
 
   return (
     <div className="dashboard-page">
@@ -94,9 +101,9 @@ const FacturesView = ({ onCreateFacture, onViewFacture }) => {
       <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
         <div className="search-bar" style={{ width: '100%', maxWidth: '400px' }}>
           <Search size={18} />
-          <input 
-            type="text" 
-            placeholder="Rechercher une facture (N°, client, dossier)..." 
+          <input
+            type="text"
+            placeholder="Rechercher une facture (N°, client, dossier)..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
