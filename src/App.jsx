@@ -275,11 +275,15 @@ function App() {
             padding: 20px !important;
           }
           .form-actions {
-            flex-direction: column-reverse;
+            flex-direction: column-reverse !important;
             gap: 12px;
           }
           .form-actions button {
             width: 100%;
+          }
+          .form-actions div {
+            width: 100%;
+            justify-content: center;
           }
           .top-header {
             padding: 0 16px !important;
@@ -329,8 +333,13 @@ function App() {
             align-items: flex-start !important;
             gap: 16px;
           }
-          .facture-context-grid {
-            flex-direction: column;
+          .facture-context-grid, .facture-summary-grid {
+            flex-direction: column !important;
+          }
+          .facture-summary-grid > div {
+            width: 100% !important;
+            max-width: none !important;
+            margin-left: 0 !important;
           }
           .context-col {
             border-right: none !important;
@@ -416,7 +425,7 @@ function App() {
       <main className="main-content" style={styles.mainContent}>
         {/* Top Header */}
         <header style={styles.topHeader}>
-          <button className="menu-toggle" onClick={() => setIsSidebarOpen(true)} style={{ display: 'none', background: 'none', border: 'none', color: '#f8fafc', cursor: 'pointer', marginRight: '16px' }}>
+          <button className="menu-toggle" onClick={() => setIsSidebarOpen(true)} style={{ display: 'none', background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', marginRight: '16px', padding: '8px 0' }}>
             <Menu size={24} />
           </button>
 

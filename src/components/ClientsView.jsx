@@ -187,7 +187,7 @@ const ClientsView = ({ onCancel }) => {
               <div className="form-grid" style={{ marginBottom: '24px' }}>
                 <div className="form-group full-width">
                   <label className="form-label">Type d'Entité</label>
-                  <div style={{ display: 'flex', gap: '16px', marginTop: '8px' }}>
+                  <div style={{ display: 'flex', gap: '16px', marginTop: '8px', flexWrap: 'wrap' }}>
                     <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                       <input type="radio" name="type" value="Client" checked={formData.type === 'Client'} onChange={handleChange} style={{ accentColor: 'var(--accent-primary)' }} />
                       Client (Expéditeur / Destinataire)

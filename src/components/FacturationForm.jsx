@@ -283,7 +283,7 @@ const FacturationForm = ({ onCancel, editData }) => {
 
         {/* --- CONTEXTE DU DOSSIER --- */}
         <div className="facture-context-grid" style={{
-          display: 'flex', gap: '24px', marginBottom: '48px', flexWrap: 'wrap',
+          display: 'flex', gap: '24px', marginBottom: '32px', flexWrap: 'wrap',
           border: '1px solid var(--border-color)', borderRadius: '8px', padding: '24px'
         }}>
           {/* Colonne Client */}
@@ -355,7 +355,7 @@ const FacturationForm = ({ onCancel, editData }) => {
         )}
 
         {/* --- LIGNES DE FACTURE --- */}
-        <div style={{ marginBottom: '32px' }}>
+        <div style={{ marginBottom: '32px' }} className="data-table-container">
           <table style={{ width: '100%', borderCollapse: 'collapse' }} className="data-table">
             <thead className="no-print"> {/* Masquer l'en-tête du tableau à l'impression */}
               <tr>
