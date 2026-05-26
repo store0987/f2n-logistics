@@ -1,4 +1,8 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('memory_limit', '256M'); // Augmente la mémoire pour Dompdf
+
 require_once 'config.php';
 
 header("Content-Type: application/json; charset=UTF-8");
@@ -274,6 +278,10 @@ try {
                 $stmtLignes->execute([$id]);
                 $lignes = $stmtLignes->fetchAll();
 
+                $stmtDebours = $pdo->prepare("SELECT * FROM debours WHERE facture_id = ?");
+                $stmtDebours->execute([$id]);
+                $deboursList = $stmtDebours->fetchAll();
+
                 $isProforma = strpos($id, 'PRO') !== false;
                 $title = $isProforma ? 'PROFORMA' : 'FACTURE';
 
@@ -336,6 +344,14 @@ try {
                         <td>{$l['quantite']}</td>
                         <td>" . number_format($l['prixUnitaire'], 0, ',', ' ') . "</td>
                         <td>" . number_format($rowTotal, 0, ',', ' ') . "</td>
+                    </tr>";
+                }
+                foreach($deboursList as $db) {
+                    $html .= "<tr>
+                        <td><i style='color: #666;'>(Débours)</i> {$db['description']}</td>
+                        <td>1</td>
+                        <td>" . number_format($db['montant'], 0, ',', ' ') . "</td>
+                        <td>" . number_format($db['montant'], 0, ',', ' ') . "</td>
                     </tr>";
                 }
                 $html .= "</tbody>

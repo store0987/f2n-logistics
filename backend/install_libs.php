@@ -33,7 +33,8 @@ function installLib($url, $zipName, $targetDir, $renameFrom = null, $renameTo = 
     file_put_contents($zipPath, $data);
     
     $zip = new ZipArchive;
-    if ($zip->open($zipPath) === TRUE) {
+    $res = $zip->open($zipPath);
+    if ($res === TRUE) {
         $zip->extractTo($targetDir);
         $zip->close();
         unlink($zipPath);
@@ -44,7 +45,7 @@ function installLib($url, $zipName, $targetDir, $renameFrom = null, $renameTo = 
             echo "Dossier renommé en $renameTo.<br>";
         }
     } else {
-        echo "Erreur : Impossible d'extraire $zipName. Vérifiez que ZipArchive est activé sur votre compte.<br>";
+        echo "Erreur : Impossible d'ouvrir $zipName. Code erreur ZipArchive : $res. (L'archive est peut-être incomplète ou trop lourde pour le serveur).<br>";
     }
 }
 
