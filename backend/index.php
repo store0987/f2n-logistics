@@ -17,6 +17,14 @@ try {
     $pdo = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8", DB_USER, DB_PASS);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+
+    // Création de la table users si elle n'existe pas
+    $pdo->exec("CREATE TABLE IF NOT EXISTS users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        username VARCHAR(255) UNIQUE NOT NULL,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        password VARCHAR(255) NOT NULL
+    )");
 } catch (PDOException $e) {
     http_response_code(500);
     die(json_encode(["error" => "Erreur de connexion : " . $e->getMessage()]));
@@ -47,6 +55,44 @@ function respond($data, $status = 200) {
 
 try {
     switch ($resource) {
+        case 'register':
+            if ($method === 'POST') {
+                $hashedPassword = password_hash($input['password'], PASSWORD_DEFAULT);
+                $sql = "INSERT INTO users (username, email, password) VALUES (?, ?, ?)";
+                $stmt = $pdo->prepare($sql);
+                try {
+                    $stmt->execute([$input['username'], $input['email'], $hashedPassword]);
+                    respond(["message" => "Utilisateur créé avec succès", "id" => $pdo->lastInsertId()]);
+                } catch (PDOException $e) {
+                    if ($e->getCode() == 23000) {
+                        respond(["error" => "Le nom d'utilisateur ou l'email existe déjà."], 400);
+                    }
+                    throw $e;
+                }
+            }
+            break;
+
+        case 'login':
+            if ($method === 'POST') {
+                $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
+                $stmt->execute([$input['username']]);
+                $user = $stmt->fetch();
+
+                if ($user && password_verify($input['password'], $user['password'])) {
+                    // En production, vous utiliseriez un JWT ici. 
+                    // Pour la simplicité sur InfinityFree, on renvoie les infos de base.
+                    respond([
+                        "id" => $user['id'],
+                        "username" => $user['username'],
+                        "email" => $user['email'],
+                        "message" => "Connexion réussie"
+                    ]);
+                } else {
+                    respond(["error" => "Identifiants incorrects."], 401);
+                }
+            }
+            break;
+
         case 'clients':
             if ($method === 'GET') {
                 $stmt = $pdo->query("SELECT * FROM clients");

@@ -5,9 +5,10 @@ import FacturationForm from './components/FacturationForm';
 import FacturesView from './components/FacturesView';
 import ClientsView from './components/ClientsView';
 import DeboursView from './components/DeboursView';
-import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, 
-  LineChart, Line, PieChart, Pie, Cell 
+import Auth from './components/Auth';
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  LineChart, Line, PieChart, Pie, Cell
 } from 'recharts';
 import {
   LayoutDashboard,
@@ -22,10 +23,16 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Plus,
-  DollarSign
+  DollarSign,
+  LogOut
 } from 'lucide-react';
 
 function App() {
+  const [user, setUser] = useState(() => {
+    const saved = localStorage.getItem('f2n_user');
+    return saved ? JSON.parse(saved) : null;
+  });
+
   const [activeTab, setActiveTab] = useState(() => {
     return localStorage.getItem('activeTab') || 'dashboard';
   });
@@ -33,6 +40,7 @@ function App() {
   React.useEffect(() => {
     localStorage.setItem('activeTab', activeTab);
   }, [activeTab]);
+
   const [dossiers, setDossiers] = useState([]);
   const [factures, setFactures] = useState([]);
   const [debours, setDebours] = useState([]);
@@ -40,6 +48,7 @@ function App() {
   const [editFactureData, setEditFactureData] = useState(null);
 
   const fetchDashboardData = async () => {
+    if (!user) return;
     try {
       const respDossiers = await fetch(`${API_BASE_URL}/api/dossiers`);
       const dataDossiers = await respDossiers.json();
@@ -58,11 +67,21 @@ function App() {
   };
 
   React.useEffect(() => {
-    fetchDashboardData();
-    // Réinitialiser les modes formulaires
-    setFactureViewMode('list');
-    setEditFactureData(null);
+    if (user) {
+      fetchDashboardData();
+      // Réinitialiser les modes formulaires
+      setFactureViewMode('list');
+      setEditFactureData(null);
+    }
   }, [activeTab]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('f2n_user');
+    setUser(null);
+    setActiveTab('dashboard');
+  };
+
+  if (!user) return <Auth onLogin={setUser} />;
 
   const formatCurrency = (amount) => new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA';
 
@@ -144,6 +163,10 @@ function App() {
             <Settings size={20} />
             Paramètres
           </a>
+          <a className="nav-item logout-item" onClick={handleLogout}>
+            <LogOut size={20} />
+            Déconnexion
+          </a>
         </nav>
       </aside>
 
@@ -159,8 +182,8 @@ function App() {
           <div className="user-profile">
             <Bell size={20} style={{ color: 'var(--text-secondary)', cursor: 'pointer', marginRight: '16px' }} />
             <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontSize: '0.875rem', fontWeight: '600' }}>Admin Utilisateur</span>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>F2N Logistics</span>
+              <span style={{ fontSize: '0.875rem', fontWeight: '600' }}>{user.username}</span>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{user.email}</span>
             </div>
             <div className="avatar">A</div>
           </div>
@@ -268,7 +291,7 @@ function App() {
                       ))}
                     </Pie>
                     <Tooltip />
-                    <Legend verticalAlign="bottom" height={36}/>
+                    <Legend verticalAlign="bottom" height={36} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
