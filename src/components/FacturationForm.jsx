@@ -225,14 +225,14 @@ const FacturationForm = ({ onCancel, editData }) => {
 
       <div className="form-container" style={{
         maxWidth: '1040px',
-        padding: 'min(48px, 5%)',
+        padding: '32px',
         border: '1px solid var(--border-color)',
         position: 'relative',
         margin: '0 auto'
       }}>
 
         {/* --- EN-TÊTE --- */}
-        <div className="facture-header-flex" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '48px', flexWrap: 'wrap', gap: '24px' }}>
+        <div className="facture-header-flex" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px', flexWrap: 'wrap', gap: '24px' }}>
 
           {/* Logo & Identité */}
           <div style={{ display: 'flex', gap: '20px', alignItems: 'center', minWidth: 'min-content' }}>
@@ -260,7 +260,7 @@ const FacturationForm = ({ onCancel, editData }) => {
           {/* Infos Facture */}
           <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', gap: '12px', minWidth: '180px', flex: '1' }}>
             <div className="title-badge" style={{
-              display: 'inline-block', padding: '8px 24px', borderRadius: '8px',
+              display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '8px 24px', borderRadius: '8px',
               border: `2px solid ${isProforma ? 'var(--text-secondary)' : 'var(--accent-primary)'}`,
               color: 'var(--text-primary)',
               fontWeight: '800', fontSize: '1.25rem', letterSpacing: '2px', alignSelf: 'flex-end'
@@ -268,7 +268,7 @@ const FacturationForm = ({ onCancel, editData }) => {
               {isProforma ? 'PROFORMA' : 'FACTURE'}
             </div>
 
-            <div className="info-inputs" style={{ display: 'flex', gap: '16px', justifyContent: 'flex-end', marginTop: '8px' }}>
+            <div className="info-inputs" style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '8px' }}>
               <div style={{ textAlign: 'right' }}>
                 <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Numéro</label>
                 <input type="text" className="form-control" style={{ width: '140px', padding: '8px 12px', border: '1px solid var(--border-color)', fontWeight: '700', color: 'var(--text-primary)', textAlign: 'right' }} name="numeroFacture" value={factureInfo.numeroFacture} readOnly />

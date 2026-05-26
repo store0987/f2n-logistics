@@ -270,12 +270,24 @@ function App() {
           .main-content {
             overflow-x: hidden !important;
           }
+          .dashboard-page {
+            padding: 16px !important;
+          }
           .form-grid {
             grid-template-columns: 1fr !important;
             gap: 16px !important;
           }
           .form-container {
-            padding: 20px !important;
+            padding: 16px !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+            margin-bottom: 20px !important;
+          }
+          .form-group {
+            width: 100% !important;
+          }
+          .form-control {
+            font-size: 16px !important; /* Évite le zoom auto sur iOS */
           }
           .form-actions {
             flex-direction: column-reverse !important;
@@ -347,11 +359,18 @@ function App() {
           }
           .facture-header-flex .title-badge {
             align-self: flex-start !important;
+            width: 100%;
+            text-align: center;
+            box-sizing: border-box;
           }
           .facture-header-flex .info-inputs {
             justify-content: flex-start !important;
-            flex-wrap: wrap;
+            flex-direction: column !important;
             gap: 12px !important;
+          }
+          .facture-header-flex .info-inputs > div, .facture-header-flex .info-inputs input {
+            width: 100% !important;
+            text-align: left !important;
           }
           .facture-summary-grid > div {
             width: 100% !important;
@@ -441,8 +460,8 @@ function App() {
       {/* Main Content */} {/* Utilisation de classes CSS pour la structure principale */}
       <main className="main-content" style={styles.mainContent}>
         {/* Top Header */}
-        <header style={styles.topHeader}>
-          <button className="menu-toggle" onClick={() => setIsSidebarOpen(true)} style={{ display: 'none', background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', marginRight: '16px', height: '40px', alignItems: 'center' }}>
+        <header className="top-header" style={styles.topHeader}>
+          <button className="menu-toggle" onClick={() => setIsSidebarOpen(true)} style={{ display: 'none', background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', marginRight: '12px', height: '44px', width: '44px', alignItems: 'center', justifyContent: 'center' }}>
             <Menu size={24} />
           </button>
 
