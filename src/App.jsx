@@ -41,6 +41,7 @@ function App() {
     localStorage.setItem('activeTab', activeTab);
   }, [activeTab]);
 
+  const [isLoading, setIsLoading] = useState(true);
   const [dossiers, setDossiers] = useState([]);
   const [factures, setFactures] = useState([]);
   const [debours, setDebours] = useState([]);
@@ -49,6 +50,7 @@ function App() {
 
   const fetchDashboardData = async () => {
     if (!user) return;
+    setIsLoading(true);
     try {
       const respDossiers = await fetch(`${API_BASE_URL}/api/dossiers`);
       const dataDossiers = await respDossiers.json();
@@ -63,6 +65,8 @@ function App() {
       setDebours(dataDebours);
     } catch (error) {
       console.error('Erreur lors du chargement des données du dashboard:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -73,7 +77,7 @@ function App() {
       setFactureViewMode('list');
       setEditFactureData(null);
     }
-  }, [activeTab, user]);
+  }, [activeTab, user]); //user ajouté ici pour rafraîchir après login
 
   const handleLogout = () => {
     localStorage.removeItem('f2n_user');
@@ -128,6 +132,7 @@ function App() {
 
   const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
+  // Styles Unifiés pour éviter l'usage de fichier CSS
   const styles = {
     appContainer: {
       display: 'flex',
@@ -136,12 +141,21 @@ function App() {
       overflow: 'hidden',
       backgroundColor: '#0b0f19',
       color: '#f8fafc',
-      fontFamily: 'system-ui, sans-serif'
+      fontFamily: 'system-ui, -apple-system, sans-serif'
+    },
+    loadingScreen: {
+      height: '100vh',
+      width: '100vw',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: '#0b0f19',
+      color: '#3b82f6'
     },
     sidebar: {
       width: '260px',
       backgroundColor: '#111827',
-      height: '100vh',
       borderRight: '1px solid rgba(255, 255, 255, 0.1)',
       display: 'flex',
       flexDirection: 'column'
@@ -164,7 +178,8 @@ function App() {
       flex: 1,
       display: 'flex',
       flexDirection: 'column',
-      overflowY: 'auto'
+      overflowY: 'auto',
+      backgroundColor: '#0b0f19'
     },
     topHeader: {
       height: '70px',
@@ -173,17 +188,25 @@ function App() {
       justifyContent: 'space-between',
       padding: '0 32px',
       backgroundColor: 'rgba(11, 15, 25, 0.8)',
+      backdropFilter: 'blur(10px)',
       borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
       position: 'sticky',
       top: 0,
       zIndex: 10
     },
-    statsGrid: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-      gap: '24px',
-      marginBottom: '32px'
-    },
+    navItem: (isActive) => ({
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px',
+      padding: '12px 16px',
+      borderRadius: '8px',
+      color: isActive ? '#3b82f6' : '#94a3b8',
+      backgroundColor: isActive ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
+      textDecoration: 'none',
+      fontWeight: '500',
+      cursor: 'pointer',
+      borderLeft: isActive ? '3px solid #3b82f6' : '3px solid transparent'
+    }),
     statCard: {
       backgroundColor: 'rgba(30, 41, 59, 0.7)',
       border: '1px solid rgba(255, 255, 255, 0.1)',
@@ -191,33 +214,21 @@ function App() {
       padding: '24px',
       display: 'flex',
       alignItems: 'flex-start',
-      justifyContent: 'space-between',
-      transition: 'transform 0.2s'
-    },
-    statIcon: {
-      padding: '12px',
-      borderRadius: '8px',
-      backgroundColor: 'rgba(255, 255, 255, 0.05)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
-    },
-    avatar: {
-      width: '40px',
-      height: '40px',
-      borderRadius: '50%',
-      background: 'linear-gradient(135deg, #3b82f6, #10b981)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontWeight: '600',
-      color: 'white',
-      marginLeft: '12px'
+      justifyContent: 'space-between'
     }
   };
 
+  if (isLoading && user) {
+    return (
+      <div style={styles.loadingScreen}>
+        <Ship size={48} style={{ marginBottom: '16px' }} />
+        <p style={{ fontWeight: '600', letterSpacing: '1px' }}>CHARGEMENT DES DONNÉES...</p>
+      </div>
+    );
+  }
+
   return (
-    <div style={styles.appContainer}>
+    <div style={styles.appContainer} key={user.id}>
       {/* Sidebar */}
       <aside style={styles.sidebar}>
         <div style={styles.sidebarHeader}>
@@ -226,32 +237,32 @@ function App() {
         </div>
 
         <nav style={styles.navMenu}>
-          <a className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => setActiveTab('dashboard')}>
+          <a style={styles.navItem(activeTab === 'dashboard')} onClick={() => setActiveTab('dashboard')}>
             <LayoutDashboard size={20} />
             Tableau de Bord
           </a>
-          <a className={`nav-item ${activeTab === 'dossiers' ? 'active' : ''}`} onClick={() => setActiveTab('dossiers')}>
+          <a style={styles.navItem(activeTab === 'dossiers')} onClick={() => setActiveTab('dossiers')}>
             <Truck size={20} />
             Dossiers / Opérations
           </a>
-          <a className={`nav-item ${activeTab === 'debours' ? 'active' : ''}`} onClick={() => setActiveTab('debours')}>
+          <a style={styles.navItem(activeTab === 'debours')} onClick={() => setActiveTab('debours')}>
             <DollarSign size={20} />
             Gestion Débours
           </a>
-          <a className={`nav-item ${activeTab === 'factures' ? 'active' : ''}`} onClick={() => setActiveTab('factures')}>
+          <a style={styles.navItem(activeTab === 'factures')} onClick={() => setActiveTab('factures')}>
             <FileText size={20} />
             Facturation
           </a>
-          <a className={`nav-item ${activeTab === 'clients' ? 'active' : ''}`} onClick={() => setActiveTab('clients')}>
+          <a style={styles.navItem(activeTab === 'clients')} onClick={() => setActiveTab('clients')}>
             <Users size={20} />
             Clients & Partenaires
           </a>
           <div style={{ flex: 1 }}></div>
-          <a className={`nav-item ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}>
+          <a style={styles.navItem(activeTab === 'settings')} onClick={() => setActiveTab('settings')}>
             <Settings size={20} />
             Paramètres
           </a>
-          <a className="nav-item logout-item" onClick={handleLogout}>
+          <a style={{ ...styles.navItem(false), color: '#ef4444' }} onClick={handleLogout}>
             <LogOut size={20} />
             Déconnexion
           </a>
@@ -281,7 +292,7 @@ function App() {
         {activeTab === 'dashboard' && (
           <div className="dashboard-page">
             <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ marginBottom: '24px' }}>
+              <div>
                 <h1 className="page-title">Aperçu Global</h1>
                 <p className="page-subtitle">Performances et statuts des dossiers en cours</p>
               </div>
@@ -292,8 +303,8 @@ function App() {
             </div>
 
             {/* Stats Cards */}
-            <div style={styles.statsGrid}>
-              <div style={styles.statCard}>
+            <div className="stats-grid">
+              <div className="stat-card">
                 <div className="stat-info">
                   <span className="stat-label">Chiffre d'Affaires (Mois)</span>
                   <span className="stat-value">{formatCurrency(caMois)}</span>
@@ -301,12 +312,12 @@ function App() {
                     Basé sur les factures validées
                   </span>
                 </div>
-                <div style={{ ...styles.statIcon, color: '#3b82f6' }}>
+                <div className="stat-icon" style={{ color: 'var(--accent-primary)' }}>
                   <FileText size={24} />
                 </div>
               </div>
 
-              <div style={styles.statCard}>
+              <div className="stat-card">
                 <div className="stat-info">
                   <span className="stat-label">Dossiers en Cours</span>
                   <span className="stat-value">{dossiersEnCours}</span>
@@ -314,12 +325,12 @@ function App() {
                     Total dossiers enregistrés
                   </span>
                 </div>
-                <div style={{ ...styles.statIcon, color: '#10b981' }}>
+                <div className="stat-icon" style={{ color: 'var(--accent-secondary)' }}>
                   <Ship size={24} />
                 </div>
               </div>
 
-              <div style={styles.statCard}>
+              <div className="stat-card">
                 <div className="stat-info">
                   <span className="stat-label">Encours Facturé (Proforma)</span>
                   <span className="stat-value">{formatCurrency(facturesImpayees)}</span>
@@ -327,12 +338,12 @@ function App() {
                     Proformas en attente
                   </span>
                 </div>
-                <div style={{ ...styles.statIcon, color: '#ef4444' }}>
+                <div className="stat-icon" style={{ color: 'var(--accent-danger)' }}>
                   <Users size={24} />
                 </div>
               </div>
 
-              <div style={styles.statCard}>
+              <div className="stat-card">
                 <div className="stat-info">
                   <span className="stat-label">Débours en Attente</span>
                   <span className="stat-value">{formatCurrency(totalDeboursEnAttente)}</span>
@@ -340,15 +351,15 @@ function App() {
                     À facturer aux clients
                   </span>
                 </div>
-                <div style={{ ...styles.statIcon, color: '#f59e0b' }}>
+                <div className="stat-icon" style={{ color: 'var(--accent-warning)' }}>
                   <Plane size={24} />
                 </div>
               </div>
             </div>
 
             {/* Dashboard Charts */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px', marginBottom: '32px', padding: '0 32px' }}>
-              <div style={{ ...styles.statCard, flexDirection: 'column', height: '400px', alignItems: 'stretch' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px', marginBottom: '32px' }}>
+              <div className="stat-card" style={{ flexDirection: 'column', height: '400px', alignItems: 'stretch' }}>
                 <h3 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '24px' }}>Évolution du Chiffre d'Affaires ({new Date().getFullYear()})</h3>
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={monthlyData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
@@ -361,7 +372,7 @@ function App() {
                 </ResponsiveContainer>
               </div>
 
-              <div style={{ ...styles.statCard, flexDirection: 'column', height: '400px', alignItems: 'stretch' }}>
+              <div className="stat-card" style={{ flexDirection: 'column', height: '400px', alignItems: 'stretch' }}>
                 <h3 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '24px' }}>Répartition par Mode de Transport</h3>
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
@@ -384,7 +395,7 @@ function App() {
                 </ResponsiveContainer>
               </div>
 
-              <div style={{ ...styles.statCard, flexDirection: 'column', height: '400px', alignItems: 'stretch', gridColumn: '1 / -1' }}>
+              <div className="stat-card" style={{ flexDirection: 'column', height: '400px', alignItems: 'stretch', gridColumn: '1 / -1' }}>
                 <h3 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '24px' }}>Top 5 Clients les plus Rentables</h3>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={topClientsData} layout="vertical" margin={{ left: 60, right: 40, top: 0, bottom: 20 }}>
