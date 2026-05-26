@@ -236,6 +236,9 @@ function App() {
     <div className="app-container" key={user.id}>
       <style>{`
         @media (max-width: 1024px) {
+          .top-header {
+            padding: 0 16px !important;
+          }
           .sidebar {
             position: fixed !important;
             left: -260px !important;
@@ -259,6 +262,9 @@ function App() {
           .hide-on-mobile {
             display: none !important;
           }
+          .user-profile-header {
+            display: none !important;
+          }
           .stats-grid {
             grid-template-columns: 1fr !important;
           }
@@ -278,8 +284,13 @@ function App() {
             align-items: flex-start !important;
             gap: 16px;
           }
-          .user-profile .avatar {
-            margin-left: 8px;
+          .sidebar-user-info {
+            display: flex !important;
+            padding: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: auto;
+            align-items: center;
+            gap: 12px;
           }
         }
       `}</style>
@@ -329,6 +340,18 @@ function App() {
             <Settings size={20} />
             Paramètres
           </a>
+
+          {/* Section Profil dans le menu burger (visible uniquement sur mobile) */}
+          <div className="sidebar-user-info" style={{ display: 'none' }}>
+            <div className="avatar" style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: 'white' }}>
+              {user.username ? user.username.charAt(0).toUpperCase() : 'U'}
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+              <span style={{ fontSize: '0.875rem', fontWeight: '600', color: '#f8fafc', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{user.username}</span>
+              <span style={{ fontSize: '0.75rem', color: '#94a3b8', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{user.email}</span>
+            </div>
+          </div>
+
           <a className="nav-item" style={{ ...styles.navItem(false), color: '#ef4444' }} onClick={handleLogout}>
             <LogOut size={20} />
             Déconnexion
@@ -349,13 +372,13 @@ function App() {
             <input type="text" placeholder="Rechercher un dossier (ex: B/L, Facture)..." />
           </div>
 
-          <div className="user-profile">
+          <div className="user-profile user-profile-header">
             <Bell size={20} style={{ color: 'var(--text-secondary)', cursor: 'pointer', marginRight: '16px' }} className="hide-on-mobile" />
             <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column' }}>
               <span style={{ fontSize: '0.875rem', fontWeight: '600', color: '#f8fafc' }}>{user.username}</span>
               <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{user.email}</span>
             </div>
-            <div className="avatar">A</div>
+            <div className="avatar">{user.username ? user.username.charAt(0).toUpperCase() : 'U'}</div>
           </div>
         </header>
 
