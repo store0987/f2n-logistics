@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { API_BASE_URL } from '../api';
-import { Plus, Trash2, DollarSign, Calendar, FileText } from 'lucide-react';
+import { Plus, Trash2, DollarSign, Calendar, FileText, Edit } from 'lucide-react';
 
 const DeboursView = () => {
     const [debours, setDebours] = useState([]);
     const [dossiers, setDossiers] = useState([]);
     const [showForm, setShowForm] = useState(false);
+    const [editId, setEditId] = useState(null);
     const [formData, setFormData] = useState({
         date: new Date().toISOString().split('T')[0],
         dossier_id: '',
@@ -40,20 +41,41 @@ const DeboursView = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const url = editId
+            ? `${API_BASE_URL}/api/debours/${editId}`
+            : `${API_BASE_URL}/api/debours`;
+        const method = editId ? 'PUT' : 'POST';
+
         try {
-            const response = await fetch(`${API_BASE_URL}/api/debours`, {
-                method: 'POST',
+            const response = await fetch(url, {
+                method: method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
             });
             if (response.ok) {
                 fetchDebours();
-                setShowForm(false);
-                setFormData({ date: new Date().toISOString().split('T')[0], dossier_id: '', description: '', montant: 0 });
+                handleCancelForm();
             }
         } catch (error) {
             console.error('Erreur lors de l\'enregistrement:', error);
         }
+    };
+
+    const handleEdit = (db) => {
+        setFormData({
+            date: db.date,
+            dossier_id: db.dossier_id,
+            description: db.description,
+            montant: db.montant
+        });
+        setEditId(db.id);
+        setShowForm(true);
+    };
+
+    const handleCancelForm = () => {
+        setShowForm(false);
+        setEditId(null);
+        setFormData({ date: new Date().toISOString().split('T')[0], dossier_id: '', description: '', montant: 0 });
     };
 
     const handleDelete = async (id) => {
@@ -74,7 +96,7 @@ const DeboursView = () => {
                 </div>
                 {!showForm && (
                     <button className="btn btn-primary" onClick={() => setShowForm(true)}>
-                        <Plus size={18} /> Nouveau Débours
+                        <Plus size={18} /> {editId ? 'Modifier' : 'Nouveau'} Débours
                     </button>
                 )}
             </div>
@@ -104,8 +126,8 @@ const DeboursView = () => {
                             </div>
                         </div>
                         <div className="form-actions">
-                            <button type="button" className="btn btn-outline" onClick={() => setShowForm(false)}>Annuler</button>
-                            <button type="submit" className="btn btn-primary">Enregistrer le Débours</button>
+                            <button type="button" className="btn btn-outline" onClick={handleCancelForm}>Annuler</button>
+                            <button type="submit" className="btn btn-primary">{editId ? 'Mettre à jour' : 'Enregistrer'} le Débours</button>
                         </div>
                     </form>
                 </div>
@@ -138,11 +160,14 @@ const DeboursView = () => {
                                     </span>
                                 </td>
                                 <td>
-                                    {db.statut === 'En attente' && (
-                                        <button className="btn btn-outline" style={{ color: 'var(--accent-danger)' }} onClick={() => handleDelete(db.id)}>
-                                            <Trash2 size={14} />
-                                        </button>
-                                    )}
+                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                        {db.statut === 'En attente' && (
+                                            <>
+                                                <button className="btn btn-outline" style={{ padding: '4px 8px' }} onClick={() => handleEdit(db)}><Edit size={14} /></button>
+                                                <button className="btn btn-outline" style={{ padding: '4px 8px', color: 'var(--accent-danger)' }} onClick={() => handleDelete(db.id)}><Trash2 size={14} /></button>
+                                            </>
+                                        )}
+                                    </div>
                                 </td>
                             </tr>
                         ))}

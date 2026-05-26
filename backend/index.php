@@ -155,6 +155,16 @@ try {
                     'En attente'
                 ]);
                 respond(["id" => $pdo->lastInsertId(), "message" => "Débours enregistré"]);
+            } elseif ($method === 'PUT' && $id) {
+                $sql = "UPDATE debours SET date=?, dossier_id=?, description=?, montant=? WHERE id=?";
+                $pdo->prepare($sql)->execute([
+                    $input['date'] ?? date('Y-m-d'),
+                    $input['dossier_id'],
+                    $input['description'],
+                    $input['montant'],
+                    $id
+                ]);
+                respond(["message" => "Débours mis à jour"]);
             } elseif ($method === 'DELETE' && $id) {
                 $pdo->prepare("DELETE FROM debours WHERE id = ?")->execute([$id]);
                 respond(["message" => "Débours supprimé"]);
@@ -245,6 +255,9 @@ try {
                 respond(["error" => $e->getMessage()], 500);
             }
         } elseif ($method === 'DELETE' && $id) {
+            // Réinitialiser les débours liés à cette facture avant de la supprimer
+            $pdo->prepare("UPDATE debours SET statut = 'En attente', facture_id = NULL WHERE facture_id = ?")->execute([$id]);
+            
             $pdo->prepare("DELETE FROM factures WHERE numeroFacture = ?")->execute([$id]);
             respond(["message" => "Facture supprimée"]);
         }
