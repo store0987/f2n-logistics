@@ -25,6 +25,8 @@ Ce projet contient un frontend React/Vite et un backend **PHP/MySQL** pour Infin
       *   Créez un fichier `.htaccess` dans `/htdocs/api/` pour le routage de l'API PHP.
       *   Ces fichiers doivent être téléchargés manuellement via FTP.
   4.  **Configuration des Secrets GitHub :**
+  5.  **Fichiers d'Assets Backend :**
+      *   Le dossier `backend/assets/` (contenant `ship.svg` pour le PDF) doit être présent dans `/htdocs/api/assets/`.
       *   Ajoutez vos identifiants FTP (serveur, nom d'utilisateur, mot de passe) comme secrets de dépôt GitHub (`FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSWORD`).
   5.  **Déploiement automatique :** Chaque `git push` sur la branche `main` déclenchera une GitHub Action qui construira le frontend et déploiera automatiquement le frontend (`dist/` vers `/htdocs/`) et le backend PHP (`backend/api/` vers `/htdocs/api/`) via FTP.
 - Pour exécuter localement avec Docker, utilisez :

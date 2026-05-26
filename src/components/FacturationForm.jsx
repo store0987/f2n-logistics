@@ -250,8 +250,8 @@ const FacturationForm = ({ onCancel, editData }) => {
                 Commissionnaire Agréé
               </p>
               <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: '1.4' }}>
-                Zone Franche Industrielle, Dakar, Sénégal<br />
-                Tél: +221 33 000 00 00 • NINEA: 000111222333
+                Zone Franche Industrielle, Douala, Cameroun<br />
+                Tél: +237 6 99 97 98 85 • NINEA: 000111222333
               </div>
             </div>
           </div>

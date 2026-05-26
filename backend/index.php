@@ -1,7 +1,6 @@
 <?php
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-ini_set('memory_limit', '256M'); // Augmente la mémoire pour Dompdf
 
 require_once 'config.php';
 
@@ -269,7 +268,7 @@ try {
 
         case 'factures-pdf':
             if ($method === 'GET' && $id) {
-                $stmt = $pdo->prepare("SELECT f.*, c.nom as client_nom, c.email as client_email, c.adresse as client_adresse, c.ville as client_ville, d.numBL, d.navire, d.origine, d.destination, d.poids, d.volume, d.nombresColis FROM factures f LEFT JOIN clients c ON f.client_id = c.id LEFT JOIN dossiers d ON f.dossier_id = d.id WHERE f.numeroFacture = ?");
+                $stmt = $pdo->prepare("SELECT f.*, c.nom as client_nom, c.email as client_email, c.adresse as client_adresse, c.ville as client_ville, d.numBL, d.navire, d.numVoyage, d.origine, d.destination, d.poids, d.volume, d.nombresColis FROM factures f LEFT JOIN clients c ON f.client_id = c.id LEFT JOIN dossiers d ON f.dossier_id = d.id WHERE f.numeroFacture = ?");
                 $stmt->execute([$id]);
                 $facture = $stmt->fetch();
                 if (!$facture) respond(["error" => "Facture non trouvée"], 404);
@@ -277,6 +276,7 @@ try {
                 $stmtLignes = $pdo->prepare("SELECT * FROM facture_lignes WHERE facture_id = ?");
                 $stmtLignes->execute([$id]);
                 $lignes = $stmtLignes->fetchAll();
+                
 
                 $stmtDebours = $pdo->prepare("SELECT * FROM debours WHERE facture_id = ?");
                 $stmtDebours->execute([$id]);
@@ -285,90 +285,200 @@ try {
                 $isProforma = strpos($id, 'PRO') !== false;
                 $title = $isProforma ? 'PROFORMA' : 'FACTURE';
 
+                $logoPath = __DIR__ . '/assets/ship.svg';
+                $logoBase64 = file_exists($logoPath) ? base64_encode(file_get_contents($logoPath)) : '';
+
                 $html = "
                 <html>
                 <head>
                     <style>
-                        body { font-family: 'Helvetica', sans-serif; color: #333; font-size: 12px; }
-                        .header { margin-bottom: 30px; }
-                        .company-info { float: left; width: 50%; }
-                        .invoice-info { float: right; width: 30%; text-align: right; }
+                        body { font-family: 'Helvetica', sans-serif; color: #333; font-size: 11px; line-height: 1.4; }
+                        .container { padding: 20px; }
+                        .header-table { width: 100%; margin-bottom: 40px; }
+                        .logo-box { width: 50px; height: 50px; background: #2563eb; border-radius: 10px; text-align: center; padding: 10px; }
+                        .company-name { font-size: 22px; font-weight: bold; color: #333; margin: 0; }
+                        .company-tag { color: #666; font-weight: bold; text-transform: uppercase; font-size: 10px; margin: 2px 0; }
+                        .company-details { color: #666; font-size: 9px; }
+                        
+                        .title-badge { border: 2px solid " . ($isProforma ? '#666' : '#2563eb') . "; padding: 5px 15px; font-size: 18px; font-weight: bold; display: inline-block; }
+                        .info-label { color: #666; text-transform: uppercase; font-size: 8px; margin-bottom: 2px; }
+                        .info-value { background: #f9f9f9; border: 1px solid #eee; padding: 5px; font-weight: bold; text-align: right; width: 120px; }
+
+                        .context-table { width: 100%; border: 1px solid #eee; border-radius: 8px; margin-bottom: 30px; border-spacing: 0; }
+                        .context-td { padding: 15px; vertical-align: top; }
+                        .section-title { font-size: 10px; color: #666; text-transform: uppercase; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 10px; }
+                        .client-name { font-size: 14px; font-weight: bold; display: block; }
+                        
+                        .dossier-grid { width: 100%; }
+                        .dossier-label { color: #666; font-size: 8px; }
+                        .dossier-value { font-weight: bold; font-size: 10px; }
+
+                        .lines-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+                        .lines-table th { border-bottom: 2px solid #eee; padding: 10px; text-align: left; color: #666; font-size: 9px; text-transform: uppercase; }
+                        .lines-table td { padding: 10px; border-bottom: 1px solid #eee; }
+                        
+                        .summary-table { width: 100%; }
+                        .payment-box { border: 1px solid #eee; border-radius: 8px; padding: 15px; color: #666; font-size: 9px; }
+                        .totals-box { border: 2px solid #eee; border-radius: 8px; padding: 15px; }
+                        .total-row { font-size: 12px; margin-bottom: 5px; }
+                        .grand-total { border-top: 2px solid #eee; padding-top: 10px; margin-top: 10px; font-size: 16px; font-weight: bold; }
                         .clear { clear: both; }
-                        .client-box { border: 1px solid #ddd; padding: 15px; margin-bottom: 20px; width: 45%; float: left; min-height: 100px; }
-                        .dossier-box { border: 1px solid #ddd; padding: 15px; margin-bottom: 20px; width: 45%; float: right; min-height: 100px; }
-                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                        th { background: #f8f9fa; padding: 10px; border-bottom: 2px solid #ddd; text-align: left; }
-                        td { padding: 10px; border-bottom: 1px solid #eee; }
-                        .totals { float: right; width: 250px; margin-top: 20px; }
-                        .total-row { display: flex; justify-content: space-between; padding: 5px 0; }
-                        .grand-total { border-top: 2px solid #333; font-weight: bold; font-size: 14px; margin-top: 5px; padding-top: 5px; }
                     </style>
                 </head>
                 <body>
-                    <div class='header'>
-                        <div class='company-info'>
-                            <h2 style='color: #2563eb; margin: 0;'>F2N LOGISTICS</h2>
-                            <p>Commissionnaire Agréé<br>Zone Franche Industrielle, Dakar, Sénégal<br>Tél: +221 33 000 00 00</p>
-                        </div>
-                        <div class='invoice-info'>
-                            <h1 style='margin: 0;'>$title</h1>
-                            <p>N°: $id<br>Date: {$facture['date']}</p>
-                        </div>
-                        <div class='clear'></div>
-                    </div>
+                <div class='container'>
+                    <table class='header-table'>
+                        <tr>
+                            <td>
+                                <table cellspacing='0' cellpadding='0'>
+                                    <tr>
+                                        <td style='padding-right: 15px;'>
+                                            <div class='logo-box'>
+                                                <img src='data:image/svg+xml;base64,$logoBase64' width='30' height='30' />
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <h1 class='company-name'>F2N LOGISTICS</h1>
+                                            <p class='company-tag'>Commissionnaire Agréé</p>
+                                            <div class='company-details'>
+                                                Zone Franche Industrielle, Douala, Cameroun<br>
+                                                Tél: +237 6 99 97 98 85 • NINEA: 000111222333
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                            <td align='right' valign='top'>
+                                <div class='title-badge'>$title</div>
+                                <table style='margin-top: 10px;' align='right'>
+                                    <tr>
+                                        <td align='right' style='padding-right: 10px;'>
+                                            <div class='info-label'>Numéro</div>
+                                            <div class='info-value'>{$facture['numeroFacture']}</div>
+                                        </td>
+                                        <td align='right'>
+                                            <div class='info-label'>Date d'émission</div>
+                                            <div class='info-value'>{$facture['date']}</div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
 
-                    <div class='client-box'>
-                        <strong>Facturé à:</strong><br>
-                        {$facture['client_nom']}<br>
-                        " . ($facture['client_adresse'] ?: '') . "<br>
-                        " . ($facture['client_ville'] ?: '') . "
-                    </div>
-                    
-                    <div class='dossier-box'>
-                        <strong>Dossier: {$facture['dossier_id']}</strong><br>
-                        B/L: {$facture['numBL']}<br>
-                        Navire: {$facture['navire']}<br>
-                        Route: {$facture['origine']} -> {$facture['destination']}
-                    </div>
-                    <div class='clear'></div>
+                    <table class='context-table'>
+                        <tr>
+                            <td class='context-td' width='35%' style='border-right: 1px solid #eee;'>
+                                <div class='section-title'>Facturé à</div>
+                                <span class='client-name'>{$facture['client_nom']}</span>
+                                <div class='company-details' style='margin-top: 5px;'>
+                                    NINEA: À renseigner<br>
+                                    " . ($facture['client_adresse'] ?: '') . "<br>
+                                    " . ($facture['client_ville'] ?: '') . "
+                                </div>
+                            </td>
+                            <td class='context-td'>
+                                <div class='section-title'>Détails de l'Expédition</div>
+                                <table class='dossier-grid'>
+                                    <tr>
+                                        <td width='50%'>
+                                            <div class='dossier-label'>B/L / LTA</div>
+                                            <div class='dossier-value'>{$facture['numBL']}</div>
+                                        </td>
+                                        <td>
+                                            <div class='dossier-label'>Navire / Voyage</div>
+                                            <div class='dossier-value'>{$facture['navire']} " . ($facture['numVoyage'] ? "/ V.{$facture['numVoyage']}" : '') . "</div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style='padding-top: 10px;'>
+                                            <div class='dossier-label'>Routage</div>
+                                            <div class='dossier-value'>{$facture['origine']} &rarr; {$facture['destination']}</div>
+                                        </td>
+                                        <td style='padding-top: 10px;'>
+                                            <div class='dossier-label'>Poids / Volume / Colis</div>
+                                            <div class='dossier-value'>{$facture['poids']} kg / {$facture['volume']} CBM / {$facture['nombresColis']}</div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
 
-                    <table>
+                    <table class='lines-table'>
                         <thead>
-                            <tr><th>Description</th><th>Qté</th><th>P.U</th><th>Total</th></tr>
+                            <tr>
+                                <th>Désignation des Frais</th>
+                                <th align='center' width='50'>Qté</th>
+                                <th align='right' width='100'>P.U</th>
+                                <th align='right' width='120'>Montant Total</th>
+                            </tr>
                         </thead>
                         <tbody>";
                 foreach($lignes as $l) {
                     $rowTotal = $l['quantite'] * $l['prixUnitaire'];
                     $html .= "<tr>
                         <td>{$l['description']}</td>
-                        <td>{$l['quantite']}</td>
-                        <td>" . number_format($l['prixUnitaire'], 0, ',', ' ') . "</td>
-                        <td>" . number_format($rowTotal, 0, ',', ' ') . "</td>
+                        <td align='center'>{$l['quantite']}</td>
+                        <td align='right'>" . number_format($l['prixUnitaire'], 0, ',', ' ') . "</td>
+                        <td align='right'><strong>" . number_format($rowTotal, 0, ',', ' ') . "</strong></td>
                     </tr>";
                 }
                 foreach($deboursList as $db) {
                     $html .= "<tr>
-                        <td><i style='color: #666;'>(Débours)</i> {$db['description']}</td>
-                        <td>1</td>
-                        <td>" . number_format($db['montant'], 0, ',', ' ') . "</td>
-                        <td>" . number_format($db['montant'], 0, ',', ' ') . "</td>
+                        <td><em style='color: #666;'>(Débours)</em> {$db['description']}</td>
+                        <td align='center'>1</td>
+                        <td align='right'>" . number_format($db['montant'], 0, ',', ' ') . "</td>
+                        <td align='right'><strong>" . number_format($db['montant'], 0, ',', ' ') . "</strong></td>
                     </tr>";
                 }
                 $html .= "</tbody>
                     </table>
 
-                    <div class='totals'>
-                        <div class='total-row'><span>Sous-total:</span> <span>" . number_format($facture['sousTotal'], 0, ',', ' ') . " FCFA</span></div>
-                        <div class='total-row'><span>TVA (18%):</span> <span>" . number_format($facture['montantTva'], 0, ',', ' ') . " FCFA</span></div>
-                        <div class='total-row grand-total'><span>TOTAL TTC:</span> <span>" . number_format($facture['totalTtc'], 0, ',', ' ') . " FCFA</span></div>
-                    </div>
+                    <table class='summary-table'>
+                        <tr>
+                            <td width='55%' valign='top'>
+                                <div class='payment-box'>
+                                    <strong>Conditions de paiement :</strong><br>
+                                    Paiement à réception de la facture par chèque ou virement bancaire.<br><br>
+                                    <strong>Banque BICIS</strong><br>
+                                    IBAN: SN010 01234 000000123456 78<br>
+                                    Code SWIFT: BICISNXXXX
+                                </div>
+                            </td>
+                            <td valign='top'>
+                                <div class='totals-box'>
+                                    <table width='100%'>
+                                        <tr>
+                                            <td style='color: #666;'>Sous-total HT</td>
+                                            <td align='right' style='font-weight: bold;'>" . number_format($facture['sousTotal'], 0, ',', ' ') . " FCFA</td>
+                                        </tr>
+                                        <tr>
+                                            <td style='color: #666; padding-top: 5px;'>TVA (18%)</td>
+                                            <td align='right' style='font-weight: bold; padding-top: 5px;'>" . number_format($facture['montantTva'], 0, ',', ' ') . " FCFA</td>
+                                        </tr>
+                                        <tr class='grand-total'>
+                                            <td style='padding-top: 10px;'>TOTAL TTC</td>
+                                            <td align='right' style='padding-top: 10px;'>" . number_format($facture['totalTtc'], 0, ',', ' ') . " FCFA</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
                 </body>
                 </html>";
 
-                if (file_exists('libs/dompdf/autoload.inc.php')) {
-                    require_once 'libs/dompdf/autoload.inc.php';
-                    $dompdf = new \Dompdf\Dompdf();
-                    $dompdf->loadHtml($html);
+                $autoloadPath = __DIR__ . '/libs/dompdf/autoload.inc.php';
+                if (file_exists($autoloadPath)) {
+                    require_once $autoloadPath;
+                    
+                    $options = new \Dompdf\Options();
+                    $options->set('isRemoteEnabled', true);
+                    
+                    $dompdf = new \Dompdf\Dompdf($options);
+                    $dompdf->loadHtml($html, 'UTF-8');
                     $dompdf->setPaper('A4', 'portrait');
                     $dompdf->render();
                     $dompdf->stream("{$id}.pdf", ["Attachment" => true]);
@@ -432,8 +542,12 @@ try {
             respond(["error" => "Route non trouvée : " . $resource], 404);
             break;
     }
-} catch (Exception $e) {
-    respond(["error" => $e->getMessage()], 500);
+} catch (Throwable $e) {
+    respond([
+        "error" => "Erreur critique : " . $e->getMessage(),
+        "file" => $e->getFile(),
+        "line" => $e->getLine()
+    ], 500);
 }
 
 ?>
