@@ -27,4 +27,4 @@ dist-ssr
 .env*
 dist/
 *.db
-backend/api/config.php
+backend/config.php
