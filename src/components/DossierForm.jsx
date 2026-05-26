@@ -93,12 +93,12 @@ const DossierForm = ({ onCancel, onSave, editData }) => {
     <div className="dashboard-page">
       <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
         <div>
-          <h1 className="page-title">{editData ? `Modifier le Dossier ${editData.id}` : "Nouveau Dossier d'Opération"}</h1>
-          <p className="page-subtitle">{editData ? "Modifiez les informations de l'expédition" : "Renseignez toutes les informations de l'expédition"}</p>
+          <h1 className="page-title" style={{ fontSize: '1.5rem' }}>{editData ? `Modifier ${editData.id}` : "Nouveau Dossier"}</h1>
+          <p className="page-subtitle" style={{ fontSize: '0.9rem' }}>{editData ? "Mise à jour de l'expédition" : "Saisie des informations"}</p>
         </div>
         <button className="btn btn-outline" onClick={onCancel}>
           <X size={18} />
-          Annuler
+          <span className="hide-on-mobile">Annuler</span>
         </button>
       </div>
 

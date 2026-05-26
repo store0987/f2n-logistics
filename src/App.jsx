@@ -7,6 +7,7 @@ import ClientsView from './components/ClientsView';
 import DeboursView from './components/DeboursView';
 import Auth from './components/Auth';
 import SkeletonLoader from './components/SkeletonLoader';
+import SettingsView from './components/SettingsView';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   LineChart, Line, PieChart, Pie, Cell
@@ -39,6 +40,12 @@ function App() {
   const [activeTab, setActiveTab] = useState(() => {
     return localStorage.getItem('activeTab') || 'dashboard';
   });
+
+  const [theme, setTheme] = useState(() => localStorage.getItem('f2n_theme') || 'dark');
+
+  React.useEffect(() => {
+    localStorage.setItem('f2n_theme', theme);
+  }, [theme]);
 
   React.useEffect(() => {
     localStorage.setItem('activeTab', activeTab);
@@ -145,12 +152,7 @@ function App() {
   // Styles Unifiés pour éviter l'usage de fichier CSS
   const styles = {
     appContainer: {
-      // display: 'flex', // Géré par .app-container dans index.css
-      // height: '100vh', // Géré par .app-container dans index.css
-      // width: '100vw', // Géré par .app-container dans index.css
-      // overflow: 'hidden', // Géré par .app-container dans index.css
-      backgroundColor: '#0b0f19',
-      // color: '#f8fafc', // Géré par body dans index.css
+      backgroundColor: 'var(--bg-app)',
       fontFamily: 'system-ui, -apple-system, sans-serif'
     },
     loadingScreen: {
@@ -160,7 +162,7 @@ function App() {
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: '#0b0f19',
+      backgroundColor: 'var(--bg-app)',
       color: '#3b82f6'
     },
     sidebar: {
@@ -189,7 +191,7 @@ function App() {
       display: 'flex',
       flexDirection: 'column',
       overflowY: 'auto',
-      backgroundColor: '#0b0f19'
+      backgroundColor: 'var(--bg-app)'
     },
     topHeader: {
       height: '70px',
@@ -197,7 +199,7 @@ function App() {
       alignItems: 'center',
       justifyContent: 'space-between',
       padding: '0 32px',
-      backgroundColor: 'rgba(11, 15, 25, 0.8)',
+      backgroundColor: 'var(--bg-header)',
       backdropFilter: 'blur(10px)',
       borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
       position: 'sticky',
@@ -233,9 +235,52 @@ function App() {
   }
 
   return ( // Utilisation de classes CSS pour la structure principale
-    <div className="app-container" key={user.id}>
+    <div className={`app-container theme-${theme}`} style={styles.appContainer} key={user.id}>
       <style>{`
+        :root {
+          --bg-app: ${theme === 'dark' ? '#0b0f19' : '#f1f5f9'};
+          --bg-card: ${theme === 'dark' ? 'rgba(30, 41, 59, 0.7)' : '#ffffff'};
+          --bg-header: ${theme === 'dark' ? 'rgba(11, 15, 25, 0.8)' : 'rgba(255, 255, 255, 0.9)'};
+          --text-primary: ${theme === 'dark' ? '#f8fafc' : '#1e293b'};
+          --text-secondary: ${theme === 'dark' ? '#94a3b8' : '#64748b'};
+          --border-color: ${theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : '#e2e8f0'};
+          --input-bg: ${theme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : '#ffffff'};
+        }
+
+        body {
+          background-color: var(--bg-app);
+          color: var(--text-primary);
+        }
+
+        .form-container {
+          background-color: var(--bg-card) !important;
+          border-color: var(--border-color) !important;
+        }
+
+        .form-control {
+          background-color: var(--input-bg) !important;
+          border-color: var(--border-color) !important;
+          color: var(--text-primary) !important;
+        }
+
+        .page-title { color: var(--text-primary) !important; }
+        .page-subtitle { color: var(--text-secondary) !important; }
+
         @media (max-width: 1024px) {
+          .form-grid {
+            grid-template-columns: 1fr !important;
+            gap: 16px !important;
+          }
+          .form-container {
+            padding: 20px !important;
+          }
+          .form-actions {
+            flex-direction: column-reverse;
+            gap: 12px;
+          }
+          .form-actions button {
+            width: 100%;
+          }
           .top-header {
             padding: 0 16px !important;
           }
@@ -283,6 +328,14 @@ function App() {
             flex-direction: column;
             align-items: flex-start !important;
             gap: 16px;
+          }
+          .facture-context-grid {
+            flex-direction: column;
+          }
+          .context-col {
+            border-right: none !important;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 24px;
           }
           .sidebar-user-info {
             display: flex !important;
@@ -368,8 +421,12 @@ function App() {
           </button>
 
           <div className="search-bar">
-            <Search size={18} />
-            <input type="text" placeholder="Rechercher un dossier (ex: B/L, Facture)..." />
+            <Search size={18} style={{ color: 'var(--text-secondary)' }} />
+            <input 
+              type="text" 
+              placeholder="Rechercher un dossier (ex: B/L, Facture)..." 
+              style={{ backgroundColor: 'transparent', border: 'none', color: 'var(--text-primary)', outline: 'none', width: '100%' }}
+            />
           </div>
 
           <div className="user-profile user-profile-header">
@@ -595,6 +652,15 @@ function App() {
 
         {activeTab === 'clients' && (
           <ClientsView />
+        )}
+
+        {activeTab === 'settings' && (
+          <SettingsView 
+            user={user} 
+            setUser={setUser} 
+            theme={theme} 
+            setTheme={setTheme} 
+          />
         )}
       </main>
     </div>
