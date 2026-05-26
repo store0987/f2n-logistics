@@ -195,7 +195,7 @@ function App() {
     },
     topHeader: {
       height: '70px',
-      // display: 'flex', // Géré par .top-header dans index.css
+      display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
       padding: '0 32px',
@@ -267,6 +267,9 @@ function App() {
         .page-subtitle { color: var(--text-secondary) !important; }
 
         @media (max-width: 1024px) {
+          .main-content {
+            overflow-x: hidden !important;
+          }
           .form-grid {
             grid-template-columns: 1fr !important;
             gap: 16px !important;
@@ -333,8 +336,22 @@ function App() {
             align-items: flex-start !important;
             gap: 16px;
           }
-          .facture-context-grid, .facture-summary-grid {
+          .facture-header-flex, .facture-context-grid, .facture-summary-grid {
             flex-direction: column !important;
+            align-items: stretch !important;
+          }
+          .facture-header-flex > div {
+            width: 100% !important;
+            min-width: 0 !important;
+            text-align: left !important;
+          }
+          .facture-header-flex .title-badge {
+            align-self: flex-start !important;
+          }
+          .facture-header-flex .info-inputs {
+            justify-content: flex-start !important;
+            flex-wrap: wrap;
+            gap: 12px !important;
           }
           .facture-summary-grid > div {
             width: 100% !important;
@@ -425,7 +442,7 @@ function App() {
       <main className="main-content" style={styles.mainContent}>
         {/* Top Header */}
         <header style={styles.topHeader}>
-          <button className="menu-toggle" onClick={() => setIsSidebarOpen(true)} style={{ display: 'none', background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', marginRight: '16px', padding: '8px 0' }}>
+          <button className="menu-toggle" onClick={() => setIsSidebarOpen(true)} style={{ display: 'none', background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', marginRight: '16px', height: '40px', alignItems: 'center' }}>
             <Menu size={24} />
           </button>
 

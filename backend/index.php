@@ -172,6 +172,26 @@ try {
             }
             break;
 
+        case 'change-password':
+            if ($method === 'POST') {
+                $userId = $input['userId'];
+                $oldPass = $input['oldPassword'];
+                $newPass = $input['newPassword'];
+
+                $stmt = $pdo->prepare("SELECT password FROM users WHERE id = ?");
+                $stmt->execute([$userId]);
+                $user = $stmt->fetch();
+
+                if ($user && password_verify($oldPass, $user['password'])) {
+                    $hashed = password_hash($newPass, PASSWORD_DEFAULT);
+                    $pdo->prepare("UPDATE users SET password = ? WHERE id = ?")->execute([$hashed, $userId]);
+                    respond(["message" => "Mot de passe mis à jour avec succès"]);
+                } else {
+                    respond(["error" => "Ancien mot de passe incorrect."], 401);
+                }
+            }
+            break;
+
         case 'clients':
             if ($method === 'GET') {
                 $stmt = $pdo->query("SELECT * FROM clients");
