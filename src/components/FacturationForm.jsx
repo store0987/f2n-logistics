@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { API_BASE_URL } from '../api';
-import { Plus, Trash2, Printer, Save, CheckCircle, Ship, MapPin, Box, Hash, User, Download } from 'lucide-react';
+import { Plus, Trash2, Printer, Save, CheckCircle, Ship, MapPin, Box, Hash, User, Download, Mail, FileDown } from 'lucide-react';
 
 const FacturationForm = ({ onCancel, editData }) => {
   const [availableDossiers, setAvailableDossiers] = useState([]);
@@ -158,6 +158,36 @@ const FacturationForm = ({ onCancel, editData }) => {
       handleSave('Validée', data.number);
     } catch (error) {
       console.error("Erreur lors de la génération du numéro de facture:", error);
+    }
+  };
+
+  const handleDownloadPDF = () => {
+    if (editData || factureInfo.numeroFacture) {
+      const numero = editData ? editData.numeroFacture : factureInfo.numeroFacture;
+      // Ouvre le lien de génération PDF dans un nouvel onglet
+      window.open(`${API_BASE_URL}/api/factures-pdf/${numero}`, '_blank');
+    } else {
+      alert("Veuillez d'abord enregistrer la facture.");
+    }
+  };
+
+  const handleSendEmail = async () => {
+    const numero = editData ? editData.numeroFacture : factureInfo.numeroFacture;
+    if (!numero || numero === 'Chargement...') {
+      alert("Enregistrez la facture avant l'envoi.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/factures-email/${numero}`, { method: 'POST' });
+      const data = await response.json();
+      if (response.ok) {
+        alert(data.message);
+      } else {
+        alert(`Erreur: ${data.error}`);
+      }
+    } catch (error) {
+      console.error("Erreur envoi email:", error);
     }
   };
 
@@ -404,10 +434,22 @@ const FacturationForm = ({ onCancel, editData }) => {
 
       {/* --- BOUTONS D'ACTION (Hors Document) --- */}
       <div className="form-actions no-print" style={{ maxWidth: '1000px', margin: '24px auto 0 auto', borderTop: 'none', padding: '0', display: 'flex', justifyContent: 'space-between' }}>
-        <button type="button" className="btn btn-outline" onClick={() => window.print()}>
-          <Printer size={18} />
-          Imprimer / PDF
-        </button>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button type="button" className="btn btn-outline" onClick={() => window.print()}>
+            <Printer size={18} />
+            Imprimer
+          </button>
+          <button type="button" className="btn btn-outline" onClick={handleDownloadPDF} title="Générer un PDF propre via le serveur">
+            <FileDown size={18} />
+            Télécharger PDF
+          </button>
+          {!isProforma && (
+            <button type="button" className="btn btn-outline" style={{ color: 'var(--accent-secondary)' }} onClick={handleSendEmail}>
+              <Mail size={18} />
+              Envoyer par Email
+            </button>
+          )}
+        </div>
         <div style={{ display: 'flex', gap: '16px' }}>
           <button type="button" className="btn btn-outline" onClick={() => handleSave('Proforma')}>
             <Save size={18} />

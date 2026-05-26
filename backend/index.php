@@ -263,6 +263,155 @@ try {
         }
         break;
 
+        case 'factures-pdf':
+            if ($method === 'GET' && $id) {
+                $stmt = $pdo->prepare("SELECT f.*, c.nom as client_nom, c.email as client_email, c.adresse as client_adresse, c.ville as client_ville, d.numBL, d.navire, d.origine, d.destination, d.poids, d.volume, d.nombresColis FROM factures f LEFT JOIN clients c ON f.client_id = c.id LEFT JOIN dossiers d ON f.dossier_id = d.id WHERE f.numeroFacture = ?");
+                $stmt->execute([$id]);
+                $facture = $stmt->fetch();
+                if (!$facture) respond(["error" => "Facture non trouvée"], 404);
+                
+                $stmtLignes = $pdo->prepare("SELECT * FROM facture_lignes WHERE facture_id = ?");
+                $stmtLignes->execute([$id]);
+                $lignes = $stmtLignes->fetchAll();
+
+                $isProforma = strpos($id, 'PRO') !== false;
+                $title = $isProforma ? 'PROFORMA' : 'FACTURE';
+
+                $html = "
+                <html>
+                <head>
+                    <style>
+                        body { font-family: 'Helvetica', sans-serif; color: #333; font-size: 12px; }
+                        .header { margin-bottom: 30px; }
+                        .company-info { float: left; width: 50%; }
+                        .invoice-info { float: right; width: 30%; text-align: right; }
+                        .clear { clear: both; }
+                        .client-box { border: 1px solid #ddd; padding: 15px; margin-bottom: 20px; width: 45%; float: left; min-height: 100px; }
+                        .dossier-box { border: 1px solid #ddd; padding: 15px; margin-bottom: 20px; width: 45%; float: right; min-height: 100px; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        th { background: #f8f9fa; padding: 10px; border-bottom: 2px solid #ddd; text-align: left; }
+                        td { padding: 10px; border-bottom: 1px solid #eee; }
+                        .totals { float: right; width: 250px; margin-top: 20px; }
+                        .total-row { display: flex; justify-content: space-between; padding: 5px 0; }
+                        .grand-total { border-top: 2px solid #333; font-weight: bold; font-size: 14px; margin-top: 5px; padding-top: 5px; }
+                    </style>
+                </head>
+                <body>
+                    <div class='header'>
+                        <div class='company-info'>
+                            <h2 style='color: #2563eb; margin: 0;'>F2N LOGISTICS</h2>
+                            <p>Commissionnaire Agréé<br>Zone Franche Industrielle, Dakar, Sénégal<br>Tél: +221 33 000 00 00</p>
+                        </div>
+                        <div class='invoice-info'>
+                            <h1 style='margin: 0;'>$title</h1>
+                            <p>N°: $id<br>Date: {$facture['date']}</p>
+                        </div>
+                        <div class='clear'></div>
+                    </div>
+
+                    <div class='client-box'>
+                        <strong>Facturé à:</strong><br>
+                        {$facture['client_nom']}<br>
+                        " . ($facture['client_adresse'] ?: '') . "<br>
+                        " . ($facture['client_ville'] ?: '') . "
+                    </div>
+                    
+                    <div class='dossier-box'>
+                        <strong>Dossier: {$facture['dossier_id']}</strong><br>
+                        B/L: {$facture['numBL']}<br>
+                        Navire: {$facture['navire']}<br>
+                        Route: {$facture['origine']} -> {$facture['destination']}
+                    </div>
+                    <div class='clear'></div>
+
+                    <table>
+                        <thead>
+                            <tr><th>Description</th><th>Qté</th><th>P.U</th><th>Total</th></tr>
+                        </thead>
+                        <tbody>";
+                foreach($lignes as $l) {
+                    $rowTotal = $l['quantite'] * $l['prixUnitaire'];
+                    $html .= "<tr>
+                        <td>{$l['description']}</td>
+                        <td>{$l['quantite']}</td>
+                        <td>" . number_format($l['prixUnitaire'], 0, ',', ' ') . "</td>
+                        <td>" . number_format($rowTotal, 0, ',', ' ') . "</td>
+                    </tr>";
+                }
+                $html .= "</tbody>
+                    </table>
+
+                    <div class='totals'>
+                        <div class='total-row'><span>Sous-total:</span> <span>" . number_format($facture['sousTotal'], 0, ',', ' ') . " FCFA</span></div>
+                        <div class='total-row'><span>TVA (18%):</span> <span>" . number_format($facture['montantTva'], 0, ',', ' ') . " FCFA</span></div>
+                        <div class='total-row grand-total'><span>TOTAL TTC:</span> <span>" . number_format($facture['totalTtc'], 0, ',', ' ') . " FCFA</span></div>
+                    </div>
+                </body>
+                </html>";
+
+                if (file_exists('libs/dompdf/autoload.inc.php')) {
+                    require_once 'libs/dompdf/autoload.inc.php';
+                    $dompdf = new \Dompdf\Dompdf();
+                    $dompdf->loadHtml($html);
+                    $dompdf->setPaper('A4', 'portrait');
+                    $dompdf->render();
+                    $dompdf->stream("{$id}.pdf", ["Attachment" => true]);
+                    exit;
+                } else {
+                    echo $html; // Fallback pour tester le design si Dompdf n'est pas encore là
+                    exit;
+                }
+            }
+            break;
+
+        case 'factures-email':
+            if ($method === 'POST' && $id) {
+                $stmt = $pdo->prepare("SELECT f.*, c.nom as client_nom, c.email as client_email FROM factures f LEFT JOIN clients c ON f.client_id = c.id WHERE f.numeroFacture = ?");
+                $stmt->execute([$id]);
+                $facture = $stmt->fetch();
+
+                if (empty($facture['client_email'])) {
+                    respond(["error" => "Le client n'a pas d'adresse email configurée."], 400);
+                }
+
+                if (defined('SMTP_HOST') && file_exists('libs/PHPMailer/src/PHPMailer.php')) {
+                    require 'libs/PHPMailer/src/Exception.php';
+                    require 'libs/PHPMailer/src/PHPMailer.php';
+                    require 'libs/PHPMailer/src/SMTP.php';
+
+                    $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
+                    try {
+                        $mail->isSMTP();
+                        $mail->Host       = SMTP_HOST;
+                        $mail->SMTPAuth   = true;
+                        $mail->Username   = SMTP_USER;
+                        $mail->Password   = SMTP_PASS;
+                        $mail->SMTPSecure = \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+                        $mail->Port       = SMTP_PORT;
+                        $mail->setFrom(SMTP_FROM, 'F2N Logistics');
+                        $mail->addAddress($facture['client_email'], $facture['client_nom']);
+                        $mail->isHTML(true);
+                        $mail->Subject = "Document " . $id . " - F2N Logistics";
+                        $mail->Body    = "Bonjour " . $facture['client_nom'] . ",<br><br>Veuillez trouver ci-joint votre document " . $id . " d'un montant de " . number_format($facture['totalTtc'], 0, ',', ' ') . " FCFA.<br><br>Cordialement.";
+                        $mail->send();
+                        respond(["message" => "Email envoyé avec succès à {$facture['client_email']}"]);
+                    } catch (Exception $e) {
+                        respond(["error" => "Erreur SMTP : " . $mail->ErrorInfo], 500);
+                    }
+                } else {
+                    $to = $facture['client_email'];
+                    $subject = "Document " . $id;
+                    $message = "Bonjour, voici votre document de " . number_format($facture['totalTtc'], 0, ',', ' ') . " FCFA.";
+                    $headers = "From: " . (defined('SMTP_FROM') ? SMTP_FROM : "gestion@f2nlogistics.sn");
+                    if(mail($to, $subject, $message, $headers)) {
+                        respond(["message" => "Email envoyé (mail standard)"]);
+                    } else {
+                        respond(["error" => "Échec de l'envoi. Configurez SMTP dans config.php."], 500);
+                    }
+                }
+            }
+            break;
+
         default:
             respond(["error" => "Route non trouvée : " . $resource], 404);
             break;
