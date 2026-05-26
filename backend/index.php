@@ -192,15 +192,15 @@ try {
                     $stmtL->execute([$info['numeroFacture'], $l['description'], $l['quantite'], $l['prixUnitaire'], $l['taxable'] ? 1 : 0]);
                 }
                 
-                $pdo->commit();
-                respond(["numeroFacture" => $info['numeroFacture'], "message" => "Succès"]);
-
                 // --- NOUVEAU: Automatisation du statut du dossier ---
                 if ($info['statut'] === 'Validée' && !empty($dossier_id)) {
                     $pdo->prepare("UPDATE dossiers SET statutFacturation = 'Facturé' WHERE id = ?")
                         ->execute([$dossier_id]);
                 }
                 // --- FIN NOUVEAU ---
+
+                $pdo->commit();
+                respond(["numeroFacture" => $info['numeroFacture'], "message" => "Succès"]);
             } catch (Exception $e) {
                 $pdo->rollBack();
                 respond(["error" => $e->getMessage()], 500);
