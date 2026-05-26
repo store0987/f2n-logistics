@@ -193,6 +193,13 @@ try {
                 
                 $pdo->commit();
                 respond(["numeroFacture" => $info['numeroFacture'], "message" => "Succès"]);
+
+                // --- NOUVEAU: Automatisation du statut du dossier ---
+                if ($info['statut'] === 'Validée' && !empty($dossier_id)) {
+                    $pdo->prepare("UPDATE dossiers SET statutFacturation = 'Facturé' WHERE id = ?")
+                        ->execute([$dossier_id]);
+                }
+                // --- FIN NOUVEAU ---
             } catch (Exception $e) {
                 $pdo->rollBack();
                 respond(["error" => $e->getMessage()], 500);
