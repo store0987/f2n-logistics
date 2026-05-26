@@ -43,54 +43,133 @@ const Auth = ({ onLogin }) => {
         }
     };
 
+    const styles = {
+        wrapper: {
+            height: '100vh',
+            width: '100vw',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: '#0b0f19',
+            color: '#f8fafc',
+            fontFamily: 'system-ui, sans-serif',
+            position: 'fixed',
+            top: 0,
+            left: 0
+        },
+        card: {
+            backgroundColor: '#111827',
+            padding: '40px',
+            borderRadius: '12px',
+            width: '90%',
+            maxWidth: '400px',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5)'
+        },
+        header: {
+            textAlign: 'center',
+            marginBottom: '32px'
+        },
+        logo: {
+            width: '60px',
+            height: '60px',
+            backgroundColor: '#3b82f6',
+            borderRadius: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0 auto 16px auto'
+        },
+        title: { fontSize: '1.75rem', fontWeight: '800', marginBottom: '8px', color: '#f8fafc' },
+        subtitle: { color: '#94a3b8', fontSize: '0.9rem' },
+        form: { display: 'flex', flexDirection: 'column', gap: '20px' },
+        error: {
+            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+            border: '1px solid #ef4444',
+            color: '#ef4444',
+            padding: '12px',
+            borderRadius: '8px',
+            fontSize: '0.85rem',
+            textAlign: 'center'
+        },
+        inputGroup: { display: 'flex', flexDirection: 'column', gap: '8px' },
+        label: { fontSize: '0.875rem', fontWeight: '500', color: '#94a3b8' },
+        inputContainer: { position: 'relative', display: 'flex', alignItems: 'center' },
+        icon: { position: 'absolute', left: '12px', color: '#64748b' },
+        input: {
+            width: '100%',
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: '8px',
+            padding: '12px 16px 12px 40px',
+            color: '#f8fafc',
+            outline: 'none'
+        },
+        button: {
+            backgroundColor: '#3b82f6',
+            color: 'white',
+            padding: '12px',
+            borderRadius: '8px',
+            border: 'none',
+            fontWeight: '600',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginTop: '10px'
+        },
+        footer: { marginTop: '24px', textAlign: 'center' },
+        link: { background: 'none', border: 'none', color: '#3b82f6', cursor: 'pointer', textDecoration: 'underline' }
+    };
+
     return (
-        <div className="auth-wrapper">
-            <div className="auth-card">
-                <div className="auth-header">
-                    <div className="auth-logo">
+        <div style={styles.wrapper}>
+            <div style={styles.card}>
+                <div style={styles.header}>
+                    <div style={styles.logo}>
                         <Ship size={32} color="white" />
                     </div>
-                    <h1>F2N Logistics</h1>
-                    <p>{isLogin ? 'Accédez à votre espace gestion' : 'Créez votre compte administrateur'}</p>
+                    <h1 style={styles.title}>F2N Logistics</h1>
+                    <p style={styles.subtitle}>{isLogin ? 'Accédez à votre espace gestion' : 'Créez votre compte administrateur'}</p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="auth-form">
-                    {error && <div className="auth-error">{error}</div>}
+                <form onSubmit={handleSubmit} style={styles.form}>
+                    {error && <div style={styles.error}>{error}</div>}
 
-                    <div className="form-group">
-                        <label className="form-label">Nom d'utilisateur</label>
-                        <div className="input-with-icon">
-                            <User size={18} />
-                            <input type="text" name="username" className="form-control" required onChange={handleChange} />
+                    <div style={styles.inputGroup}>
+                        <label style={styles.label}>Nom d'utilisateur</label>
+                        <div style={styles.inputContainer}>
+                            <User size={18} style={styles.icon} />
+                            <input type="text" name="username" style={styles.input} required onChange={handleChange} />
                         </div>
                     </div>
 
                     {!isLogin && (
-                        <div className="form-group">
-                            <label className="form-label">Email</label>
-                            <div className="input-with-icon">
-                                <Mail size={18} />
-                                <input type="email" name="email" className="form-control" required onChange={handleChange} />
+                        <div style={styles.inputGroup}>
+                            <label style={styles.label}>Email</label>
+                            <div style={styles.inputContainer}>
+                                <Mail size={18} style={styles.icon} />
+                                <input type="email" name="email" style={styles.input} required onChange={handleChange} />
                             </div>
                         </div>
                     )}
 
-                    <div className="form-group">
-                        <label className="form-label">Mot de passe</label>
-                        <div className="input-with-icon">
-                            <Lock size={18} />
-                            <input type="password" name="password" className="form-control" required onChange={handleChange} />
+                    <div style={styles.inputGroup}>
+                        <label style={styles.label}>Mot de passe</label>
+                        <div style={styles.inputContainer}>
+                            <Lock size={18} style={styles.icon} />
+                            <input type="password" name="password" style={styles.input} required onChange={handleChange} />
                         </div>
                     </div>
 
-                    <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
+                    <button type="submit" style={styles.button} disabled={loading}>
                         {loading ? 'Chargement...' : (isLogin ? 'Se connecter' : "S'inscrire")}
                         {!loading && <ArrowRight size={18} style={{ marginLeft: '8px' }} />}
                     </button>
                 </form>
 
-                <div className="auth-footer">
-                    <button onClick={() => { setIsLogin(!isLogin); setError(''); }} className="btn-link">
+                <div style={styles.footer}>
+                    <button onClick={() => { setIsLogin(!isLogin); setError(''); }} style={styles.link}>
                         {isLogin ? "Vous n'avez pas de compte ? S'inscrire" : "Déjà un compte ? Se connecter"}
                     </button>
                 </div>

@@ -128,16 +128,68 @@ function App() {
 
   const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
+  
+  const styles = {
+    appContainer: {
+      display: 'flex',
+      height: '100vh',
+      width: '100vw',
+      overflow: 'hidden',
+      backgroundColor: '#0b0f19',
+      color: '#f8fafc',
+      fontFamily: 'system-ui, sans-serif'
+    },
+    sidebar: {
+      width: '260px',
+      backgroundColor: '#111827',
+      borderRight: '1px solid rgba(255, 255, 255, 0.1)',
+      display: 'flex',
+      flexDirection: 'column'
+    },
+    sidebarHeader: {
+      padding: '24px',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px',
+      borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
+    },
+    navMenu: {
+      padding: '16px',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '8px',
+      flex: 1
+    },
+    mainContent: {
+      flex: 1,
+      display: 'flex',
+      flexDirection: 'column',
+      overflowY: 'auto'
+    },
+    topHeader: {
+      height: '70px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: '0 32px',
+      backgroundColor: 'rgba(11, 15, 25, 0.8)',
+      borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+      position: 'sticky',
+      top: 0,
+      zIndex: 10
+    }
+  };
+
   return (
-    <div className="app-container">
+    <div style={styles.appContainer}>
       {/* Sidebar */}
-      <aside className="sidebar">
-        <div className="sidebar-header">
-          <Ship className="sidebar-logo-icon" size={28} />
-          <span className="sidebar-title">F2N Logistics</span>
+      <aside style={styles.sidebar}>
+        <div style={styles.sidebarHeader}>
+          <Ship color="#3b82f6" size={28} />
+          <span style={{ fontSize: '1.25rem', fontWeight: '700', color: '#3b82f6' }}>F2N Logistics</span>
         </div>
 
-        <nav className="nav-menu">
+        <nav style={styles.navMenu}>
           <a className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => setActiveTab('dashboard')}>
             <LayoutDashboard size={20} />
             Tableau de Bord
@@ -171,9 +223,9 @@ function App() {
       </aside>
 
       {/* Main Content */}
-      <main className="main-content">
+      <main style={styles.mainContent}>
         {/* Top Header */}
-        <header className="top-header">
+        <header style={styles.topHeader}>
           <div className="search-bar">
             <Search size={18} />
             <input type="text" placeholder="Rechercher un dossier (ex: B/L, Facture)..." />
@@ -182,8 +234,8 @@ function App() {
           <div className="user-profile">
             <Bell size={20} style={{ color: 'var(--text-secondary)', cursor: 'pointer', marginRight: '16px' }} />
             <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontSize: '0.875rem', fontWeight: '600' }}>{user.username}</span>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{user.email}</span>
+              <span style={{ fontSize: '0.875rem', fontWeight: '600', color: '#f8fafc' }}>{user.username}</span>
+              <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{user.email}</span>
             </div>
             <div className="avatar">A</div>
           </div>
