@@ -224,17 +224,18 @@ const FacturationForm = ({ onCancel, editData }) => {
       </div>
 
       <div className="form-container" style={{
-        maxWidth: '1000px',
-        padding: '48px',
+        maxWidth: '1040px',
+        padding: 'min(48px, 5%)',
         border: '1px solid var(--border-color)',
-        position: 'relative'
+        position: 'relative',
+        margin: '0 auto'
       }}>
 
         {/* --- EN-TÊTE --- */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '48px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '48px', flexWrap: 'wrap', gap: '24px' }}>
 
           {/* Logo & Identité */}
-          <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '20px', alignItems: 'center', minWidth: '280px' }}>
             <div style={{
               width: '64px', height: '64px', borderRadius: '12px',
               backgroundColor: 'var(--accent-primary)',
@@ -257,7 +258,7 @@ const FacturationForm = ({ onCancel, editData }) => {
           </div>
 
           {/* Infos Facture */}
-          <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', gap: '12px', minWidth: '200px', flex: '1' }}>
             <div style={{
               display: 'inline-block', padding: '8px 24px', borderRadius: '8px',
               border: `2px solid ${isProforma ? 'var(--text-secondary)' : 'var(--accent-primary)'}`,
@@ -281,12 +282,12 @@ const FacturationForm = ({ onCancel, editData }) => {
         </div>
 
         {/* --- CONTEXTE DU DOSSIER --- */}
-        <div className="facture-context-grid" style={{ // Ajout de la classe pour la réactivité
-          display: 'flex', gap: '24px', marginBottom: '48px',
+        <div className="facture-context-grid" style={{
+          display: 'flex', gap: '24px', marginBottom: '48px', flexWrap: 'wrap',
           border: '1px solid var(--border-color)', borderRadius: '8px', padding: '24px'
         }}>
           {/* Colonne Client */}
-          <div style={{ flex: '1', borderRight: '1px solid var(--border-color)', paddingRight: '24px' }}>
+          <div style={{ flex: '1', minWidth: '280px', borderRight: '1px solid var(--border-color)', paddingRight: '24px' }} className="context-col">
             <h3 style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <User size={16} /> Facturé à
             </h3>
@@ -312,11 +313,11 @@ const FacturationForm = ({ onCancel, editData }) => {
           </div>
 
           {/* Colonne Expédition */}
-          <div style={{ flex: '2' }}>
+          <div style={{ flex: '2', minWidth: '280px' }}>
             <h3 className="section-title-icon" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Box size={16} /> Détails de l'Expédition
             </h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px 24px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px 24px' }}>
               <div>
                 <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }}><Hash size={12} /> B/L / LTA</span>
                 <span style={{ color: 'var(--text-primary)', fontWeight: '600', fontSize: '0.95rem' }}>{selectedDossier.numBL}</span>
@@ -404,9 +405,9 @@ const FacturationForm = ({ onCancel, editData }) => {
         </div>
 
         {/* --- RÉSUMÉ FINANCIER --- */}
-        <div className="facture-summary-grid" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div className="facture-summary-grid" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '24px' }}>
 
-          <div style={{ width: '45%', color: 'var(--text-secondary)', fontSize: '0.85rem', border: '1px solid var(--border-color)', padding: '16px', borderRadius: '8px' }}>
+          <div style={{ flex: '1', minWidth: '280px', color: 'var(--text-secondary)', fontSize: '0.85rem', border: '1px solid var(--border-color)', padding: '16px', borderRadius: '8px' }}>
             <p style={{ marginBottom: '8px', color: 'var(--text-primary)' }}><strong>Conditions de paiement :</strong></p>
             <p>Paiement à réception de la facture par chèque ou virement bancaire.<br /><br />
               <strong>Banque BICIS</strong><br />
@@ -414,7 +415,7 @@ const FacturationForm = ({ onCancel, editData }) => {
               Code SWIFT: BICISNXXXX</p>
           </div>
 
-          <div style={{ width: '380px', border: '2px solid var(--border-color)', borderRadius: '8px', padding: '24px' }}>
+          <div style={{ width: '100%', maxWidth: '380px', border: '2px solid var(--border-color)', borderRadius: '8px', padding: '24px', marginLeft: 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontSize: '1rem' }}>
               <span style={{ color: 'var(--text-secondary)' }}>Sous-total HT</span>
               <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{formatCurrency(sousTotal)}</span>
@@ -433,8 +434,8 @@ const FacturationForm = ({ onCancel, editData }) => {
       </div>
 
       {/* --- BOUTONS D'ACTION (Hors Document) --- */}
-      <div className="form-actions no-print" style={{ maxWidth: '1000px', margin: '24px auto 0 auto', borderTop: 'none', padding: '0', display: 'flex', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', gap: '8px' }}>
+      <div className="form-actions no-print" style={{ maxWidth: '1040px', margin: '24px auto 0 auto', borderTop: 'none', padding: '0', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
           <button type="button" className="btn btn-outline" onClick={() => window.print()}>
             <Printer size={18} />
             Imprimer
@@ -450,7 +451,7 @@ const FacturationForm = ({ onCancel, editData }) => {
             </button>
           )}
         </div>
-        <div style={{ display: 'flex', gap: '16px' }}>
+        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
           <button type="button" className="btn btn-outline" onClick={() => handleSave('Proforma')}>
             <Save size={18} />
             Enregistrer Proforma

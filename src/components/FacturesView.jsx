@@ -61,7 +61,7 @@ const FacturesView = ({ onCreateFacture, onViewFacture }) => {
 
   return (
     <div className="dashboard-page">
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' }}>
         <div>
           <h1 className="page-title">Facturation</h1>
           <p className="page-subtitle">Gérez et éditez vos factures et proformas logistiques</p>
@@ -73,22 +73,22 @@ const FacturesView = ({ onCreateFacture, onViewFacture }) => {
       </div>
 
       {/* Stats rapides */}
-      <div style={{ display: 'flex', gap: '16px', marginBottom: '32px' }}>
-        <div style={{ flex: 1, padding: '16px 24px', backgroundColor: 'var(--bg-card)', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <div style={{ display: 'flex', gap: '16px', marginBottom: '32px', flexWrap: 'wrap' }}>
+        <div style={{ flex: '1 1 280px', padding: '16px 24px', backgroundColor: 'var(--bg-card)', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '12px' }}>
           <DollarSign size={20} color="var(--accent-primary)" />
           <div>
             <span style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--text-primary)' }}>{formatCurrency(totalCA)}</span>
             <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Chiffre d'Affaires</span>
           </div>
         </div>
-        <div style={{ flex: 1, padding: '16px 24px', backgroundColor: 'var(--bg-card)', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ flex: '1 1 280px', padding: '16px 24px', backgroundColor: 'var(--bg-card)', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '12px' }}>
           <Layers size={20} color="var(--accent-secondary)" />
           <div>
             <span style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--text-primary)' }}>{formatCurrency(totalProforma)}</span>
             <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Proformas Émises</span>
           </div>
         </div>
-        <div style={{ flex: 1, padding: '16px 24px', backgroundColor: 'var(--bg-card)', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ flex: '1 1 280px', padding: '16px 24px', backgroundColor: 'var(--bg-card)', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '12px' }}>
           <FileText size={20} color="var(--accent-warning)" />
           <div>
             <span style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--text-primary)' }}>{factures.length}</span>

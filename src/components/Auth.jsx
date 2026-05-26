@@ -46,7 +46,7 @@ const Auth = () => {
 
     const styles = {
         wrapper: {
-            height: '100vh',
+            minHeight: '100vh',
             width: '100vw',
             display: 'flex',
             alignItems: 'center',
@@ -57,11 +57,13 @@ const Auth = () => {
             position: 'fixed',
             top: 0,
             left: 0,
-            zIndex: 9999
+            zIndex: 9999,
+            overflowY: 'auto',
+            padding: '20px 0'
         },
         card: {
             backgroundColor: '#111827',
-            padding: '40px',
+            padding: 'min(40px, 8%)',
             borderRadius: '12px',
             width: '90%',
             maxWidth: '400px',

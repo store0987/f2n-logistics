@@ -95,7 +95,7 @@ const DossiersView = () => {
 
   return (
     <div className="dashboard-page">
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' }}>
         <div>
           <h1 className="page-title">Dossiers & Opérations</h1>
           <p className="page-subtitle">Suivez l'ensemble de vos expéditions import/export</p>
@@ -107,29 +107,29 @@ const DossiersView = () => {
       </div>
 
       {/* Barre de stats rapides */}
-      <div style={{ display: 'flex', gap: '16px', marginBottom: '32px' }}>
-        <div style={{ flex: 1, padding: '16px 24px', backgroundColor: 'var(--bg-card)', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <div style={{ display: 'flex', gap: '16px', marginBottom: '32px', flexWrap: 'wrap' }}>
+        <div style={{ flex: '1 1 220px', padding: '16px 24px', backgroundColor: 'var(--bg-card)', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '12px' }}>
           <FileText size={20} color="var(--accent-primary)" />
           <div>
             <span style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--text-primary)' }}>{dossiers.length}</span>
             <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Total Dossiers</span>
           </div>
         </div>
-        <div style={{ flex: 1, padding: '16px 24px', backgroundColor: 'var(--bg-card)', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ flex: '1 1 220px', padding: '16px 24px', backgroundColor: 'var(--bg-card)', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '12px' }}>
           <Ship size={20} color="var(--accent-primary)" />
           <div>
             <span style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--text-primary)' }}>{dossiers.filter(d => d.typeOperation === 'Import').length}</span>
             <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Imports</span>
           </div>
         </div>
-        <div style={{ flex: 1, padding: '16px 24px', backgroundColor: 'var(--bg-card)', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ flex: '1 1 220px', padding: '16px 24px', backgroundColor: 'var(--bg-card)', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '12px' }}>
           <Plane size={20} color="var(--accent-secondary)" />
           <div>
             <span style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--text-primary)' }}>{dossiers.filter(d => d.typeOperation === 'Export').length}</span>
             <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Exports</span>
           </div>
         </div>
-        <div style={{ flex: 1, padding: '16px 24px', backgroundColor: 'var(--bg-card)', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ flex: '1 1 220px', padding: '16px 24px', backgroundColor: 'var(--bg-card)', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '12px' }}>
           <FileText size={20} color="var(--accent-warning)" />
           <div>
             <span style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--text-primary)' }}>{dossiers.filter(d => d.statutFacturation === 'À Facturer').length}</span>

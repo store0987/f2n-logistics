@@ -25,7 +25,9 @@ import {
   ArrowDownRight,
   Plus,
   DollarSign,
-  LogOut
+  LogOut,
+  Menu,
+  X
 } from 'lucide-react';
 
 function App() {
@@ -41,6 +43,8 @@ function App() {
   React.useEffect(() => {
     localStorage.setItem('activeTab', activeTab);
   }, [activeTab]);
+
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const [isLoading, setIsLoading] = useState(true);
   const [dossiers, setDossiers] = useState([]);
@@ -84,6 +88,11 @@ function App() {
     localStorage.removeItem('f2n_user');
     // Force le rechargement complet pour éviter l'écran noir
     window.location.href = '/';
+  };
+
+  const handleNavClick = (tab) => {
+    setActiveTab(tab);
+    setIsSidebarOpen(false);
   };
 
   if (!user) return <Auth />;
@@ -162,7 +171,7 @@ function App() {
       flexDirection: 'column'
     },
     sidebarHeader: {
-      padding: '24px',
+      padding: '20px 24px',
       display: 'flex',
       alignItems: 'center',
       gap: '12px',
@@ -225,36 +234,98 @@ function App() {
 
   return ( // Utilisation de classes CSS pour la structure principale
     <div className="app-container" key={user.id}>
+      <style>{`
+        @media (max-width: 1024px) {
+          .sidebar {
+            position: fixed !important;
+            left: -260px !important;
+            top: 0 !important;
+            bottom: 0 !important;
+            z-index: 1000 !important;
+            transition: left 0.3s ease !important;
+            width: 260px !important;
+            display: flex !important;
+          }
+          .sidebar.open {
+            left: 0 !important;
+          }
+          .sidebar-overlay {
+            display: block !important;
+          }
+          .menu-toggle {
+            display: flex !important;
+            align-items: center;
+          }
+          .hide-on-mobile {
+            display: none !important;
+          }
+          .stats-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .dashboard-charts {
+            grid-template-columns: 1fr !important;
+          }
+          .data-table-container {
+            overflow-x: auto !important;
+            width: 100% !important;
+            -webkit-overflow-scrolling: touch;
+          }
+          .data-table {
+            min-width: 800px;
+          }
+          .page-header {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: 16px;
+          }
+          .user-profile .avatar {
+            margin-left: 8px;
+          }
+        }
+      `}</style>
+
+      {/* Overlay pour fermer le menu mobile au clic extérieur */}
+      {isSidebarOpen && (
+        <div 
+          className="sidebar-overlay" 
+          onClick={() => setIsSidebarOpen(false)} 
+          style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 999, display: 'none' }} 
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="sidebar" style={styles.sidebar}>
+      <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`} style={styles.sidebar}>
         <div className="sidebar-header" style={styles.sidebarHeader}>
           <Ship color="#3b82f6" size={28} />
-          <span style={{ fontSize: '1.25rem', fontWeight: '700', color: '#3b82f6' }}>F2N Logistics</span>
+          <span style={{ fontSize: '1.25rem', fontWeight: '700', color: '#3b82f6', flex: 1 }}>F2N Logistics</span>
+          <button className="menu-toggle" onClick={() => setIsSidebarOpen(false)} style={{ display: 'none', background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}>
+            <X size={24} />
+          </button>
         </div>
 
         <nav style={styles.navMenu}>
-          <a style={styles.navItem(activeTab === 'dashboard')} onClick={() => setActiveTab('dashboard')}>
+          <a style={styles.navItem(activeTab === 'dashboard')} onClick={() => handleNavClick('dashboard')}>
             <LayoutDashboard size={20} />
             Tableau de Bord
           </a>
-          <a style={styles.navItem(activeTab === 'dossiers')} onClick={() => setActiveTab('dossiers')}>
+          <a style={styles.navItem(activeTab === 'dossiers')} onClick={() => handleNavClick('dossiers')}>
             <Truck size={20} />
             Dossiers / Opérations
           </a>
-          <a style={styles.navItem(activeTab === 'debours')} onClick={() => setActiveTab('debours')}>
+          <a style={styles.navItem(activeTab === 'debours')} onClick={() => handleNavClick('debours')}>
             <DollarSign size={20} />
             Gestion Débours
           </a>
-          <a style={styles.navItem(activeTab === 'factures')} onClick={() => setActiveTab('factures')}>
+          <a style={styles.navItem(activeTab === 'factures')} onClick={() => handleNavClick('factures')}>
             <FileText size={20} />
             Facturation
           </a>
-          <a style={styles.navItem(activeTab === 'clients')} onClick={() => setActiveTab('clients')}>
+          <a style={styles.navItem(activeTab === 'clients')} onClick={() => handleNavClick('clients')}>
             <Users size={20} />
             Clients & Partenaires
           </a>
           <div style={{ flex: 1 }}></div>
-          <a style={styles.navItem(activeTab === 'settings')} onClick={() => setActiveTab('settings')}>
+          <a style={styles.navItem(activeTab === 'settings')} onClick={() => handleNavClick('settings')}>
             <Settings size={20} />
             Paramètres
           </a>
@@ -269,6 +340,10 @@ function App() {
       <main className="main-content" style={styles.mainContent}>
         {/* Top Header */}
         <header style={styles.topHeader}>
+          <button className="menu-toggle" onClick={() => setIsSidebarOpen(true)} style={{ display: 'none', background: 'none', border: 'none', color: '#f8fafc', cursor: 'pointer', marginRight: '16px' }}>
+            <Menu size={24} />
+          </button>
+
           <div className="search-bar">
             <Search size={18} />
             <input type="text" placeholder="Rechercher un dossier (ex: B/L, Facture)..." />
@@ -354,7 +429,7 @@ function App() {
             </div>
 
             {/* Dashboard Charts */}
-            <div className="dashboard-charts" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px', marginBottom: '32px' }}>
+            <div className="dashboard-charts" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 400px), 1fr))', gap: '24px', marginBottom: '32px' }}>
               <div className="stat-card" style={{ flexDirection: 'column', height: '400px', alignItems: 'stretch' }}>
                 <h3 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '24px' }}>Évolution du Chiffre d'Affaires ({new Date().getFullYear()})</h3>
                 <ResponsiveContainer width="100%" height="100%">

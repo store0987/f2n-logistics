@@ -39,8 +39,9 @@ const SkeletonLoader = () => {
             height: '40px',
             backgroundColor: 'rgba(30, 41, 59, 0.7)',
             borderRadius: '8px',
-            width: '60%',
+            width: 'min(60%, 300px)',
             animation: 'pulse 1.5s infinite ease-in-out',
+            marginBottom: '24px'
         },
         statsGrid: {
             display: 'grid',
@@ -73,6 +74,27 @@ const SkeletonLoader = () => {
 
     return (
         <div style={styles.wrapper}>
+            <style>{`
+                @media (max-width: 1024px) {
+                    .sidebar {
+                        display: none !important;
+                    }
+                    .stats-grid {
+                        grid-template-columns: 1fr !important;
+                    }
+                    .dashboard-charts {
+                        grid-template-columns: 1fr !important;
+                    }
+                    .main-content {
+                        padding: 20px !important;
+                    }
+                }
+                @keyframes pulse {
+                    0% { opacity: 1; }
+                    50% { opacity: 0.4; }
+                    100% { opacity: 1; }
+                }
+            `}</style>
             <aside className="sidebar" style={styles.sidebar}>
                 <div style={{ ...styles.sidebarItem, height: '60px', width: '60px', borderRadius: '12px', marginBottom: '24px' }}></div>
                 <div style={styles.sidebarItem}></div>
