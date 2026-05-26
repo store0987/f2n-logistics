@@ -55,7 +55,8 @@ const Auth = ({ onLogin }) => {
             fontFamily: 'system-ui, sans-serif',
             position: 'fixed',
             top: 0,
-            left: 0
+            left: 0,
+            zIndex: 9999
         },
         card: {
             backgroundColor: '#111827',

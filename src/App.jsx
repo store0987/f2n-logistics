@@ -73,7 +73,7 @@ function App() {
       setFactureViewMode('list');
       setEditFactureData(null);
     }
-  }, [activeTab]);
+  }, [activeTab, user]);
 
   const handleLogout = () => {
     localStorage.removeItem('f2n_user');
@@ -128,7 +128,6 @@ function App() {
 
   const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
-  
   const styles = {
     appContainer: {
       display: 'flex',
@@ -142,6 +141,7 @@ function App() {
     sidebar: {
       width: '260px',
       backgroundColor: '#111827',
+      height: '100vh',
       borderRight: '1px solid rgba(255, 255, 255, 0.1)',
       display: 'flex',
       flexDirection: 'column'
@@ -177,6 +177,42 @@ function App() {
       position: 'sticky',
       top: 0,
       zIndex: 10
+    },
+    statsGrid: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+      gap: '24px',
+      marginBottom: '32px'
+    },
+    statCard: {
+      backgroundColor: 'rgba(30, 41, 59, 0.7)',
+      border: '1px solid rgba(255, 255, 255, 0.1)',
+      borderRadius: '12px',
+      padding: '24px',
+      display: 'flex',
+      alignItems: 'flex-start',
+      justifyContent: 'space-between',
+      transition: 'transform 0.2s'
+    },
+    statIcon: {
+      padding: '12px',
+      borderRadius: '8px',
+      backgroundColor: 'rgba(255, 255, 255, 0.05)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+    avatar: {
+      width: '40px',
+      height: '40px',
+      borderRadius: '50%',
+      background: 'linear-gradient(135deg, #3b82f6, #10b981)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontWeight: '600',
+      color: 'white',
+      marginLeft: '12px'
     }
   };
 
@@ -245,7 +281,7 @@ function App() {
         {activeTab === 'dashboard' && (
           <div className="dashboard-page">
             <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
+              <div style={{ marginBottom: '24px' }}>
                 <h1 className="page-title">Aperçu Global</h1>
                 <p className="page-subtitle">Performances et statuts des dossiers en cours</p>
               </div>
@@ -256,8 +292,8 @@ function App() {
             </div>
 
             {/* Stats Cards */}
-            <div className="stats-grid">
-              <div className="stat-card">
+            <div style={styles.statsGrid}>
+              <div style={styles.statCard}>
                 <div className="stat-info">
                   <span className="stat-label">Chiffre d'Affaires (Mois)</span>
                   <span className="stat-value">{formatCurrency(caMois)}</span>
@@ -265,12 +301,12 @@ function App() {
                     Basé sur les factures validées
                   </span>
                 </div>
-                <div className="stat-icon" style={{ color: 'var(--accent-primary)' }}>
+                <div style={{ ...styles.statIcon, color: '#3b82f6' }}>
                   <FileText size={24} />
                 </div>
               </div>
 
-              <div className="stat-card">
+              <div style={styles.statCard}>
                 <div className="stat-info">
                   <span className="stat-label">Dossiers en Cours</span>
                   <span className="stat-value">{dossiersEnCours}</span>
@@ -278,12 +314,12 @@ function App() {
                     Total dossiers enregistrés
                   </span>
                 </div>
-                <div className="stat-icon" style={{ color: 'var(--accent-secondary)' }}>
+                <div style={{ ...styles.statIcon, color: '#10b981' }}>
                   <Ship size={24} />
                 </div>
               </div>
 
-              <div className="stat-card">
+              <div style={styles.statCard}>
                 <div className="stat-info">
                   <span className="stat-label">Encours Facturé (Proforma)</span>
                   <span className="stat-value">{formatCurrency(facturesImpayees)}</span>
@@ -291,12 +327,12 @@ function App() {
                     Proformas en attente
                   </span>
                 </div>
-                <div className="stat-icon" style={{ color: 'var(--accent-danger)' }}>
+                <div style={{ ...styles.statIcon, color: '#ef4444' }}>
                   <Users size={24} />
                 </div>
               </div>
 
-              <div className="stat-card">
+              <div style={styles.statCard}>
                 <div className="stat-info">
                   <span className="stat-label">Débours en Attente</span>
                   <span className="stat-value">{formatCurrency(totalDeboursEnAttente)}</span>
@@ -304,15 +340,15 @@ function App() {
                     À facturer aux clients
                   </span>
                 </div>
-                <div className="stat-icon" style={{ color: 'var(--accent-warning)' }}>
+                <div style={{ ...styles.statIcon, color: '#f59e0b' }}>
                   <Plane size={24} />
                 </div>
               </div>
             </div>
 
             {/* Dashboard Charts */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px', marginBottom: '32px' }}>
-              <div className="stat-card" style={{ flexDirection: 'column', height: '400px', alignItems: 'stretch' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px', marginBottom: '32px', padding: '0 32px' }}>
+              <div style={{ ...styles.statCard, flexDirection: 'column', height: '400px', alignItems: 'stretch' }}>
                 <h3 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '24px' }}>Évolution du Chiffre d'Affaires ({new Date().getFullYear()})</h3>
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={monthlyData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
@@ -325,7 +361,7 @@ function App() {
                 </ResponsiveContainer>
               </div>
 
-              <div className="stat-card" style={{ flexDirection: 'column', height: '400px', alignItems: 'stretch' }}>
+              <div style={{ ...styles.statCard, flexDirection: 'column', height: '400px', alignItems: 'stretch' }}>
                 <h3 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '24px' }}>Répartition par Mode de Transport</h3>
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
@@ -348,7 +384,7 @@ function App() {
                 </ResponsiveContainer>
               </div>
 
-              <div className="stat-card" style={{ flexDirection: 'column', height: '400px', alignItems: 'stretch', gridColumn: '1 / -1' }}>
+              <div style={{ ...styles.statCard, flexDirection: 'column', height: '400px', alignItems: 'stretch', gridColumn: '1 / -1' }}>
                 <h3 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '24px' }}>Top 5 Clients les plus Rentables</h3>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={topClientsData} layout="vertical" margin={{ left: 60, right: 40, top: 0, bottom: 20 }}>
