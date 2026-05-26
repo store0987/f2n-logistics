@@ -131,6 +131,36 @@ try {
             }
             break;
 
+        case 'debours':
+            if ($method === 'GET') {
+                if (isset($_GET['dossier_id'])) {
+                    // Récupérer les débours en attente pour un dossier spécifique
+                    $stmt = $pdo->prepare("SELECT * FROM debours WHERE dossier_id = ? AND statut = 'En attente'");
+                    $stmt->execute([$_GET['dossier_id']]);
+                    respond($stmt->fetchAll());
+                } else {
+                    // Liste globale
+                    $sql = "SELECT db.*, c.nom as client_nom FROM debours db 
+                            LEFT JOIN dossiers d ON db.dossier_id = d.id 
+                            LEFT JOIN clients c ON d.client_id = c.id ORDER BY db.date DESC";
+                    respond($pdo->query($sql)->fetchAll());
+                }
+            } elseif ($method === 'POST') {
+                $sql = "INSERT INTO debours (date, dossier_id, description, montant, statut) VALUES (?, ?, ?, ?, ?)";
+                $pdo->prepare($sql)->execute([
+                    $input['date'] ?? date('Y-m-d'),
+                    $input['dossier_id'],
+                    $input['description'],
+                    $input['montant'],
+                    'En attente'
+                ]);
+                respond(["id" => $pdo->lastInsertId(), "message" => "Débours enregistré"]);
+            } elseif ($method === 'DELETE' && $id) {
+                $pdo->prepare("DELETE FROM debours WHERE id = ?")->execute([$id]);
+                respond(["message" => "Débours supprimé"]);
+            }
+            break;
+
         case 'next-facture-number':
         // Note: l'URL attendue est /api/next-facture-number/PRO ou FACT
         $type = $id; // Dans ce cas, l'ID est le type (PRO ou FACT)
@@ -169,6 +199,7 @@ try {
             $info = $input['factureInfo'];
             $lignes = $input['lignes'];
             $totaux = $input['totaux'];
+            $deboursIds = $input['debours_ids'] ?? [];
             
             $pdo->beginTransaction();
             try {
@@ -196,6 +227,14 @@ try {
                 if ($info['statut'] === 'Validée' && !empty($dossier_id)) {
                     $pdo->prepare("UPDATE dossiers SET statutFacturation = 'Facturé' WHERE id = ?")
                         ->execute([$dossier_id]);
+                }
+
+                // --- NOUVEAU: Liaison des débours importés ---
+                if (!empty($deboursIds)) {
+                    $placeholders = implode(',', array_fill(0, count($deboursIds), '?'));
+                    $sqlDb = "UPDATE debours SET statut = 'Facturé', facture_id = ? WHERE id IN ($placeholders)";
+                    $params = array_merge([$info['numeroFacture']], $deboursIds);
+                    $pdo->prepare($sqlDb)->execute($params);
                 }
                 // --- FIN NOUVEAU ---
 

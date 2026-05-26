@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { API_BASE_URL } from '../api';
-import { Plus, Trash2, Printer, Save, CheckCircle, Ship, MapPin, Box, Hash, User } from 'lucide-react';
+import { Plus, Trash2, Printer, Save, CheckCircle, Ship, MapPin, Box, Hash, User, Download } from 'lucide-react';
 
 const FacturationForm = ({ onCancel, editData }) => {
   const [availableDossiers, setAvailableDossiers] = useState([]);
+  const [pendingDebours, setPendingDebours] = useState([]);
+  const [importedDeboursIds, setImportedDeboursIds] = useState([]);
+
   const [factureInfo, setFactureInfo] = useState({
     numeroFacture: 'Chargement...',
     date: new Date().toISOString().split('T')[0],
@@ -27,8 +30,20 @@ const FacturationForm = ({ onCancel, editData }) => {
     }
   };
 
+  const fetchPendingDebours = async (dossierId) => {
+    if (!dossierId) return;
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/debours?dossier_id=${dossierId}`);
+      const data = await response.json();
+      setPendingDebours(data);
+    } catch (error) {
+      console.error('Erreur lors du chargement des débours:', error);
+    }
+  };
+
   React.useEffect(() => {
     fetchDossiers();
+    if (factureInfo.dossierLie) fetchPendingDebours(factureInfo.dossierLie);
 
     const fetchNextNumber = async () => {
       if (!editData) {
@@ -66,7 +81,7 @@ const FacturationForm = ({ onCancel, editData }) => {
       };
       loadInvoiceData();
     }
-  }, [editData]);
+  }, [editData, factureInfo.dossierLie]);
 
   const selectedDossier = availableDossiers.find(d => d.id === factureInfo.dossierLie) || {
     client_nom: '-',
@@ -88,6 +103,19 @@ const FacturationForm = ({ onCancel, editData }) => {
     setFactureInfo({ ...factureInfo, [e.target.name]: e.target.value });
   };
 
+  const handleImportDebour = (db) => {
+    const newLigne = {
+      id: lignes.length > 0 ? Math.max(...lignes.map(l => l.id)) + 1 : 1,
+      description: db.description,
+      quantite: 1,
+      prixUnitaire: db.montant,
+      taxable: false // Souvent les débours ne sont pas taxés (frais tiers)
+    };
+    setLignes([...lignes, newLigne]);
+    setImportedDeboursIds([...importedDeboursIds, db.id]);
+    setPendingDebours(pendingDebours.filter(d => d.id !== db.id));
+  };
+
   const handleSave = async (statut = 'Proforma', customNumFacture = null) => {
     const payload = {
       factureInfo: {
@@ -97,6 +125,7 @@ const FacturationForm = ({ onCancel, editData }) => {
         statut
       },
       lignes,
+      debours_ids: importedDeboursIds,
       totaux: {
         sousTotal,
         montantTva: montantTVA,
@@ -277,6 +306,22 @@ const FacturationForm = ({ onCancel, editData }) => {
             </div>
           </div>
         </div>
+
+        {/* --- IMPORT DÉBOURS --- */}
+        {pendingDebours.length > 0 && isProforma && (
+          <div className="no-print" style={{ marginBottom: '24px', backgroundColor: 'var(--accent-primary-light)', padding: '16px', borderRadius: '8px', border: '1px dashed var(--accent-primary)' }}>
+            <h4 style={{ fontSize: '0.85rem', marginBottom: '12px', color: 'var(--accent-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Download size={16} /> Débours en attente pour ce dossier
+            </h4>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              {pendingDebours.map(db => (
+                <button key={db.id} type="button" onClick={() => handleImportDebour(db)} className="btn btn-outline" style={{ fontSize: '0.75rem', padding: '4px 8px' }}>
+                  + {db.description} ({formatCurrency(db.montant)})
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* --- LIGNES DE FACTURE --- */}
         <div style={{ marginBottom: '32px' }}>

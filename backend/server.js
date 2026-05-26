@@ -99,6 +99,20 @@ pool.getConnection()
             FOREIGN KEY (facture_id) REFERENCES factures(numeroFacture) ON DELETE CASCADE
           )
         `);
+
+        await pool.execute(`
+          CREATE TABLE IF NOT EXISTS debours (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            date DATE,
+            dossier_id VARCHAR(255),
+            description TEXT,
+            montant DECIMAL(10, 2),
+            statut VARCHAR(50) DEFAULT 'En attente',
+            facture_id VARCHAR(255),
+            FOREIGN KEY (dossier_id) REFERENCES dossiers(id) ON DELETE SET NULL,
+            FOREIGN KEY (facture_id) REFERENCES factures(numeroFacture) ON DELETE SET NULL
+          )
+        `);
         console.log('Tables MySQL initialisées.');
       } catch (err) {
         console.error('Erreur lors de la création des tables MySQL:', err.message);
