@@ -106,9 +106,9 @@ function App() {
 
   const formatCurrency = (amount) => new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA';
 
-  const caMois = factures.filter(f => f.statut === 'Validée').reduce((sum, f) => sum + f.totalTtc, 0);
+  const caMois = factures.filter(f => f.statut === 'Validée').reduce((sum, f) => sum + parseFloat(f.totalTtc || 0), 0);
   const dossiersEnCours = dossiers.length;
-  const facturesImpayees = factures.filter(f => f.statut === 'Proforma').reduce((sum, f) => sum + f.totalTtc, 0);
+  const facturesImpayees = factures.filter(f => f.statut === 'Proforma').reduce((sum, f) => sum + parseFloat(f.totalTtc || 0), 0);
   const totalDeboursEnAttente = debours.filter(d => d.statut === 'En attente').reduce((sum, d) => sum + parseFloat(d.montant), 0);
 
   // Préparation des données pour les graphiques
@@ -120,7 +120,7 @@ function App() {
     factures.filter(f => f.statut === 'Validée' && f.date).forEach(f => {
       const d = new Date(f.date);
       if (d.getFullYear() === currentYear) {
-        data[d.getMonth()].total += parseFloat(f.totalTtc);
+        data[d.getMonth()].total += parseFloat(f.totalTtc || 0);
       }
     });
     return data;
@@ -138,7 +138,7 @@ function App() {
   const topClientsData = React.useMemo(() => {
     const totals = factures.filter(f => f.statut === 'Validée').reduce((acc, f) => {
       const name = f.client_nom || 'Inconnu';
-      acc[name] = (acc[name] || 0) + parseFloat(f.totalTtc);
+      acc[name] = (acc[name] || 0) + parseFloat(f.totalTtc || 0);
       return acc;
     }, {});
     return Object.keys(totals)

@@ -53,8 +53,8 @@ const FacturesView = ({ onCreateFacture, onViewFacture }) => {
   // Totaux statistiques
   const { totalCA, totalProforma } = React.useMemo(() => {
     return factures.reduce((acc, f) => {
-      if (f.statut === 'Validée') acc.totalCA += f.totalTtc;
-      if (f.statut === 'Proforma') acc.totalProforma += f.totalTtc;
+      if (f.statut === 'Validée') acc.totalCA += parseFloat(f.totalTtc || 0);
+      if (f.statut === 'Proforma') acc.totalProforma += parseFloat(f.totalTtc || 0);
       return acc;
     }, { totalCA: 0, totalProforma: 0 });
   }, [factures]);
