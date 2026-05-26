@@ -28,7 +28,8 @@ const Auth = ({ onLogin }) => {
             if (response.ok) {
                 if (isLogin) {
                     localStorage.setItem('f2n_user', JSON.stringify(data));
-                    onLogin(data);
+                    // Force le rechargement pour initialiser proprement le dashboard
+                    window.location.href = '/';
                 } else {
                     alert("Compte créé avec succès ! Connectez-vous maintenant.");
                     setIsLogin(true);

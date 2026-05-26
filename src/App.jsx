@@ -81,8 +81,8 @@ function App() {
 
   const handleLogout = () => {
     localStorage.removeItem('f2n_user');
-    setUser(null);
-    setActiveTab('dashboard');
+    // Force le rechargement complet pour éviter l'écran noir
+    window.location.href = '/';
   };
 
   if (!user) return <Auth onLogin={setUser} />;

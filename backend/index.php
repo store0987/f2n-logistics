@@ -24,7 +24,86 @@ try {
         username VARCHAR(255) UNIQUE NOT NULL,
         email VARCHAR(255) UNIQUE NOT NULL,
         password VARCHAR(255) NOT NULL
-    )");
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+    // Table clients
+    $pdo->exec("CREATE TABLE IF NOT EXISTS clients (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        type VARCHAR(255) NOT NULL,
+        nom VARCHAR(255) NOT NULL,
+        nif VARCHAR(255),
+        rccm VARCHAR(255),
+        contact VARCHAR(255),
+        email VARCHAR(255),
+        tel VARCHAR(255),
+        adresse TEXT,
+        ville VARCHAR(255)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+    // Table dossiers
+    $pdo->exec("CREATE TABLE IF NOT EXISTS dossiers (
+        id VARCHAR(255) PRIMARY KEY,
+        typeOperation VARCHAR(255),
+        modeTransport VARCHAR(255),
+        numBL VARCHAR(255),
+        incoterm VARCHAR(255),
+        compagnie VARCHAR(255),
+        navire VARCHAR(255),
+        numVoyage VARCHAR(255),
+        etd DATE,
+        eta DATE,
+        origine VARCHAR(255),
+        destination VARCHAR(255),
+        client_id INT,
+        expediteur VARCHAR(255),
+        natureMarchandise TEXT,
+        nombresColis VARCHAR(255),
+        typeConteneur VARCHAR(255),
+        poids VARCHAR(255),
+        volume VARCHAR(255),
+        valeurMarchandise VARCHAR(255),
+        dateCreation DATE,
+        statutFacturation VARCHAR(255) DEFAULT 'À Facturer',
+        FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE SET NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+    // Table factures
+    $pdo->exec("CREATE TABLE IF NOT EXISTS factures (
+        numeroFacture VARCHAR(255) PRIMARY KEY,
+        date DATE,
+        dossier_id VARCHAR(255),
+        client_id INT,
+        statut VARCHAR(255),
+        sousTotal DECIMAL(10, 2),
+        montantTva DECIMAL(10, 2),
+        totalTtc DECIMAL(10, 2),
+        FOREIGN KEY (dossier_id) REFERENCES dossiers(id) ON DELETE SET NULL,
+        FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE SET NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+    // Table facture_lignes
+    $pdo->exec("CREATE TABLE IF NOT EXISTS facture_lignes (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        facture_id VARCHAR(255),
+        description TEXT,
+        quantite DECIMAL(10, 2),
+        prixUnitaire DECIMAL(10, 2),
+        taxable TINYINT(1) DEFAULT 0,
+        FOREIGN KEY (facture_id) REFERENCES factures(numeroFacture) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+    // Table debours
+    $pdo->exec("CREATE TABLE IF NOT EXISTS debours (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        date DATE,
+        dossier_id VARCHAR(255),
+        description TEXT,
+        montant DECIMAL(10, 2),
+        statut VARCHAR(50) DEFAULT 'En attente',
+        facture_id VARCHAR(255),
+        FOREIGN KEY (dossier_id) REFERENCES dossiers(id) ON DELETE SET NULL,
+        FOREIGN KEY (facture_id) REFERENCES factures(numeroFacture) ON DELETE SET NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 } catch (PDOException $e) {
     http_response_code(500);
     die(json_encode(["error" => "Erreur de connexion : " . $e->getMessage()]));
