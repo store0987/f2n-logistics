@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { API_BASE_URL } from '../api';
 import { Ship, Mail, Lock, User, ArrowRight } from 'lucide-react';
 
-const Auth = ({ onLogin }) => {
+const Auth = () => {
     const [isLogin, setIsLogin] = useState(true);
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({ username: '', password: '', email: '' });
@@ -69,7 +69,7 @@ const Auth = ({ onLogin }) => {
             boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5)'
         },
         header: {
-            textAlign: 'center',
+            // textAlign: 'center', // Géré par .auth-header dans index.css
             marginBottom: '32px'
         },
         logo: {
@@ -82,7 +82,7 @@ const Auth = ({ onLogin }) => {
             justifyContent: 'center',
             margin: '0 auto 16px auto'
         },
-        title: { fontSize: '1.75rem', fontWeight: '800', marginBottom: '8px', color: '#f8fafc' },
+        title: { fontSize: '1.75rem', fontWeight: '800', marginBottom: '8px', color: '#f8fafc', textAlign: 'center' },
         subtitle: { color: '#94a3b8', fontSize: '0.9rem' },
         form: { display: 'flex', flexDirection: 'column', gap: '20px' },
         error: {
@@ -125,10 +125,10 @@ const Auth = ({ onLogin }) => {
     };
 
     return (
-        <div style={styles.wrapper}>
-            <div style={styles.card}>
-                <div style={styles.header}>
-                    <div style={styles.logo}>
+        <div className="auth-wrapper" style={styles.wrapper}>
+            <div className="auth-card" style={styles.card}>
+                <div className="auth-header" style={styles.header}>
+                    <div className="auth-logo" style={styles.logo}>
                         <Ship size={32} color="white" />
                     </div>
                     <h1 style={styles.title}>F2N Logistics</h1>
@@ -138,40 +138,40 @@ const Auth = ({ onLogin }) => {
                 <form onSubmit={handleSubmit} style={styles.form}>
                     {error && <div style={styles.error}>{error}</div>}
 
-                    <div style={styles.inputGroup}>
-                        <label style={styles.label}>Nom d'utilisateur</label>
-                        <div style={styles.inputContainer}>
+                    <div className="auth-input-group" style={styles.inputGroup}>
+                        <label className="auth-label" style={styles.label}>Nom d'utilisateur</label>
+                        <div className="auth-input-container" style={styles.inputContainer}>
                             <User size={18} style={styles.icon} />
-                            <input type="text" name="username" style={styles.input} required onChange={handleChange} />
+                            <input type="text" name="username" className="auth-input" style={styles.input} required onChange={handleChange} />
                         </div>
                     </div>
 
                     {!isLogin && (
-                        <div style={styles.inputGroup}>
-                            <label style={styles.label}>Email</label>
-                            <div style={styles.inputContainer}>
+                        <div className="auth-input-group" style={styles.inputGroup}>
+                            <label className="auth-label" style={styles.label}>Email</label>
+                            <div className="auth-input-container" style={styles.inputContainer}>
                                 <Mail size={18} style={styles.icon} />
-                                <input type="email" name="email" style={styles.input} required onChange={handleChange} />
+                                <input type="email" name="email" className="auth-input" style={styles.input} required onChange={handleChange} />
                             </div>
                         </div>
                     )}
 
-                    <div style={styles.inputGroup}>
-                        <label style={styles.label}>Mot de passe</label>
+                    <div className="auth-input-group" style={styles.inputGroup}>
+                        <label className="auth-label" style={styles.label}>Mot de passe</label>
                         <div style={styles.inputContainer}>
                             <Lock size={18} style={styles.icon} />
-                            <input type="password" name="password" style={styles.input} required onChange={handleChange} />
+                            <input type="password" name="password" className="auth-input" style={styles.input} required onChange={handleChange} />
                         </div>
                     </div>
 
-                    <button type="submit" style={styles.button} disabled={loading}>
+                    <button type="submit" className="auth-button" style={styles.button} disabled={loading}>
                         {loading ? 'Chargement...' : (isLogin ? 'Se connecter' : "S'inscrire")}
                         {!loading && <ArrowRight size={18} style={{ marginLeft: '8px' }} />}
                     </button>
                 </form>
 
-                <div style={styles.footer}>
-                    <button onClick={() => { setIsLogin(!isLogin); setError(''); }} style={styles.link}>
+                <div className="auth-footer" style={styles.footer}>
+                    <button onClick={() => { setIsLogin(!isLogin); setError(''); }} className="auth-link" style={styles.link}>
                         {isLogin ? "Vous n'avez pas de compte ? S'inscrire" : "Déjà un compte ? Se connecter"}
                     </button>
                 </div>

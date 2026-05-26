@@ -102,7 +102,7 @@ const DossierForm = ({ onCancel, onSave, editData }) => {
         </button>
       </div>
 
-      <div className="form-container">
+      <div className="form-container responsive-form">
         <form onSubmit={handleSubmit}>
           
           {/* Section 1: Type & Transport */}

@@ -6,6 +6,7 @@ import FacturesView from './components/FacturesView';
 import ClientsView from './components/ClientsView';
 import DeboursView from './components/DeboursView';
 import Auth from './components/Auth';
+import SkeletonLoader from './components/SkeletonLoader';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   LineChart, Line, PieChart, Pie, Cell
@@ -85,7 +86,7 @@ function App() {
     window.location.href = '/';
   };
 
-  if (!user) return <Auth onLogin={setUser} />;
+  if (!user) return <Auth />;
 
   const formatCurrency = (amount) => new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA';
 
@@ -135,12 +136,12 @@ function App() {
   // Styles Unifiés pour éviter l'usage de fichier CSS
   const styles = {
     appContainer: {
-      display: 'flex',
-      height: '100vh',
-      width: '100vw',
-      overflow: 'hidden',
+      // display: 'flex', // Géré par .app-container dans index.css
+      // height: '100vh', // Géré par .app-container dans index.css
+      // width: '100vw', // Géré par .app-container dans index.css
+      // overflow: 'hidden', // Géré par .app-container dans index.css
       backgroundColor: '#0b0f19',
-      color: '#f8fafc',
+      // color: '#f8fafc', // Géré par body dans index.css
       fontFamily: 'system-ui, -apple-system, sans-serif'
     },
     loadingScreen: {
@@ -154,10 +155,10 @@ function App() {
       color: '#3b82f6'
     },
     sidebar: {
-      width: '260px',
+      // width: '260px', // Géré par .sidebar dans index.css et media queries
       backgroundColor: '#111827',
       borderRight: '1px solid rgba(255, 255, 255, 0.1)',
-      display: 'flex',
+      // display: 'flex', // Géré par .sidebar dans index.css
       flexDirection: 'column'
     },
     sidebarHeader: {
@@ -165,7 +166,7 @@ function App() {
       display: 'flex',
       alignItems: 'center',
       gap: '12px',
-      borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
+      borderBottom: '1px solid rgba(255, 255, 255, 0.1)' // Géré par .sidebar-header dans index.css
     },
     navMenu: {
       padding: '16px',
@@ -175,7 +176,7 @@ function App() {
       flex: 1
     },
     mainContent: {
-      flex: 1,
+      // flex: 1, // Géré par .main-content dans index.css
       display: 'flex',
       flexDirection: 'column',
       overflowY: 'auto',
@@ -183,7 +184,7 @@ function App() {
     },
     topHeader: {
       height: '70px',
-      display: 'flex',
+      // display: 'flex', // Géré par .top-header dans index.css
       alignItems: 'center',
       justifyContent: 'space-between',
       padding: '0 32px',
@@ -195,14 +196,14 @@ function App() {
       zIndex: 10
     },
     navItem: (isActive) => ({
-      display: 'flex',
+      // display: 'flex', // Géré par .nav-item dans index.css
       alignItems: 'center',
       gap: '12px',
       padding: '12px 16px',
       borderRadius: '8px',
       color: isActive ? '#3b82f6' : '#94a3b8',
       backgroundColor: isActive ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
-      textDecoration: 'none',
+      // textDecoration: 'none', // Géré par .nav-item dans index.css
       fontWeight: '500',
       cursor: 'pointer',
       borderLeft: isActive ? '3px solid #3b82f6' : '3px solid transparent'
@@ -219,19 +220,14 @@ function App() {
   };
 
   if (isLoading && user) {
-    return (
-      <div style={styles.loadingScreen}>
-        <Ship size={48} style={{ marginBottom: '16px' }} />
-        <p style={{ fontWeight: '600', letterSpacing: '1px' }}>CHARGEMENT DES DONNÉES...</p>
-      </div>
-    );
+    return <SkeletonLoader />;
   }
 
-  return (
-    <div style={styles.appContainer} key={user.id}>
+  return ( // Utilisation de classes CSS pour la structure principale
+    <div className="app-container" key={user.id}>
       {/* Sidebar */}
-      <aside style={styles.sidebar}>
-        <div style={styles.sidebarHeader}>
+      <aside className="sidebar" style={styles.sidebar}>
+        <div className="sidebar-header" style={styles.sidebarHeader}>
           <Ship color="#3b82f6" size={28} />
           <span style={{ fontSize: '1.25rem', fontWeight: '700', color: '#3b82f6' }}>F2N Logistics</span>
         </div>
@@ -262,15 +258,15 @@ function App() {
             <Settings size={20} />
             Paramètres
           </a>
-          <a style={{ ...styles.navItem(false), color: '#ef4444' }} onClick={handleLogout}>
+          <a className="nav-item" style={{ ...styles.navItem(false), color: '#ef4444' }} onClick={handleLogout}>
             <LogOut size={20} />
             Déconnexion
           </a>
         </nav>
       </aside>
 
-      {/* Main Content */}
-      <main style={styles.mainContent}>
+      {/* Main Content */} {/* Utilisation de classes CSS pour la structure principale */}
+      <main className="main-content" style={styles.mainContent}>
         {/* Top Header */}
         <header style={styles.topHeader}>
           <div className="search-bar">
@@ -279,7 +275,7 @@ function App() {
           </div>
 
           <div className="user-profile">
-            <Bell size={20} style={{ color: 'var(--text-secondary)', cursor: 'pointer', marginRight: '16px' }} />
+            <Bell size={20} style={{ color: 'var(--text-secondary)', cursor: 'pointer', marginRight: '16px' }} className="hide-on-mobile" />
             <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column' }}>
               <span style={{ fontSize: '0.875rem', fontWeight: '600', color: '#f8fafc' }}>{user.username}</span>
               <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{user.email}</span>
@@ -358,7 +354,7 @@ function App() {
             </div>
 
             {/* Dashboard Charts */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px', marginBottom: '32px' }}>
+            <div className="dashboard-charts" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px', marginBottom: '32px' }}>
               <div className="stat-card" style={{ flexDirection: 'column', height: '400px', alignItems: 'stretch' }}>
                 <h3 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '24px' }}>Évolution du Chiffre d'Affaires ({new Date().getFullYear()})</h3>
                 <ResponsiveContainer width="100%" height="100%">

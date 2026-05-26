@@ -101,7 +101,7 @@ const DeboursView = () => {
                 )}
             </div>
 
-            {showForm && (
+            {showForm && ( // Ajout de la classe responsive-form
                 <div className="form-container" style={{ marginBottom: '32px' }}>
                     <form onSubmit={handleSubmit}>
                         <div className="form-grid">
@@ -133,7 +133,7 @@ const DeboursView = () => {
                 </div>
             )}
 
-            <div className="data-table-container">
+            <div className="data-table-container responsive-table">
                 <table className="data-table">
                     <thead>
                         <tr>

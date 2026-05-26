@@ -281,7 +281,7 @@ const FacturationForm = ({ onCancel, editData }) => {
         </div>
 
         {/* --- CONTEXTE DU DOSSIER --- */}
-        <div style={{
+        <div className="facture-context-grid" style={{ // Ajout de la classe pour la réactivité
           display: 'flex', gap: '24px', marginBottom: '48px',
           border: '1px solid var(--border-color)', borderRadius: '8px', padding: '24px'
         }}>
@@ -313,7 +313,7 @@ const FacturationForm = ({ onCancel, editData }) => {
 
           {/* Colonne Expédition */}
           <div style={{ flex: '2' }}>
-            <h3 style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <h3 className="section-title-icon" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Box size={16} /> Détails de l'Expédition
             </h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px 24px' }}>
@@ -356,7 +356,7 @@ const FacturationForm = ({ onCancel, editData }) => {
         {/* --- LIGNES DE FACTURE --- */}
         <div style={{ marginBottom: '32px' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }} className="data-table">
-            <thead>
+            <thead className="no-print"> {/* Masquer l'en-tête du tableau à l'impression */}
               <tr>
                 <th style={{ textAlign: 'left', padding: '12px 16px', color: 'var(--text-secondary)', fontSize: '0.75rem', textTransform: 'uppercase', borderBottom: '2px solid var(--border-color)' }}>Désignation des Frais</th>
                 <th style={{ textAlign: 'center', padding: '12px 16px', color: 'var(--text-secondary)', fontSize: '0.75rem', textTransform: 'uppercase', borderBottom: '2px solid var(--border-color)' }}>Qté</th>
@@ -404,7 +404,7 @@ const FacturationForm = ({ onCancel, editData }) => {
         </div>
 
         {/* --- RÉSUMÉ FINANCIER --- */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div className="facture-summary-grid" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
 
           <div style={{ width: '45%', color: 'var(--text-secondary)', fontSize: '0.85rem', border: '1px solid var(--border-color)', padding: '16px', borderRadius: '8px' }}>
             <p style={{ marginBottom: '8px', color: 'var(--text-primary)' }}><strong>Conditions de paiement :</strong></p>

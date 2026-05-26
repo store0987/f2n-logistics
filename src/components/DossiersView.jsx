@@ -139,7 +139,7 @@ const DossiersView = () => {
       </div>
 
       {/* Tableau des dossiers */}
-      <div className="data-table-container">
+      <div className="data-table-container responsive-table">
         <table className="data-table">
           <thead>
             <tr>
