@@ -123,7 +123,7 @@ const FacturationForm = ({ onCancel, editData }) => {
     numVoyage: ''
   };
 
-  const tvaRate = 0.18;
+  const tvaRate = 0.1925;
 
   const handleInfoChange = (e) => {
     setFactureInfo({ ...factureInfo, [e.target.name]: e.target.value });
@@ -450,7 +450,7 @@ const FacturationForm = ({ onCancel, editData }) => {
               <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{formatCurrency(sousTotal)}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px', fontSize: '1rem' }}>
-              <span style={{ color: 'var(--text-secondary)' }}>TVA (18%)</span>
+              <span style={{ color: 'var(--text-secondary)' }}>TVA (19,25%)</span>
               <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{formatCurrency(montantTVA)}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '16px', borderTop: '2px solid var(--border-color)', fontSize: '1.25rem', fontWeight: '800', color: 'var(--text-primary)' }}>

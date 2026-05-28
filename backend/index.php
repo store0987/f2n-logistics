@@ -601,7 +601,7 @@ try {
                                             <td align='right' style='font-weight: bold;'>" . number_format($facture['sousTotal'], 0, ',', ' ') . " FCFA</td>
                                         </tr>
                                         <tr>
-                                            <td style='color: #666; padding-top: 5px;'>TVA (18%)</td>
+                                            <td style='color: #666; padding-top: 5px;'>TVA (19,25%)</td>
                                             <td align='right' style='font-weight: bold; padding-top: 5px;'>" . number_format($facture['montantTva'], 0, ',', ' ') . " FCFA</td>
                                         </tr>
                                         <tr class='grand-total'>
