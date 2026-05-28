@@ -438,8 +438,9 @@ try {
                 $html = "
                 <html>
                 <head>
+                    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/>
                     <style>
-                        body { font-family: 'Helvetica', sans-serif; color: #333; font-size: 11px; line-height: 1.4; }
+                        body { font-family: 'DejaVu Sans', sans-serif; color: #333; font-size: 11px; line-height: 1.4; }
                         .container { padding: 20px; }
                         .header-table { width: 100%; margin-bottom: 40px; }
                         .logo-box { width: 50px; height: 50px; background: #2563eb; border-radius: 10px; text-align: center; padding: 10px; }
@@ -623,6 +624,7 @@ try {
                     
                     $options = new \Dompdf\Options();
                     $options->set('isRemoteEnabled', true);
+                    $options->set('defaultFont', 'DejaVu Sans');
                     
                     $dompdf = new \Dompdf\Dompdf($options);
                     $dompdf->loadHtml($html, 'UTF-8');

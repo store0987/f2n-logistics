@@ -354,7 +354,7 @@ const FacturationForm = ({ onCancel, editData }) => {
               </div>
               <div>
                 <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }}><MapPin size={12} /> Routage</span>
-                <span style={{ color: 'var(--text-primary)', fontWeight: '600', fontSize: '0.95rem' }}>{selectedDossier.origine} ➔ {selectedDossier.destination}</span>
+                <span style={{ color: 'var(--text-primary)', fontWeight: '600', fontSize: '0.95rem' }}>{selectedDossier.origine} → {selectedDossier.destination}</span>
               </div>
               <div>
                 <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }}><Box size={12} /> Poids / Volume / Colis</span>
