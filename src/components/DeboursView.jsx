@@ -2,6 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { API_BASE_URL } from '../api';
 import { Plus, Trash2, DollarSign, Calendar, FileText, Edit } from 'lucide-react';
 
+const LOGISTICS_DESIGNATIONS = [
+  "Assurance Faculté (Transport)", "Cautionnement Conteneur", "Chargement / Empotage", "Correction de Manifeste",
+  "Déchargement / Dépotage", "Détention Conteneur", "Droits et Taxes Douaniers", "Émission Bon à Délivrer (BAD)",
+  "Entreposage Logistique", "Escorte Douanière", "Expertise Marchandise", "Frais d'Agence", "Frais de dossier",
+  "Frais de Pesage (VGM)", "Frais de Scellé Douane", "Frais de Timbre Douane", "Frais de Timbre Fiscal",
+  "Frais LTA / Master BL", "Fumigation / Certificat Phytosanitaire", "Honoraires de Transit Export",
+  "Honoraires de Transit Import", "Immobilisation Véhicule", "Livraison Hors Ville", "Location de Grue / Élévateur",
+  "Magasinage Portuaire (DPW)", "Magasinage Sous Douane", "Manutention (Terre-Plein/Quai)",
+  "Messagerie et Courrier (DHL/UPS)", "Ouverture de Dossier", "Palettisation et Filmage", "Passage Portuaire (BAD)",
+  "Prélèvement Communautaire (PCC/PCS)", "Redevance Statistique (RS)", "Scanner Portuaire", "SGS / Bureau Veritas / Cotecna",
+  "Suivi Logistique & Reporting", "Surestaries Armateur", "Taxe COSEC", "Traction Portuaire", "Transport Local (Camion)",
+  "Visite Douane / Inspection"
+].sort();
+
 const DeboursView = () => {
     const [debours, setDebours] = useState([]);
     const [dossiers, setDossiers] = useState([]);
@@ -118,7 +132,10 @@ const DeboursView = () => {
                             </div>
                             <div className="form-group full-width">
                                 <label className="form-label">Description (Nature des frais)</label>
-                                <input type="text" className="form-control" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} required placeholder="ex: Frais de magasinage Terminal" />
+                                <input type="text" list="debours-designations" className="form-control" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} required placeholder="Saisissez ou sélectionnez la nature des frais..." />
+                                <datalist id="debours-designations">
+                                    {LOGISTICS_DESIGNATIONS.map(d => <option key={d} value={d} />)}
+                                </datalist>
                             </div>
                             <div className="form-group">
                                 <label className="form-label">Montant (FCFA)</label>

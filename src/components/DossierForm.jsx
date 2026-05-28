@@ -2,6 +2,41 @@ import React, { useState } from 'react';
 import { API_BASE_URL } from '../api';
 import { Save, X, Info, Package, MapPin, Users, Calendar, Anchor, RefreshCcw } from 'lucide-react';
 
+const WORLD_HUBS = [
+  // Afrique
+  "Dakar, Sénégal (SNDKR)", "Douala, Cameroun (CMDLA)", "Kribi, Cameroun (CMKBI)", "Abidjan, Côte d'Ivoire (CIABJ)", 
+  "Lomé, Togo (TGLFW)", "Cotonou, Bénin (BJCOO)", "Tema, Ghana (GHTEM)", "Lagos / Apapa, Nigeria (NGLOS)", 
+  "Port Harcourt, Nigeria (NGPHC)", "Libreville / Owendo, Gabon (GBLBV)", "Pointe-Noire, Congo (CGPNR)", 
+  "Matadi, RD Congo (CDMAT)", "Luanda, Angola (AOLAD)", "Walvis Bay, Namibie (NAWVB)", "Cape Town, Afrique du Sud (ZACPT)", 
+  "Durban, Afrique du Sud (ZADUR)", "Port Elizabeth, Afrique du Sud (ZAPLZ)", "Maputo, Mozambique (MZMPM)", 
+  "Beira, Mozambique (MZBEW)", "Dar es Salaam, Tanzanie (TZDAR)", "Mombasa, Kenya (KEMBA)", "Djibouti, Djibouti (DJJIB)", 
+  "Port Sudan, Soudan (SDPZU)", "Suez, Égypte (EGSUZ)", "Alexandrie, Égypte (EGALY)", "Port Saïd, Égypte (EGPSD)", 
+  "Alger, Algérie (DZALG)", "Oran, Algérie (DZORN)", "Casablanca, Maroc (MACAS)", "Tanger Med, Maroc (METNG)",
+  // Europe
+  "Rotterdam, Pays-Bas (NLRTM)", "Anvers, Belgique (BEANR)", "Hambourg, Allemagne (DEHAM)", "Bremerhaven, Allemagne (DEBRV)", 
+  "Le Havre, France (FRLEH)", "Marseille / Fos, France (FRMRS)", "Paris-CDG, France (FRCDG)", "Valence, Espagne (ESVLC)", 
+  "Algésiras, Espagne (ESALG)", "Barcelone, Espagne (ESBCN)", "Bilbao, Espagne (ESBIO)", "Gênes, Italie (ITGOA)", 
+  "La Spezia, Italie (ITSPE)", "Trieste, Italie (ITTRS)", "Pirée, Grèce (GRPIR)", "Felixstowe, Royaume-Uni (GBFXW)", 
+  "Southampton, Royaume-Uni (GBSOU)", "Londres-Heathrow, Royaume-Uni (GBLHR)", "Francfort, Allemagne (DEFRA)", 
+  "Amsterdam-Schiphol, Pays-Bas (AMS)", "Gdynia, Pologne (PLGDY)", "Saint-Pétersbourg, Russie (RULED)",
+  // Asie & Moyen-Orient
+  "Shanghai, Chine (CNSHA)", "Ningbo-Zhoushan, Chine (CNNGB)", "Shenzhen, Chine (CNSZX)", "Guangzhou, Chine (CNCAN)", 
+  "Qingdao, Chine (CNTAO)", "Tianjin, Chine (CNTSN)", "Xiamen, Chine (CNXMN)", "Hong Kong, HK (HKHKG)", 
+  "Singapour, Singapour (SGSIN)", "Pusan, Corée du Sud (KRPUS)", "Kaohsiung, Taïwan (TWKHH)", "Port Klang, Malaisie (MYPKG)", 
+  "Tanjung Pelepas, Malaisie (MYTPP)", "Laem Chabang, Thaïlande (THLCH)", "Ho Chi Minh Ville, Vietnam (VNSGN)", 
+  "Jakarta, Indonésie (IDJKT)", "Colombo, Sri Lanka (LKCMB)", "Mundra, Inde (INMUN)", "Nhava Sheva, Inde (INNSA)", 
+  "Dubaï / Jebel Ali, Émirats Arabes Unis (AEJEA)", "Abu Dhabi, Émirats Arabes Unis (AEAUH)", "Salalah, Oman (OMSLL)", 
+  "Djeddah, Arabie Saoudite (SAJED)", "Khor Fakkan, Émirats Arabes Unis (AEKHL)", "Tokyo, Japon (TYO)", "Yokohama, Japon (YOK)",
+  // Amérique & Océanie
+  "Los Angeles, USA (USLAX)", "Long Beach, USA (USLGB)", "New York / New Jersey, USA (USNYC)", "Savannah, USA (GSSAV)", 
+  "Seattle, USA (USSEA)", "Houston, USA (USHOU)", "Miami, USA (USMIA)", "Vancouver, Canada (CAVAN)", 
+  "Montréal, Canada (CAMTR)", "Santos, Brésil (BRSSZ)", "Itajai, Brésil (BRITJ)", "Paranagua, Brésil (BRPNG)", 
+  "Buenos Aires, Argentine (ARBUE)", "Montevideo, Uruguay (UYMVD)", "San Antonio, Chili (CLSAI)", 
+  "Callao, Pérou (PELIM)", "Carthagène, Colombie (COCTG)", "Buenaventura, Colombie (COBUN)", "Puerto Cabello, Venezuela (VEPBL)", 
+  "Balboa / Panama, Panama (PABLB)", "Colon, Panama (PAONX)", "Veracruz, Mexique (MXVER)", "Manzanillo, Mexique (MXZLO)", 
+  "Sydney, Australie (AUSYD)", "Melbourne, Australie (AUMEL)", "Brisbane, Australie (AUBNE)", "Auckland, Nouvelle-Zélande (NZAKL)"
+].sort();
+
 const DossierForm = ({ onCancel, onSave, editData }) => {
   const [clients, setClients] = useState([]);
   const [formData, setFormData] = useState({
@@ -212,12 +247,15 @@ const DossierForm = ({ onCancel, onSave, editData }) => {
           <div className="form-grid" style={{ marginBottom: '32px' }}>
             <div className="form-group">
               <label className="form-label">Port / Aéroport d'Origine</label>
-              <input type="text" className="form-control" name="origine" placeholder="ex: Shanghai, Chine" value={formData.origine} onChange={handleChange} required />
+              <input type="text" list="hubs-list" className="form-control" name="origine" placeholder="Saisissez ou sélectionnez l'origine..." value={formData.origine} onChange={handleChange} required />
             </div>
             <div className="form-group">
               <label className="form-label">Port / Aéroport de Destination</label>
-              <input type="text" className="form-control" name="destination" placeholder="ex: Dakar, Sénégal" value={formData.destination} onChange={handleChange} required />
+              <input type="text" list="hubs-list" className="form-control" name="destination" placeholder="Saisissez ou sélectionnez la destination..." value={formData.destination} onChange={handleChange} required />
             </div>
+            <datalist id="hubs-list">
+              {WORLD_HUBS.map(hub => <option key={hub} value={hub} />)}
+            </datalist>
           </div>
 
           {/* Section 4: Acteurs */}
