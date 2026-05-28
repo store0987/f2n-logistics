@@ -489,7 +489,7 @@ try {
                                             <p class='company-tag'>Commissionnaire Agréé</p>
                                             <div class='company-details'>
                                                 Zone Franche Industrielle, Douala, Cameroun<br>
-                                                Tél: +237 6 99 97 98 85 • NINEA: 000111222333
+                                                Tél: +237 6 99 97 98 85 • NINEA/NIU: 000111222333
                                             </div>
                                         </td>
                                     </tr>
@@ -519,7 +519,7 @@ try {
                                 <div class='section-title'>Facturé à</div>
                                 <span class='client-name'>{$facture['client_nom']}</span>
                                 <div class='company-details' style='margin-top: 5px;'>
-                                    NINEA: À renseigner<br>
+                                    NINEA / NIU: À renseigner<br>
                                     " . ($facture['client_adresse'] ?: '') . "<br>
                                     " . ($facture['client_ville'] ?: '') . "
                                 </div>

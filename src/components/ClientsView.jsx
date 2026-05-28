@@ -127,7 +127,7 @@ const ClientsView = ({ onCancel }) => {
                   <th>Type</th>
                   <th>Contact Principal</th>
                   <th>Téléphone & Email</th>
-                  <th>NINEA / NIF</th>
+                  <th>NINEA / NIF / NIU</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -213,7 +213,7 @@ const ClientsView = ({ onCancel }) => {
                   <input type="text" className="form-control" name="nom" value={formData.nom} onChange={handleChange} required placeholder="ex: F2N Logistics SARL" />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">NINEA / NIF (N° d'Identification Fiscal)</label>
+                  <label className="form-label">NINEA / NIF / NIU (N° d'Identification Fiscal)</label>
                   <input type="text" className="form-control" name="nif" value={formData.nif} onChange={handleChange} placeholder="ex: 0123456789" />
                 </div>
                 <div className="form-group">

@@ -278,7 +278,7 @@ const FacturationForm = ({ onCancel, editData }) => {
               </p>
               <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: '1.4' }}>
                 Zone Franche Industrielle, Douala, Cameroun<br />
-                Tél: +237 6 99 97 98 85 • NINEA: 000111222333
+                Tél: +237 6 99 97 98 85 • NINEA/NIU: 000111222333
               </div>
             </div>
           </div>
@@ -319,7 +319,7 @@ const FacturationForm = ({ onCancel, editData }) => {
             </h3>
             <div style={{ marginBottom: '12px' }}>
               <span style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '4px' }}>{selectedDossier.client_nom}</span>
-              <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>NINEA: À renseigner</span>
+              <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>NINEA / NIU: À renseigner</span>
             </div>
             {isProforma && (
               <div className="no-print">
