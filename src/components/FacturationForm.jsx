@@ -2,6 +2,22 @@ import React, { useState } from 'react';
 import { API_BASE_URL } from '../api';
 import { Plus, Trash2, Printer, Save, CheckCircle, Ship, MapPin, Box, Hash, User, Download, Mail, FileDown } from 'lucide-react';
 
+const LOGISTICS_DESIGNATIONS = [
+  "Frais de dossier",
+  "Magasinage Portuaire",
+  "Manutention (Terre-Plein)",
+  "Transport Local / Livraison",
+  "Dépotage Conteneur",
+  "Surestaries",
+  "Passage Portuaire (BAD)",
+  "Honoraires de Transit",
+  "Frais de Timbre Douane",
+  "Assurance Faculté",
+  "SGS / Bureau Veritas",
+  "Expertise Marchandise",
+  "Ouverture de Dossier"
+];
+
 const FacturationForm = ({ onCancel, editData }) => {
   const [availableDossiers, setAvailableDossiers] = useState([]);
   const [pendingDebours, setPendingDebours] = useState([]);
@@ -42,9 +58,21 @@ const FacturationForm = ({ onCancel, editData }) => {
   };
 
   React.useEffect(() => {
-    fetchDossiers();
-    if (factureInfo.dossierLie) fetchPendingDebours(factureInfo.dossierLie);
+    // Chargement initial des dossiers (une seule fois)
+    const initDossiers = async () => {
+      await fetchDossiers();
+    };
+    initDossiers();
+  }, []); // Dépendance vide pour ne le faire qu'au montage
 
+  React.useEffect(() => {
+    // Chargement des débours quand le dossier change
+    if (factureInfo.dossierLie) {
+      fetchPendingDebours(factureInfo.dossierLie);
+    }
+  }, [factureInfo.dossierLie]);
+
+  React.useEffect(() => {
     const fetchNextNumber = async () => {
       if (!editData) {
         const response = await fetch(`${API_BASE_URL}/api/next-facture-number/PRO`);
@@ -81,7 +109,7 @@ const FacturationForm = ({ onCancel, editData }) => {
       };
       loadInvoiceData();
     }
-  }, [editData, factureInfo.dossierLie]);
+  }, [editData]);
 
   const selectedDossier = availableDossiers.find(d => d.id === factureInfo.dossierLie) || {
     client_nom: '-',
@@ -371,7 +399,10 @@ const FacturationForm = ({ onCancel, editData }) => {
               {lignes.map((ligne) => (
                 <tr key={ligne.id}>
                   <td style={{ padding: '8px 16px', borderBottom: '1px solid var(--border-color)' }}>
-                    <input type="text" className="form-control" style={{ width: '100%', padding: '8px', border: '1px solid transparent', fontWeight: '500' }} value={ligne.description} onChange={(e) => updateLigne(ligne.id, 'description', e.target.value)} placeholder="Description..." readOnly={!isProforma} />
+                    <input type="text" list="designations-list" className="form-control" style={{ width: '100%', padding: '8px', border: '1px solid transparent', fontWeight: '500' }} value={ligne.description} onChange={(e) => updateLigne(ligne.id, 'description', e.target.value)} placeholder="Description des frais..." readOnly={!isProforma} />
+                    <datalist id="designations-list">
+                      {LOGISTICS_DESIGNATIONS.map(d => <option key={d} value={d} />)}
+                    </datalist>
                   </td>
                   <td style={{ padding: '8px 16px', borderBottom: '1px solid var(--border-color)' }}>
                     <input type="number" className="form-control" style={{ width: '100%', padding: '8px', border: '1px solid transparent', textAlign: 'center', fontWeight: '500' }} value={ligne.quantite} onChange={(e) => updateLigne(ligne.id, 'quantite', parseFloat(e.target.value) || 0)} readOnly={!isProforma} />

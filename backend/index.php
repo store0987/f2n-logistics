@@ -62,6 +62,7 @@ try {
         poids VARCHAR(255),
         volume VARCHAR(255),
         valeurMarchandise VARCHAR(255),
+        deviseValeur VARCHAR(10) DEFAULT 'EUR',
         dateCreation DATE,
         statutFacturation VARCHAR(255) DEFAULT 'À Facturer',
         FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE SET NULL
@@ -262,6 +263,7 @@ try {
                     $input['expediteur'] ?? null, $input['natureMarchandise'] ?? null,
                     $input['nombresColis'] ?? null, $input['typeConteneur'] ?? null,
                     $input['poids'] ?? null, $input['volume'] ?? null, $input['valeurMarchandise'] ?? null,
+                    $input['deviseValeur'] ?? 'EUR',
                     $input['statutFacturation'] ?? 'À Facturer',
                     $id
                 ]);

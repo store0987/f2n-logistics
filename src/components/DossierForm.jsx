@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { API_BASE_URL } from '../api';
-import { Save, X, Info, Package, MapPin, Users, Calendar, Anchor } from 'lucide-react';
+import { Save, X, Info, Package, MapPin, Users, Calendar, Anchor, RefreshCcw } from 'lucide-react';
 
 const DossierForm = ({ onCancel, onSave, editData }) => {
   const [clients, setClients] = useState([]);
@@ -31,7 +31,8 @@ const DossierForm = ({ onCancel, onSave, editData }) => {
     typeConteneur: 'LCL (Groupage)',
     poids: '',
     volume: '',
-    valeurMarchandise: ''
+    valeurMarchandise: '',
+    deviseValeur: 'EUR'
   });
 
   React.useEffect(() => {
@@ -55,7 +56,8 @@ const DossierForm = ({ onCancel, onSave, editData }) => {
         typeConteneur: editData.typeConteneur || 'LCL (Groupage)',
         poids: editData.poids || '',
         volume: editData.volume || '',
-        valeurMarchandise: editData.valeurMarchandise || ''
+        valeurMarchandise: editData.valeurMarchandise || '',
+        deviseValeur: editData.deviseValeur || 'EUR'
       });
     }
   }, [editData]);
@@ -87,6 +89,20 @@ const DossierForm = ({ onCancel, onSave, editData }) => {
     } else {
       if (onCancel) onCancel();
     }
+  };
+
+  const rates = {
+    'EUR': 655.957,
+    'USD': 605,
+    'GBP': 770,
+    'CNY': 85,
+    'FCFA': 1
+  };
+
+  const calculateFCFA = () => {
+    const val = parseFloat(formData.valeurMarchandise) || 0;
+    const rate = rates[formData.deviseValeur] || 1;
+    return new Intl.NumberFormat('fr-FR').format(Math.round(val * rate)) + ' FCFA';
   };
 
   return (
@@ -133,10 +149,17 @@ const DossierForm = ({ onCancel, onSave, editData }) => {
             <div className="form-group">
               <label className="form-label">Incoterm</label>
               <select className="form-control" name="incoterm" value={formData.incoterm} onChange={handleChange}>
-                <option value="FOB">FOB (Free On Board)</option>
-                <option value="CIF">CIF (Cost, Insurance, Freight)</option>
-                <option value="EXW">EXW (Ex Works)</option>
-                <option value="DAP">DAP (Delivered At Place)</option>
+                <option value="EXW">EXW - Ex Works</option>
+                <option value="FCA">FCA - Free Carrier</option>
+                <option value="CPT">CPT - Carriage Paid To</option>
+                <option value="CIP">CIP - Carriage and Insurance Paid To</option>
+                <option value="DAP">DAP - Delivered At Place</option>
+                <option value="DPU">DPU - Delivered at Place Unloaded</option>
+                <option value="DDP">DDP - Delivered Duty Paid</option>
+                <option value="FAS">FAS - Free Alongside Ship</option>
+                <option value="FOB">FOB - Free On Board</option>
+                <option value="CFR">CFR - Cost and Freight</option>
+                <option value="CIF">CIF - Cost, Insurance and Freight</option>
               </select>
             </div>
           </div>
@@ -238,8 +261,22 @@ const DossierForm = ({ onCancel, onSave, editData }) => {
               <input type="number" step="0.01" className="form-control" name="volume" placeholder="ex: 28.5" value={formData.volume} onChange={handleChange} />
             </div>
             <div className="form-group">
-              <label className="form-label">Valeur Marchandise (Déclaration Douane)</label>
-              <input type="number" className="form-control" name="valeurMarchandise" placeholder="ex: 15000000 FCFA" value={formData.valeurMarchandise} onChange={handleChange} />
+              <label className="form-label">Valeur Marchandise</label>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <input type="number" className="form-control" name="valeurMarchandise" placeholder="Montant" value={formData.valeurMarchandise} onChange={handleChange} style={{ flex: 1 }} />
+                <select className="form-control" name="deviseValeur" value={formData.deviseValeur} onChange={handleChange} style={{ width: '90px' }}>
+                  <option value="EUR">EUR</option>
+                  <option value="USD">USD</option>
+                  <option value="FCFA">FCFA</option>
+                  <option value="CNY">CNY</option>
+                  <option value="GBP">GBP</option>
+                </select>
+              </div>
+              {formData.valeurMarchandise && formData.deviseValeur !== 'FCFA' && (
+                <div style={{ marginTop: '8px', fontSize: '0.8rem', color: 'var(--accent-primary)', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '600' }}>
+                  <RefreshCcw size={12} /> Contre-valeur : {calculateFCFA()}
+                </div>
+              )}
             </div>
           </div>
 
