@@ -92,10 +92,20 @@ const DossierForm = ({ onCancel, onSave, editData }) => {
   };
 
   const rates = {
-    'EUR': 655.957,
-    'USD': 605,
-    'GBP': 770,
+    'EUR': 655.957, // Taux fixe XAF/XOF
+    'USD': 610,     // Taux indicatif
+    'GBP': 780,
     'CNY': 85,
+    'JPY': 3.9,
+    'CAD': 445,
+    'CHF': 685,
+    'AED': 166,
+    'TRY': 19,
+    'ZAR': 32,
+    'INR': 7.3,
+    'SGD': 455,
+    'AUD': 405,
+    'MAD': 60,
     'FCFA': 1
   };
 
@@ -270,6 +280,16 @@ const DossierForm = ({ onCancel, onSave, editData }) => {
                   <option value="FCFA">FCFA</option>
                   <option value="CNY">CNY</option>
                   <option value="GBP">GBP</option>
+                  <option value="JPY">JPY</option>
+                  <option value="CAD">CAD</option>
+                  <option value="CHF">CHF</option>
+                  <option value="AED">AED</option>
+                  <option value="TRY">TRY</option>
+                  <option value="ZAR">ZAR</option>
+                  <option value="INR">INR</option>
+                  <option value="SGD">SGD</option>
+                  <option value="AUD">AUD</option>
+                  <option value="MAD">MAD</option>
                 </select>
               </div>
               {formData.valeurMarchandise && formData.deviseValeur !== 'FCFA' && (
