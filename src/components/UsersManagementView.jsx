@@ -67,14 +67,17 @@ const UsersManagementView = ({ currentUser }) => {
                     </thead>
                     <tbody>
                         {users
-                            .filter(u => currentUser.username === SUPER_ADMIN_USERNAME || u.username !== SUPER_ADMIN_USERNAME)
+                            .filter(u =>
+                                currentUser.username?.toLowerCase() === SUPER_ADMIN_USERNAME.toLowerCase() ||
+                                u.username?.toLowerCase() !== SUPER_ADMIN_USERNAME.toLowerCase()
+                            )
                             .map(u => (
                                 <tr key={u.id}>
                                     <td style={{ fontWeight: '600' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <div className="avatar" style={{ width: '30px', height: '30px', fontSize: '0.8rem', backgroundColor: u.username === SUPER_ADMIN_USERNAME ? 'var(--accent-danger)' : '' }}>{u.username.charAt(0).toUpperCase()}</div>
+                                            <div className="avatar" style={{ width: '30px', height: '30px', fontSize: '0.8rem', backgroundColor: u.username?.toLowerCase() === SUPER_ADMIN_USERNAME.toLowerCase() ? 'var(--accent-danger)' : '' }}>{u.username.charAt(0).toUpperCase()}</div>
                                             {u.username}
-                                            {u.username === SUPER_ADMIN_USERNAME && (
+                                            {u.username?.toLowerCase() === SUPER_ADMIN_USERNAME.toLowerCase() && (
                                                 <span className="badge" style={{ backgroundColor: 'var(--accent-danger)', color: 'white', fontSize: '0.7rem', padding: '4px 8px', borderRadius: '4px' }}>
                                                     Super Admin
                                                 </span>
@@ -86,7 +89,7 @@ const UsersManagementView = ({ currentUser }) => {
                                         <select
                                             value={u.role}
                                             onChange={(e) => handleUpdateUser(u.id, u.status, e.target.value)}
-                                            disabled={u.id === currentUser.id || u.username === SUPER_ADMIN_USERNAME}
+                                            disabled={u.id === currentUser.id || u.username?.toLowerCase() === SUPER_ADMIN_USERNAME.toLowerCase()}
                                             className="form-control"
                                             style={{ padding: '6px 12px', fontSize: '0.85rem', width: 'auto', minWidth: '140px', opacity: 1 }}
                                         >
@@ -104,7 +107,7 @@ const UsersManagementView = ({ currentUser }) => {
                                             {u.status === 'pending' && (
                                                 <button className="btn btn-outline" style={{ padding: '6px', color: '#10b981' }} onClick={() => handleUpdateUser(u.id, 'approved', u.role)} title="Approuver"><Check size={16} /></button>
                                             )}
-                                            {u.id !== currentUser.id && u.username !== SUPER_ADMIN_USERNAME && (
+                                            {u.id !== currentUser.id && u.username?.toLowerCase() !== SUPER_ADMIN_USERNAME.toLowerCase() && (
                                                 <button className="btn btn-outline" style={{ padding: '6px', color: 'var(--accent-danger)' }} onClick={() => handleDeleteUser(u)} title="Supprimer"><Trash size={16} /></button>
                                             )}
                                         </div>

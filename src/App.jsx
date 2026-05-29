@@ -38,9 +38,9 @@ function App() {
     if (!saved) return null;
     const userData = JSON.parse(saved);
 
-    // Correctif de sécurité : Enzo est le super admin, on force son rôle 
+    // Correctif de sécurité : Enzo est le super admin, on force son rôle
     // au cas où sa session locale serait obsolète.
-    if (userData.username === 'enzo') {
+    if (userData.username?.toLowerCase() === 'enzo') {
       userData.role = 'admin';
     }
     return userData;

@@ -184,8 +184,8 @@ try {
                 $user = $stmt->fetch();
 
                 if ($user && password_verify($input['password'], $user['password'])) {
-                    // Si c'est le super administrateur, s'assurer qu'il a toujours le rôle admin et est approuvé
-                    if ($user['username'] === SUPER_ADMIN_USERNAME) {
+                    // Comparaison insensible à la casse pour le super-admin
+                    if (strtolower($user['username']) === strtolower(SUPER_ADMIN_USERNAME)) {
                         $user['role'] = 'admin';
                         $user['status'] = 'approved';
                     }
