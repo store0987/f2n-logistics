@@ -427,8 +427,17 @@ try {
                 $isProforma = strpos($id, 'PRO') !== false;
                 $title = $isProforma ? 'PROFORMA' : 'FACTURE';
 
-                $logoPath = __DIR__ . '/assets/ship.svg';
-                $logoBase64 = file_exists($logoPath) ? base64_encode(file_get_contents($logoPath)) : '';
+                // Recherche du logo personnel (png, jpg ou svg)
+                $logoPath = __DIR__ . '/assets/logo.jpeg'; // Priorité au JPEG
+                if (!file_exists($logoPath)) $logoPath = __DIR__ . '/assets/logo.jpg';
+                if (!file_exists($logoPath)) $logoPath = __DIR__ . '/assets/logo.png';
+                if (!file_exists($logoPath)) $logoPath = __DIR__ . '/assets/ship.svg';
+
+                $logoData = file_get_contents($logoPath);
+                $ext = pathinfo($logoPath, PATHINFO_EXTENSION);
+                $mime = ($ext === 'svg') ? 'image/svg+xml' : 'image/' . $ext;
+                $logoBase64 = base64_encode($logoData);
+                $logoSrc = "data:$mime;base64,$logoBase64";
 
                 $html = "
                 <html>
@@ -438,7 +447,7 @@ try {
                         body { font-family: 'DejaVu Sans', sans-serif; color: #333; font-size: 11px; line-height: 1.4; }
                         .container { padding: 20px; }
                         .header-table { width: 100%; margin-bottom: 40px; }
-                        .logo-box { width: 50px; height: 50px; background: #2563eb; border-radius: 10px; text-align: center; padding: 10px; }
+                        .logo-box { width: 80px; height: 80px; text-align: left; }
                         .company-name { font-size: 22px; font-weight: bold; color: #333; margin: 0; }
                         .company-tag { color: #666; font-weight: bold; text-transform: uppercase; font-size: 10px; margin: 2px 0; }
                         .company-details { color: #666; font-size: 9px; }
@@ -478,7 +487,7 @@ try {
                                     <tr>
                                         <td style='padding-right: 15px;'>
                                             <div class='logo-box'>
-                                                <img src='data:image/svg+xml;base64,$logoBase64' width='30' height='30' />
+                                                <img src='$logoSrc' style='max-width: 80px; max-height: 80px;' />
                                             </div>
                                         </td>
                                         <td>

@@ -266,11 +266,19 @@ const FacturationForm = ({ onCancel, editData }) => {
           {/* Logo & Identité */}
           <div style={{ display: 'flex', gap: '20px', alignItems: 'center', minWidth: 'min-content' }}>
             <div style={{
-              width: '64px', height: '64px', borderRadius: '12px',
-              backgroundColor: 'var(--accent-primary)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center'
+              width: '80px', height: '80px',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              overflow: 'hidden'
             }}>
-              <Ship size={32} color="white" />
+              <img
+                src={`${API_BASE_URL}/assets/logo.jpeg`} // Changement ici pour l'extension JPEG
+                alt="Logo"
+                style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 21c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1 .6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1'/%3E%3Cpath d='M19.38 20A11.6 11.6 0 0 0 21 14l-9-4-9 4c0 2.26 1.18 4.27 3 5.39'/%3E%3Cpath d='M11 13c1.33 0 2.67 0 4 0'/%3E%3Cpath d='M12 10v4'/%3E%3Cpath d='M11 10h2'/%3E%3C/svg%3E";
+                }}
+              />
             </div>
             <div>
               <h2 style={{ fontSize: '2rem', fontWeight: '800', margin: '0 0 4px 0', color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>
