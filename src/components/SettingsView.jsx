@@ -90,14 +90,14 @@ const SettingsView = ({ user, setUser, theme, setTheme }) => {
             </div>
 
             <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '24px' }}>
-                
+
                 {/* Profil Utilisateur */}
                 <div className="form-container" style={{ padding: '24px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
                     <h3 style={{ fontSize: '1.1rem', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <User size={20} color="var(--accent-primary)" />
                         Informations du Profil
                     </h3>
-                    
+
                     {message && (
                         <div style={{ padding: '10px', backgroundColor: 'rgba(16, 185, 129, 0.1)', color: '#10b981', borderRadius: '8px', marginBottom: '16px', fontSize: '0.85rem' }}>
                             {message}
@@ -109,12 +109,12 @@ const SettingsView = ({ user, setUser, theme, setTheme }) => {
                             <label className="form-label" style={{ display: 'block', marginBottom: '8px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Nom d'utilisateur</label>
                             <div style={{ position: 'relative' }}>
                                 <User size={16} style={{ position: 'absolute', left: '12px', top: '12px', color: 'var(--text-secondary)' }} />
-                                <input 
-                                    type="text" 
-                                    className="form-control" 
+                                <input
+                                    type="text"
+                                    className="form-control"
                                     style={{ width: '100%', padding: '10px 10px 10px 40px', borderRadius: '8px' }}
                                     value={formData.username}
-                                    onChange={(e) => setFormData({...formData, username: e.target.value})}
+                                    onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                                 />
                             </div>
                         </div>
@@ -122,12 +122,12 @@ const SettingsView = ({ user, setUser, theme, setTheme }) => {
                             <label className="form-label" style={{ display: 'block', marginBottom: '8px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Adresse Email</label>
                             <div style={{ position: 'relative' }}>
                                 <Mail size={16} style={{ position: 'absolute', left: '12px', top: '12px', color: 'var(--text-secondary)' }} />
-                                <input 
-                                    type="email" 
-                                    className="form-control" 
+                                <input
+                                    type="email"
+                                    className="form-control"
                                     style={{ width: '100%', padding: '10px 10px 10px 40px', borderRadius: '8px' }}
                                     value={formData.email}
-                                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                 />
                             </div>
                         </div>
@@ -145,10 +145,10 @@ const SettingsView = ({ user, setUser, theme, setTheme }) => {
                     </h3>
 
                     {passwordMessage.text && (
-                        <div style={{ 
-                            padding: '10px', 
-                            backgroundColor: passwordMessage.type === 'success' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', 
-                            color: passwordMessage.type === 'success' ? '#10b981' : '#ef4444', 
+                        <div style={{
+                            padding: '10px',
+                            backgroundColor: passwordMessage.type === 'success' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                            color: passwordMessage.type === 'success' ? '#10b981' : '#ef4444',
                             borderRadius: '8px', marginBottom: '16px', fontSize: '0.85rem',
                             display: 'flex', alignItems: 'center', gap: '8px'
                         }}>
@@ -160,34 +160,34 @@ const SettingsView = ({ user, setUser, theme, setTheme }) => {
                     <form onSubmit={handlePasswordSubmit}>
                         <div className="form-group" style={{ marginBottom: '16px' }}>
                             <label className="form-label" style={{ display: 'block', marginBottom: '8px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Ancien mot de passe</label>
-                            <input 
-                                type="password" 
-                                className="form-control" 
+                            <input
+                                type="password"
+                                className="form-control"
                                 style={{ width: '100%', padding: '10px', borderRadius: '8px' }}
                                 value={passwordData.oldPassword}
-                                onChange={(e) => setPasswordData({...passwordData, oldPassword: e.target.value})}
+                                onChange={(e) => setPasswordData({ ...passwordData, oldPassword: e.target.value })}
                                 required
                             />
                         </div>
                         <div className="form-group" style={{ marginBottom: '16px' }}>
                             <label className="form-label" style={{ display: 'block', marginBottom: '8px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Nouveau mot de passe</label>
-                            <input 
-                                type="password" 
-                                className="form-control" 
+                            <input
+                                type="password"
+                                className="form-control"
                                 style={{ width: '100%', padding: '10px', borderRadius: '8px' }}
                                 value={passwordData.newPassword}
-                                onChange={(e) => setPasswordData({...passwordData, newPassword: e.target.value})}
+                                onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
                                 required
                             />
                         </div>
                         <div className="form-group" style={{ marginBottom: '24px' }}>
                             <label className="form-label" style={{ display: 'block', marginBottom: '8px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Confirmer le nouveau mot de passe</label>
-                            <input 
-                                type="password" 
-                                className="form-control" 
+                            <input
+                                type="password"
+                                className="form-control"
                                 style={{ width: '100%', padding: '10px', borderRadius: '8px' }}
                                 value={passwordData.confirmPassword}
-                                onChange={(e) => setPasswordData({...passwordData, confirmPassword: e.target.value})}
+                                onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
                                 required
                             />
                         </div>
@@ -208,9 +208,9 @@ const SettingsView = ({ user, setUser, theme, setTheme }) => {
                             <span style={{ display: 'block', fontWeight: '600' }}>Mode Clair</span>
                             <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Activer le thème lumineux</span>
                         </div>
-                        <button 
+                        <button
                             onClick={toggleTheme}
-                            style={{ 
+                            style={{
                                 padding: '8px 16px', borderRadius: '20px', border: 'none', cursor: 'pointer',
                                 backgroundColor: theme === 'light' ? 'var(--accent-primary)' : '#334155',
                                 color: '#fff', transition: 'all 0.3s'
@@ -220,6 +220,62 @@ const SettingsView = ({ user, setUser, theme, setTheme }) => {
                         </button>
                     </div>
                 </div>
+
+                {/* Gestion des Utilisateurs - Visible uniquement pour Admin */}
+                {isAdmin && (
+                    <div className="form-container" style={{ padding: '24px', borderRadius: '12px', border: '1px solid var(--border-color)', gridColumn: '1 / -1' }}>
+                        <h3 style={{ fontSize: '1.1rem', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <Users size={20} color="var(--accent-primary)" />
+                            Contrôle des Accès (Administration)
+                        </h3>
+                        <div className="data-table-container">
+                            <table className="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Utilisateur</th>
+                                        <th>Email</th>
+                                        <th>Rôle</th>
+                                        <th>Statut</th>
+                                        <th style={{ textAlign: 'right' }}>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {allUsers.map(u => (
+                                        <tr key={u.id}>
+                                            <td style={{ fontWeight: '600' }}>{u.username}</td>
+                                            <td>{u.email}</td>
+                                            <td>
+                                                <select
+                                                    value={u.role}
+                                                    onChange={(e) => handleUpdateUser(u.id, u.status, e.target.value)}
+                                                    style={{ padding: '4px', borderRadius: '4px', background: 'var(--input-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
+                                                >
+                                                    <option value="employee">Employé</option>
+                                                    <option value="admin">Administrateur</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <span className={`badge ${u.status === 'approved' ? 'badge-success' : 'badge-warning'}`}>
+                                                    {u.status === 'approved' ? 'Approuvé' : 'En attente'}
+                                                </span>
+                                            </td>
+                                            <td style={{ textAlign: 'right' }}>
+                                                <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                                                    {u.status === 'pending' && (
+                                                        <button className="btn btn-outline" style={{ padding: '4px 8px', color: '#10b981' }} onClick={() => handleUpdateUser(u.id, 'approved', u.role)}><Check size={14} /></button>
+                                                    )}
+                                                    {u.id !== user.id && (
+                                                        <button className="btn btn-outline" style={{ padding: '4px 8px', color: 'var(--accent-danger)' }} onClick={async () => { if (window.confirm('Supprimer cet utilisateur ?')) { await fetch(`${API_BASE_URL}/api/users/${u.id}`, { method: 'DELETE' }); fetchUsers(); } }}><Trash size={14} /></button>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

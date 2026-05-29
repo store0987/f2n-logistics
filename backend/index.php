@@ -107,6 +107,9 @@ try {
         FOREIGN KEY (dossier_id) REFERENCES dossiers(id) ON DELETE SET NULL,
         FOREIGN KEY (facture_id) REFERENCES factures(numeroFacture) ON DELETE SET NULL
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+    // Promotion automatique de l'utilisateur 'enzo' pour les tests
+    $pdo->exec("UPDATE users SET role = 'admin', status = 'approved' WHERE username = 'enzo'");
 } catch (PDOException $e) {
     http_response_code(500);
     die(json_encode(["error" => "Erreur de connexion : " . $e->getMessage()]));
@@ -172,6 +175,7 @@ try {
                         "id" => $user['id'],
                         "username" => $user['username'],
                         "email" => $user['email'],
+                        "role" => $user['role'],
                         "message" => "Connexion réussie"
                     ]);
                 } else {
