@@ -221,8 +221,7 @@ try {
 
         case 'dossiers':
             if ($method === 'GET') {
-                $sql = "SELECT d.*, c.nom as client_nom FROM dossiers d LEFT JOIN clients c ON d.client_id = c.id";
-                $sql = "SELECT d.*, c.nom as client_nom, c.nif as client_nif, c.rccm as client_rccm FROM dossiers d LEFT JOIN clients c ON d.client_id = c.id";
+                $sql = "SELECT d.*, c.nom as client_nom, c.nif as client_nif, c.rccm as client_rccm, c.adresse as client_adresse, c.ville as client_ville FROM dossiers d LEFT JOIN clients c ON d.client_id = c.id";
                 respond($pdo->query($sql)->fetchAll());
             } elseif ($method === 'POST') {
                 $typeOp = $input['typeOperation'] ?? 'Import';
@@ -343,7 +342,7 @@ try {
         if ($method === 'GET') {
             if ($id) {
                 // Détails d'une facture spécifique
-                $stmt = $pdo->prepare("SELECT f.*, c.nom as client_nom FROM factures f LEFT JOIN clients c ON f.client_id = c.id WHERE f.numeroFacture = ?");
+                $stmt = $pdo->prepare("SELECT f.*, c.nom as client_nom, c.nif as client_nif, c.rccm as client_rccm, c.adresse as client_adresse, c.ville as client_ville FROM factures f LEFT JOIN clients c ON f.client_id = c.id WHERE f.numeroFacture = ?");
                 $stmt->execute([$id]);
                 $facture = $stmt->fetch();
                 if (!$facture) respond(["error" => "Non trouvé"], 404);
@@ -353,7 +352,7 @@ try {
                 respond(["factureInfo" => $facture, "lignes" => $stmtLignes->fetchAll()]);
             } else {
                 // Liste des factures
-                $sql = "SELECT f.*, c.nom as client_nom FROM factures f LEFT JOIN clients c ON f.client_id = c.id";
+                $sql = "SELECT f.*, c.nom as client_nom, c.nif as client_nif, c.rccm as client_rccm FROM factures f LEFT JOIN clients c ON f.client_id = c.id";
                 respond($pdo->query($sql)->fetchAll());
             }
         } elseif ($method === 'POST') {

@@ -120,6 +120,8 @@ const FacturationForm = ({ onCancel, editData }) => {
     volume: '-',
     nombresColis: '-',
     client_id: null,
+    client_nif: '',
+    client_rccm: '',
     numVoyage: ''
   };
 
