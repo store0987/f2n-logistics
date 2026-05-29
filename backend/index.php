@@ -173,6 +173,11 @@ try {
                 $user = $stmt->fetch();
 
                 if ($user && password_verify($input['password'], $user['password'])) {
+                    // Vérifier si le compte est approuvé
+                    if ($user['status'] !== 'approved') {
+                        respond(["error" => "Votre compte est en attente d'approbation par l'administrateur."], 403);
+                    }
+
                     // En production, vous utiliseriez un JWT ici. 
                     // Pour la simplicité sur InfinityFree, on renvoie les infos de base.
                     respond([
