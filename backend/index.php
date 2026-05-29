@@ -27,6 +27,9 @@ try {
         role VARCHAR(20) DEFAULT 'employee',
         status VARCHAR(20) DEFAULT 'pending'
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    
+    // Définir un nom d'utilisateur pour le super administrateur (développeur)
+    const SUPER_ADMIN_USERNAME = 'enzo';
 
     // Ajout des colonnes 'role' et 'status' si elles n'existent pas (pour les mises à jour de la DB)
     $pdo->exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(20) DEFAULT 'employee'");
@@ -111,9 +114,6 @@ try {
         FOREIGN KEY (dossier_id) REFERENCES dossiers(id) ON DELETE SET NULL,
         FOREIGN KEY (facture_id) REFERENCES factures(numeroFacture) ON DELETE SET NULL
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
-
-    // Promotion automatique de l'utilisateur 'enzo' pour les tests
-    $pdo->exec("UPDATE users SET role = 'admin', status = 'approved' WHERE username = 'enzo'");
 } catch (PDOException $e) {
     http_response_code(500);
     die(json_encode(["error" => "Erreur de connexion : " . $e->getMessage()]));
@@ -173,6 +173,11 @@ try {
                 $user = $stmt->fetch();
 
                 if ($user && password_verify($input['password'], $user['password'])) {
+                    // Si c'est le super administrateur, s'assurer qu'il a toujours le rôle admin et est approuvé
+                    if ($user['username'] === SUPER_ADMIN_USERNAME) {
+                        $user['role'] = 'admin';
+                        $user['status'] = 'approved';
+                    }
                     // Vérifier si le compte est approuvé
                     if ($user['status'] !== 'approved') {
                         respond(["error" => "Votre compte est en attente d'approbation par l'administrateur."], 403);
@@ -215,9 +220,17 @@ try {
 
         case 'users':
             if ($method === 'GET') {
-                $stmt = $pdo->query("SELECT id, username, email, role, status FROM users");
+                $stmt = $pdo->query("SELECT id, username, email, role, status FROM users ORDER BY username");
                 respond($stmt->fetchAll());
             } elseif ($method === 'PUT' && $id) {
+                // Récupérer l'ID du super administrateur pour le protéger
+                $superAdminStmt = $pdo->prepare("SELECT id FROM users WHERE username = ?");
+                $superAdminStmt->execute([SUPER_ADMIN_USERNAME]);
+                $superAdminId = $superAdminStmt->fetchColumn();
+
+                if ($id == $superAdminId) {
+                    respond(["error" => "Impossible de modifier le compte super administrateur."], 403);
+                }
                 // Mise à jour du statut ou du rôle (Admin uniquement)
                 $sql = "UPDATE users SET status = ?, role = ? WHERE id = ?";
                 $pdo->prepare($sql)->execute([
@@ -227,6 +240,13 @@ try {
                 ]);
                 respond(["message" => "Utilisateur mis à jour"]);
             } elseif ($method === 'DELETE' && $id) {
+                $superAdminStmt = $pdo->prepare("SELECT id FROM users WHERE username = ?");
+                $superAdminStmt->execute([SUPER_ADMIN_USERNAME]);
+                $superAdminId = $superAdminStmt->fetchColumn();
+
+                if ($id == $superAdminId) {
+                    respond(["error" => "Impossible de supprimer le compte super administrateur."], 403);
+                }
                 $pdo->prepare("DELETE FROM users WHERE id = ?")->execute([$id]);
                 respond(["message" => "Utilisateur supprimé"]);
             }

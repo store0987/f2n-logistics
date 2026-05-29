@@ -520,9 +520,16 @@ const FacturationForm = ({ onCancel, editData, user }) => {
             Enregistrer Proforma
           </button>
           {!isProforma ? (
-            <div style={{ padding: '8px 16px', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-secondary)', fontWeight: 'bold' }}>
-              <CheckCircle size={18} /> Facture Validée
-            </div>
+            user?.role === 'admin' ? (
+              <button type="button" className="btn btn-primary" onClick={() => handleSave('Validée')}>
+                <Save size={18} />
+                Enregistrer les modifications
+              </button>
+            ) : (
+              <div style={{ padding: '8px 16px', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-secondary)', fontWeight: 'bold' }}>
+                <CheckCircle size={18} /> Facture Validée
+              </div>
+            )
           ) : (
             <button type="button" className="btn btn-primary" onClick={handleValidate}>
               <CheckCircle size={18} />

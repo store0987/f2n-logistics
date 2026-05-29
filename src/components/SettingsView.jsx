@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { API_BASE_URL } from '../api';
-import { User, Mail, Moon, Sun, Shield, Save, Lock, CheckCircle, AlertCircle, Users, Check, Trash } from 'lucide-react';
+import { User, Mail, Moon, Sun, Save, Lock, CheckCircle, AlertCircle } from 'lucide-react';
 
 const SettingsView = ({ user, setUser, theme, setTheme }) => {
     const [formData, setFormData] = useState({
@@ -14,31 +14,6 @@ const SettingsView = ({ user, setUser, theme, setTheme }) => {
     });
     const [message, setMessage] = useState('');
     const [passwordMessage, setPasswordMessage] = useState({ text: '', type: '' });
-
-    // Gestion des utilisateurs (Admin seulement)
-    const [allUsers, setAllUsers] = useState([]);
-    const isAdmin = user?.role === 'admin';
-
-    useEffect(() => {
-        if (isAdmin) {
-            fetchUsers();
-        }
-    }, [isAdmin]);
-
-    const fetchUsers = async () => {
-        const resp = await fetch(`${API_BASE_URL}/api/users`);
-        const data = await resp.json();
-        setAllUsers(data);
-    };
-
-    const handleUpdateUser = async (targetId, status, role) => {
-        await fetch(`${API_BASE_URL}/api/users/${targetId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status, role })
-        });
-        fetchUsers();
-    };
 
     const handleProfileSubmit = (e) => {
         e.preventDefault();
@@ -220,63 +195,6 @@ const SettingsView = ({ user, setUser, theme, setTheme }) => {
                         </button>
                     </div>
                 </div>
-
-                {/* Gestion des Utilisateurs - Visible uniquement pour Admin */}
-                {isAdmin && (
-                    <div className="form-container" style={{ padding: '24px', borderRadius: '12px', border: '1px solid var(--border-color)', gridColumn: '1 / -1' }}>
-                        <h3 style={{ fontSize: '1.1rem', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <Users size={20} color="var(--accent-primary)" />
-                            Contrôle des Accès (Administration)
-                        </h3>
-                        <div className="data-table-container">
-                            <table className="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Utilisateur</th>
-                                        <th>Email</th>
-                                        <th>Rôle</th>
-                                        <th>Statut</th>
-                                        <th style={{ textAlign: 'right' }}>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {allUsers.map(u => (
-                                        <tr key={u.id}>
-                                            <td style={{ fontWeight: '600' }}>{u.username}</td>
-                                            <td>{u.email}</td>
-                                            <td>
-                                                <select
-                                                    value={u.role}
-                                                    onChange={(e) => handleUpdateUser(u.id, u.status, e.target.value)}
-                                                    style={{ padding: '4px', borderRadius: '4px', background: 'var(--input-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
-                                                >
-                                                    <option value="employee">Employé</option>
-                                                    <option value="admin">Administrateur</option>
-                                                </select>
-                                                {u.id === user.id && <span style={{ marginLeft: '8px', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>(Votre rôle)</span>}
-                                            </td>
-                                            <td>
-                                                <span className={`badge ${u.status === 'approved' ? 'badge-success' : 'badge-warning'}`}>
-                                                    {u.status === 'approved' ? 'Approuvé' : 'En attente'}
-                                                </span>
-                                            </td>
-                                            <td style={{ textAlign: 'right' }}>
-                                                <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                                                    {u.status === 'pending' && (
-                                                        <button className="btn btn-outline" style={{ padding: '4px 8px', color: '#10b981' }} onClick={() => handleUpdateUser(u.id, 'approved', u.role)}><Check size={14} /></button>
-                                                    )}
-                                                    {u.id !== user.id && ( // Empêche l'admin de se supprimer lui-même
-                                                        <button className="btn btn-outline" style={{ padding: '4px 8px', color: 'var(--accent-danger)' }} onClick={async () => { if (window.confirm(`Voulez-vous vraiment supprimer l'utilisateur ${u.username} ?`)) { await fetch(`${API_BASE_URL}/api/users/${u.id}`, { method: 'DELETE' }); fetchUsers(); } }}><Trash size={14} /></button>
-                                                    )}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                )}
             </div>
         </div>
     );

@@ -8,6 +8,7 @@ import DeboursView from './components/DeboursView';
 import Auth from './components/Auth';
 import SkeletonLoader from './components/SkeletonLoader';
 import SettingsView from './components/SettingsView';
+import UsersManagementView from './components/UsersManagementView';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   LineChart, Line, PieChart, Pie, Cell
@@ -433,6 +434,12 @@ function App() {
             <Users size={20} />
             Clients & Partenaires
           </a>
+          {user.role === 'admin' && (
+            <a style={styles.navItem(activeTab === 'users-mgmt')} onClick={() => handleNavClick('users-mgmt')}>
+              <Shield size={20} />
+              Gestion Utilisateurs
+            </a>
+          )}
           <div style={{ flex: 1 }}></div>
           <a style={styles.navItem(activeTab === 'settings')} onClick={() => handleNavClick('settings')}>
             <Settings size={20} />
@@ -698,6 +705,10 @@ function App() {
 
         {activeTab === 'clients' && (
           <ClientsView />
+        )}
+
+        {activeTab === 'users-mgmt' && user.role === 'admin' && (
+          <UsersManagementView currentUser={user} />
         )}
 
         {activeTab === 'settings' && (
