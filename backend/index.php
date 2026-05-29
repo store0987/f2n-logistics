@@ -222,6 +222,7 @@ try {
         case 'dossiers':
             if ($method === 'GET') {
                 $sql = "SELECT d.*, c.nom as client_nom FROM dossiers d LEFT JOIN clients c ON d.client_id = c.id";
+                $sql = "SELECT d.*, c.nom as client_nom, c.nif as client_nif, c.rccm as client_rccm FROM dossiers d LEFT JOIN clients c ON d.client_id = c.id";
                 respond($pdo->query($sql)->fetchAll());
             } elseif ($method === 'POST') {
                 $typeOp = $input['typeOperation'] ?? 'Import';

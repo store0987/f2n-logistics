@@ -319,7 +319,8 @@ const FacturationForm = ({ onCancel, editData }) => {
             </h3>
             <div style={{ marginBottom: '12px' }}>
               <span style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '4px' }}>{selectedDossier.client_nom}</span>
-              <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>NINEA / NIU: À renseigner</span>
+              {selectedDossier.client_nif && <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', display: 'block' }}>NINEA / NIU: {selectedDossier.client_nif}</span>}
+              {selectedDossier.client_rccm && <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', display: 'block' }}>RCCM: {selectedDossier.client_rccm}</span>}
             </div>
             {isProforma && (
               <div className="no-print">
