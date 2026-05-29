@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { API_BASE_URL } from '../api';
-import { Plus, Trash2, Printer, Save, CheckCircle, Ship, MapPin, Box, Hash, User, Download, Mail, FileDown, ArrowLeft } from 'lucide-react';
+import { Plus, Trash2, Printer, Save, CheckCircle, Ship, MapPin, Box, Hash, User, Download, Mail, FileDown } from 'lucide-react';
 
 const LOGISTICS_DESIGNATIONS = [
   "Assurance Faculté (Transport)", "Cautionnement Conteneur", "Chargement / Empotage", "Correction de Manifeste",
@@ -122,7 +122,6 @@ const FacturationForm = ({ onCancel, editData }) => {
     client_id: null,
     client_nif: '',
     client_rccm: '',
-    client_tel: '',
     numVoyage: ''
   };
 
@@ -181,7 +180,7 @@ const FacturationForm = ({ onCancel, editData }) => {
 
   const handleValidate = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/next-facture-number/FN2`);
+      const response = await fetch(`${API_BASE_URL}/api/next-facture-number/FACT`);
       const data = await response.json();
       setFactureInfo(prev => ({ ...prev, numeroFacture: data.number }));
       handleSave('Validée', data.number);
@@ -245,6 +244,26 @@ const FacturationForm = ({ onCancel, editData }) => {
 
   return (
     <div className="dashboard-page">
+      <style>{`
+        @media print {
+          .form-container { border: none !important; padding: 0 !important; margin: 0 !important; width: 100% !important; max-width: none !important; }
+          .facture-footer { position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; padding-bottom: 10px !important; background: white !important; }
+          .data-table th, .data-table td, table tr td { border-bottom: 1px solid #000 !important; }
+          .data-table th { border-bottom: 2px solid #000 !important; color: black !important; }
+          .facture-context-grid, .totals-box, .payment-box { border: 1px solid #000 !important; }
+          .title-badge { border: 2px solid #000 !important; color: black !important; }
+          input.form-control { border: none !important; color: black !important; }
+          .no-print { display: none !important; }
+          body { background: white !important; color: black !important; }
+          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          @page { margin: 1.5cm; }
+        }
+        .facture-footer { 
+          width: 100%;
+          background: var(--bg-card);
+        }
+      `}</style>
+
       <div className="page-header no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
         <div>
           <h1 className="page-title">Éditeur de Facture</h1>
@@ -266,19 +285,11 @@ const FacturationForm = ({ onCancel, editData }) => {
           {/* Logo & Identité */}
           <div style={{ display: 'flex', gap: '20px', alignItems: 'center', minWidth: 'min-content' }}>
             <div style={{
-              width: '80px', height: '80px',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              overflow: 'hidden'
+              width: '64px', height: '64px', borderRadius: '12px',
+              backgroundColor: 'var(--accent-primary)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center'
             }}>
-              <img
-                src={`${API_BASE_URL}/assets/logo.jpeg`} // Changement ici pour l'extension JPEG
-                alt="Logo"
-                style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 21c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1 .6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1'/%3E%3Cpath d='M19.38 20A11.6 11.6 0 0 0 21 14l-9-4-9 4c0 2.26 1.18 4.27 3 5.39'/%3E%3Cpath d='M11 13c1.33 0 2.67 0 4 0'/%3E%3Cpath d='M12 10v4'/%3E%3Cpath d='M11 10h2'/%3E%3C/svg%3E";
-                }}
-              />
+              <Ship size={32} color="white" />
             </div>
             <div>
               <h2 style={{ fontSize: '2rem', fontWeight: '800', margin: '0 0 4px 0', color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>
@@ -332,7 +343,6 @@ const FacturationForm = ({ onCancel, editData }) => {
               <span style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '4px' }}>{selectedDossier.client_nom}</span>
               {selectedDossier.client_nif && <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', display: 'block' }}>NINEA / NIU: {selectedDossier.client_nif}</span>}
               {selectedDossier.client_rccm && <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', display: 'block' }}>RCCM: {selectedDossier.client_rccm}</span>}
-              {selectedDossier.client_tel && <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', display: 'block' }}>Tél: {selectedDossier.client_tel}</span>}
             </div>
             {isProforma && (
               <div className="no-print">
@@ -449,12 +459,15 @@ const FacturationForm = ({ onCancel, editData }) => {
         {/* --- RÉSUMÉ FINANCIER --- */}
         <div className="facture-summary-grid" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '24px' }}>
 
-          <div className="payment-box" style={{ flex: '1', minWidth: '280px', color: 'var(--text-secondary)', fontSize: '0.85rem', border: '1px solid var(--border-color)', padding: '16px', borderRadius: '8px' }}>
+          <div style={{ flex: '1', minWidth: '280px', color: 'var(--text-secondary)', fontSize: '0.85rem', border: '1px solid var(--border-color)', padding: '16px', borderRadius: '8px' }}>
             <p style={{ marginBottom: '8px', color: 'var(--text-primary)' }}><strong>Conditions de paiement :</strong></p>
-            <p>Paiement à réception de la facture par chèque ou virement bancaire.</p>
+            <p>Paiement à réception de la facture par chèque ou virement bancaire.<br /><br />
+              <strong>Banque BICIS</strong><br />
+              IBAN: SN010 01234 000000123456 78<br />
+              Code SWIFT: BICISNXXXX</p>
           </div>
 
-          <div className="totals-box" style={{ width: '100%', maxWidth: '380px', border: '2px solid var(--border-color)', borderRadius: '8px', padding: '24px', marginLeft: 'auto' }}>
+          <div style={{ width: '100%', maxWidth: '380px', border: '2px solid var(--border-color)', borderRadius: '8px', padding: '24px', marginLeft: 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontSize: '1rem' }}>
               <span style={{ color: 'var(--text-secondary)' }}>Sous-total HT</span>
               <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{formatCurrency(sousTotal)}</span>
@@ -484,10 +497,6 @@ const FacturationForm = ({ onCancel, editData }) => {
       {/* --- BOUTONS D'ACTION (Hors Document) --- */}
       <div className="form-actions no-print" style={{ maxWidth: '1040px', margin: '24px auto 0 auto', borderTop: 'none', padding: '0', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          <button type="button" className="btn btn-outline" onClick={onCancel} style={{ marginRight: '8px' }}>
-            <ArrowLeft size={18} />
-            Retour
-          </button>
           <button type="button" className="btn btn-outline" onClick={() => window.print()}>
             <Printer size={18} />
             Imprimer
