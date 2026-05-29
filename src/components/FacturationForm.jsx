@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { API_BASE_URL } from '../api';
-import { Plus, Trash2, Printer, Save, CheckCircle, Ship, MapPin, Box, Hash, User, Download, Mail, FileDown } from 'lucide-react';
+import { Plus, Trash2, Printer, Save, CheckCircle, Ship, MapPin, Box, Hash, User, Download, Mail, FileDown, ArrowLeft } from 'lucide-react';
 
 const LOGISTICS_DESIGNATIONS = [
   "Assurance Faculté (Transport)", "Cautionnement Conteneur", "Chargement / Empotage", "Correction de Manifeste",
@@ -476,6 +476,10 @@ const FacturationForm = ({ onCancel, editData }) => {
       {/* --- BOUTONS D'ACTION (Hors Document) --- */}
       <div className="form-actions no-print" style={{ maxWidth: '1040px', margin: '24px auto 0 auto', borderTop: 'none', padding: '0', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          <button type="button" className="btn btn-outline" onClick={onCancel} style={{ marginRight: '8px' }}>
+            <ArrowLeft size={18} />
+            Retour
+          </button>
           <button type="button" className="btn btn-outline" onClick={() => window.print()}>
             <Printer size={18} />
             Imprimer
