@@ -415,7 +415,7 @@ try {
 
         case 'factures-pdf':
             if ($method === 'GET' && $id) {
-                $stmt = $pdo->prepare("SELECT f.*, c.nom as client_nom, c.email as client_email, c.adresse as client_adresse, c.ville as client_ville, d.numBL, d.navire, d.numVoyage, d.origine, d.destination, d.poids, d.volume, d.nombresColis FROM factures f LEFT JOIN clients c ON f.client_id = c.id LEFT JOIN dossiers d ON f.dossier_id = d.id WHERE f.numeroFacture = ?");
+                $stmt = $pdo->prepare("SELECT f.*, c.nom as client_nom, c.email as client_email, c.adresse as client_adresse, c.ville as client_ville, c.nif as client_nif, c.rccm as client_rccm, d.numBL, d.navire, d.numVoyage, d.origine, d.destination, d.poids, d.volume, d.nombresColis FROM factures f LEFT JOIN clients c ON f.client_id = c.id LEFT JOIN dossiers d ON f.dossier_id = d.id WHERE f.numeroFacture = ?");
                 $stmt->execute([$id]);
                 $facture = $stmt->fetch();
                 if (!$facture) respond(["error" => "Facture non trouvée"], 404);
@@ -424,11 +424,6 @@ try {
                 $stmtLignes->execute([$id]);
                 $lignes = $stmtLignes->fetchAll();
                 
-
-                $stmtDebours = $pdo->prepare("SELECT * FROM debours WHERE facture_id = ?");
-                $stmtDebours->execute([$id]);
-                $deboursList = $stmtDebours->fetchAll();
-
                 $isProforma = strpos($id, 'PRO') !== false;
                 $title = $isProforma ? 'PROFORMA' : 'FACTURE';
 
@@ -519,8 +514,10 @@ try {
                             <td class='context-td' width='35%' style='border-right: 1px solid #eee;'>
                                 <div class='section-title'>Facturé à</div>
                                 <span class='client-name'>{$facture['client_nom']}</span>
-                                <div class='company-details' style='margin-top: 5px;'>
-                                    NINEA / NIU: À renseigner<br>
+                                <div class='company-details' style='margin-top: 5px;'>";
+                $html .= ($facture['client_nif'] ? "NINEA / NIU: {$facture['client_nif']}<br>" : "");
+                $html .= ($facture['client_rccm'] ? "RCCM: {$facture['client_rccm']}<br>" : "");
+                $html .= "
                                     " . ($facture['client_adresse'] ?: '') . "<br>
                                     " . ($facture['client_ville'] ?: '') . "
                                 </div>
@@ -570,14 +567,6 @@ try {
                         <td align='center'>{$l['quantite']}</td>
                         <td align='right'>" . number_format($l['prixUnitaire'], 0, ',', ' ') . "</td>
                         <td align='right'><strong>" . number_format($rowTotal, 0, ',', ' ') . "</strong></td>
-                    </tr>";
-                }
-                foreach($deboursList as $db) {
-                    $html .= "<tr>
-                        <td><em style='color: #666;'>(Débours)</em> {$db['description']}</td>
-                        <td align='center'>1</td>
-                        <td align='right'>" . number_format($db['montant'], 0, ',', ' ') . "</td>
-                        <td align='right'><strong>" . number_format($db['montant'], 0, ',', ' ') . "</strong></td>
                     </tr>";
                 }
                 $html .= "</tbody>
@@ -663,10 +652,10 @@ try {
                         $mail->Password   = SMTP_PASS;
                         $mail->SMTPSecure = \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
                         $mail->Port       = SMTP_PORT;
-                        $mail->setFrom(SMTP_FROM, 'F2N Logistics');
+                        $mail->setFrom(SMTP_FROM, 'F2N LOGISTICS');
                         $mail->addAddress($facture['client_email'], $facture['client_nom']);
                         $mail->isHTML(true);
-                        $mail->Subject = "Document " . $id . " - F2N Logistics";
+                        $mail->Subject = "Document " . $id . " - F2N LOGISTICS";
                         $mail->Body    = "Bonjour " . $facture['client_nom'] . ",<br><br>Veuillez trouver ci-joint votre document " . $id . " d'un montant de " . number_format($facture['totalTtc'], 0, ',', ' ') . " FCFA.<br><br>Cordialement.";
                         $mail->send();
                         respond(["message" => "Email envoyé avec succès à {$facture['client_email']}"]);

@@ -383,7 +383,7 @@ const FacturationForm = ({ onCancel, editData }) => {
         {/* --- LIGNES DE FACTURE --- */}
         <div style={{ marginBottom: '32px' }} className="data-table-container">
           <table style={{ width: '100%', borderCollapse: 'collapse' }} className="data-table">
-            <thead className="no-print"> {/* Masquer l'en-tête du tableau à l'impression */}
+            <thead>
               <tr>
                 <th style={{ textAlign: 'left', padding: '12px 16px', color: 'var(--text-secondary)', fontSize: '0.75rem', textTransform: 'uppercase', borderBottom: '2px solid var(--border-color)' }}>Désignation des Frais</th>
                 <th style={{ textAlign: 'center', padding: '12px 16px', color: 'var(--text-secondary)', fontSize: '0.75rem', textTransform: 'uppercase', borderBottom: '2px solid var(--border-color)' }}>Qté</th>

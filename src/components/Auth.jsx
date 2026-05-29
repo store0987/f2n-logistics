@@ -133,7 +133,7 @@ const Auth = () => {
                     <div className="auth-logo" style={styles.logo}>
                         <Ship size={32} color="white" />
                     </div>
-                    <h1 style={styles.title}>F2N Logistics</h1>
+                    <h1 style={styles.title}>F2N LOGISTICS</h1>
                     <p style={styles.subtitle}>{isLogin ? 'Accédez à votre espace gestion' : 'Créez votre compte administrateur'}</p>
                 </div>
 
