@@ -439,15 +439,12 @@ const FacturationForm = ({ onCancel, editData }) => {
         {/* --- RÉSUMÉ FINANCIER --- */}
         <div className="facture-summary-grid" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '24px' }}>
 
-          <div style={{ flex: '1', minWidth: '280px', color: 'var(--text-secondary)', fontSize: '0.85rem', border: '1px solid var(--border-color)', padding: '16px', borderRadius: '8px' }}>
+          <div className="payment-box" style={{ flex: '1', minWidth: '280px', color: 'var(--text-secondary)', fontSize: '0.85rem', border: '1px solid var(--border-color)', padding: '16px', borderRadius: '8px' }}>
             <p style={{ marginBottom: '8px', color: 'var(--text-primary)' }}><strong>Conditions de paiement :</strong></p>
-            <p>Paiement à réception de la facture par chèque ou virement bancaire.<br /><br />
-              <strong>Banque BICIS</strong><br />
-              IBAN: SN010 01234 000000123456 78<br />
-              Code SWIFT: BICISNXXXX</p>
+            <p>Paiement à réception de la facture par chèque ou virement bancaire.</p>
           </div>
 
-          <div style={{ width: '100%', maxWidth: '380px', border: '2px solid var(--border-color)', borderRadius: '8px', padding: '24px', marginLeft: 'auto' }}>
+          <div className="totals-box" style={{ width: '100%', maxWidth: '380px', border: '2px solid var(--border-color)', borderRadius: '8px', padding: '24px', marginLeft: 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontSize: '1rem' }}>
               <span style={{ color: 'var(--text-secondary)' }}>Sous-total HT</span>
               <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{formatCurrency(sousTotal)}</span>
