@@ -248,11 +248,8 @@ const FacturationForm = ({ onCancel, editData }) => {
         @media print {
           .form-container { border: none !important; padding: 0 !important; margin: 0 !important; width: 100% !important; max-width: none !important; }
           .facture-footer { position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; padding-bottom: 10px !important; background: white !important; }
-          .data-table th, .data-table td, table tr td { border-bottom: 1px solid #000 !important; }
-          .data-table th { border-bottom: 2px solid #000 !important; color: black !important; }
-          .facture-context-grid, .totals-box, .payment-box { border: 1px solid #000 !important; }
-          .title-badge { border: 2px solid #000 !important; color: black !important; }
-          input.form-control { border: none !important; color: black !important; }
+          .data-table th, .data-table td { border-bottom: 1px solid var(--border-color) !important; }
+          .facture-context-grid, .totals-box, .payment-box { border: 1px solid var(--border-color) !important; }
           .no-print { display: none !important; }
           body { background: white !important; color: black !important; }
           * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
