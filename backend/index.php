@@ -444,9 +444,8 @@ try {
                 <head>
                     <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/>
                     <style>
-                        @page { margin: 1cm 1.5cm 3.5cm 1.5cm; }
                         body { font-family: 'DejaVu Sans', sans-serif; color: #333; font-size: 11px; line-height: 1.4; }
-                        .container { width: 100%; }
+                        .container { padding: 20px; }
                         .header-table { width: 100%; margin-bottom: 40px; }
                         .logo-box { width: 80px; height: 80px; text-align: left; }
                         .company-name { font-size: 22px; font-weight: bold; color: #333; margin: 0; }
@@ -475,7 +474,7 @@ try {
                         .totals-box { border: 2px solid #eee; border-radius: 8px; padding: 15px; }
                         .total-row { font-size: 12px; margin-bottom: 5px; }
                         .grand-total { border-top: 2px solid #eee; padding-top: 10px; margin-top: 10px; font-size: 16px; font-weight: bold; }
-                        .footer { position: fixed; bottom: -2.5cm; left: 0; right: 0; text-align: center; font-size: 8px; color: #777; border-top: 1px solid #eee; padding-top: 10px; background: white; height: 2cm; }
+                        .footer { margin-top: 40px; text-align: center; font-size: 8px; color: #777; border-top: 1px solid #eee; padding-top: 10px; }
                         .clear { clear: both; }
                     </style>
                 </head>

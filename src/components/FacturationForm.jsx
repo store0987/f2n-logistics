@@ -244,23 +244,6 @@ const FacturationForm = ({ onCancel, editData }) => {
 
   return (
     <div className="dashboard-page">
-      <style>{`
-        @media print {
-          .form-container { border: none !important; padding: 0 !important; margin: 0 !important; width: 100% !important; max-width: none !important; }
-          .facture-footer { position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; padding-bottom: 10px !important; background: white !important; }
-          .data-table th, .data-table td { border-bottom: 1px solid var(--border-color) !important; }
-          .facture-context-grid, .totals-box, .payment-box { border: 1px solid var(--border-color) !important; }
-          .no-print { display: none !important; }
-          body { background: white !important; color: black !important; }
-          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-          @page { margin: 1.5cm; }
-        }
-        .facture-footer { 
-          width: 100%;
-          background: var(--bg-card);
-        }
-      `}</style>
-
       <div className="page-header no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
         <div>
           <h1 className="page-title">Éditeur de Facture</h1>
