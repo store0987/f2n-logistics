@@ -416,7 +416,7 @@ function App() {
       <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`} style={styles.sidebar}>
         <div className="sidebar-header" style={styles.sidebarHeader}>
           <Ship color="#3b82f6" size={28} />
-          <span style={{ fontSize: '1.25rem', fontWeight: '700', color: '#3b82f6', flex: 1 }}>F2N LOGISTICS</span>
+          <span style={{ fontSize: '1.1rem', fontWeight: '700', color: '#3b82f6', flex: 1 }}>F2N LOGISTICS SARL</span>
           <button className="menu-toggle" onClick={() => setIsSidebarOpen(false)} style={{ display: 'none', background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}>
             <X size={24} />
           </button>

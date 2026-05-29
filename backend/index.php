@@ -46,6 +46,18 @@ try {
     } catch (Exception $e) {
         // La colonne existe déjà, on ignore l'erreur
     }
+    
+    try {
+        $pdo->exec("ALTER TABLE factures ADD COLUMN numDeclaration VARCHAR(255)");
+        $pdo->exec("ALTER TABLE factures ADD COLUMN adresseFacturation TEXT");
+    } catch (Exception $e) {}
+
+    try {
+        $pdo->exec("ALTER TABLE facture_lignes ADD COLUMN type VARCHAR(20) DEFAULT 'prestation'");
+    } catch (Exception $e) {}
+    
+    // Mise à jour automatique de la raison sociale dans les scripts si nécessaire
+    define('COMPANY_NAME', 'F2N LOGISTICS SARL');
 
     // Table clients
     $pdo->exec("CREATE TABLE IF NOT EXISTS clients (
@@ -99,6 +111,8 @@ try {
         sousTotal DECIMAL(10, 2),
         montantTva DECIMAL(10, 2),
         totalTtc DECIMAL(10, 2),
+        numDeclaration VARCHAR(255),
+        adresseFacturation TEXT,
         FOREIGN KEY (dossier_id) REFERENCES dossiers(id) ON DELETE SET NULL,
         FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE SET NULL
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
@@ -111,6 +125,7 @@ try {
         quantite DECIMAL(10, 2),
         prixUnitaire DECIMAL(10, 2),
         taxable TINYINT(1) DEFAULT 0,
+        type VARCHAR(20) DEFAULT 'prestation',
         FOREIGN KEY (facture_id) REFERENCES factures(numeroFacture) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
@@ -296,19 +311,19 @@ try {
                 respond($pdo->query($sql)->fetchAll());
             } elseif ($method === 'POST') {
                 $typeOp = $input['typeOperation'] ?? 'Import';
-                $prefix = ($typeOp === 'Import') ? 'IMP' : (($typeOp === 'Export') ? 'EXP' : 'TRS');
-                $year = date("Y");
-                $pattern = "$prefix-$year-%";
+                $prefix = "26F2N";
+                $suffix = "D";
+                $pattern = "$prefix-%-$suffix";
                 $stmt = $pdo->prepare("SELECT id FROM dossiers WHERE id LIKE ? ORDER BY id DESC LIMIT 1");
                 $stmt->execute([$pattern]);
                 $last = $stmt->fetchColumn();
                 
                 $nextNum = 1;
                 if ($last) {
-                    $parts = explode('-', $last);
+                    $parts = explode('-', str_replace($suffix, '', $last));
                     $nextNum = intval(end($parts)) + 1;
                 }
-                $newId = $input['id'] ?? ($prefix . "-" . $year . "-" . str_pad($nextNum, 3, '0', STR_PAD_LEFT));
+                $newId = $input['id'] ?? ($prefix . "-" . str_pad($nextNum, 3, '0', STR_PAD_LEFT) . $suffix);
                 
                 $sql = "INSERT INTO dossiers (id, typeOperation, modeTransport, numBL, incoterm, compagnie, navire, numVoyage, etd, eta, origine, destination, client_id, expediteur, natureMarchandise, nombresColis, typeConteneur, poids, volume, valeurMarchandise, dateCreation, statutFacturation) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
                 $pdo->prepare($sql)->execute([
@@ -395,18 +410,19 @@ try {
         case 'next-facture-number':
         // Note: l'URL attendue est /api/next-facture-number/PRO ou FACT
         $type = $id; // Dans ce cas, l'ID est le type (PRO ou FACT)
-        $year = date("Y");
-        $pattern = "$type-$year-%";
+        $prefix = "26F2N";
+        $suffix = "F";
+        $pattern = "$prefix-%-$suffix";
         $stmt = $pdo->prepare("SELECT numeroFacture FROM factures WHERE numeroFacture LIKE ? ORDER BY numeroFacture DESC LIMIT 1");
         $stmt->execute([$pattern]);
         $last = $stmt->fetchColumn();
         
         $nextNum = 1;
         if ($last) {
-            $parts = explode('-', $last);
+            $parts = explode('-', str_replace($suffix, '', $last));
             $nextNum = intval(end($parts)) + 1;
         }
-        respond(["number" => $type . "-" . $year . "-" . str_pad($nextNum, 3, '0', STR_PAD_LEFT)]);
+        respond(["number" => $prefix . "-" . str_pad($nextNum, 3, '0', STR_PAD_LEFT) . $suffix]);
         break;
 
         case 'factures':
@@ -434,24 +450,25 @@ try {
             
             $pdo->beginTransaction();
             try {
-                $sqlFact = "INSERT INTO factures (numeroFacture, date, dossier_id, client_id, statut, sousTotal, montantTva, totalTtc) 
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?) 
-                            ON DUPLICATE KEY UPDATE date=VALUES(date), dossier_id=VALUES(dossier_id), client_id=VALUES(client_id), statut=VALUES(statut), sousTotal=VALUES(sousTotal), montantTva=VALUES(montantTva), totalTtc=VALUES(totalTtc)";
+                $sqlFact = "INSERT INTO factures (numeroFacture, date, dossier_id, client_id, statut, sousTotal, montantTva, totalTtc, numDeclaration, adresseFacturation) 
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
+                            ON DUPLICATE KEY UPDATE date=VALUES(date), dossier_id=VALUES(dossier_id), client_id=VALUES(client_id), statut=VALUES(statut), sousTotal=VALUES(sousTotal), montantTva=VALUES(montantTva), totalTtc=VALUES(totalTtc), numDeclaration=VALUES(numDeclaration), adresseFacturation=VALUES(adresseFacturation)";
                 
                 $dossier_id = empty($info['dossierLie']) ? null : $info['dossierLie'];
                 
                 $pdo->prepare($sqlFact)->execute([
                     $info['numeroFacture'], $info['date'], $dossier_id, $info['client_id'], 
-                    $info['statut'], $totaux['sousTotal'], $totaux['montantTva'], $totaux['totalTtc']
+                    $info['statut'], $totaux['sousTotal'], $totaux['montantTva'], $totaux['totalTtc'],
+                    $info['numDeclaration'] ?? null, $info['adresseFacturation'] ?? null
                 ]);
                 
                 // Suppression et réinsertion des lignes
                 $pdo->prepare("DELETE FROM facture_lignes WHERE facture_id = ?")->execute([$info['numeroFacture']]);
                 
-                $sqlLigne = "INSERT INTO facture_lignes (facture_id, description, quantite, prixUnitaire, taxable) VALUES (?, ?, ?, ?, ?)";
+                $sqlLigne = "INSERT INTO facture_lignes (facture_id, description, quantite, prixUnitaire, taxable, type) VALUES (?, ?, ?, ?, ?, ?)";
                 $stmtL = $pdo->prepare($sqlLigne);
                 foreach ($lignes as $l) {
-                    $stmtL->execute([$info['numeroFacture'], $l['description'], $l['quantite'], $l['prixUnitaire'], $l['taxable'] ? 1 : 0]);
+                    $stmtL->execute([$info['numeroFacture'], $l['description'], $l['quantite'], $l['prixUnitaire'], $l['taxable'] ? 1 : 0, $l['type'] ?? 'prestation']);
                 }
                 
                 // --- NOUVEAU: Automatisation du statut du dossier ---
@@ -518,7 +535,7 @@ try {
                         body { font-family: 'DejaVu Sans', sans-serif; color: #333; font-size: 10px; line-height: 1.4; }
                         .container { width: 100%; }
                         .header-table { width: 100%; margin-bottom: 40px; }
-                        .logo-box { width: 80px; height: 80px; text-align: left; }
+                        .logo-box { width: 120px; height: 120px; text-align: left; }
                         .company-name { font-size: 22px; font-weight: bold; color: #333; margin: 0; }
                         .company-tag { color: #666; font-weight: bold; text-transform: uppercase; font-size: 10px; margin: 2px 0; }
                         .company-details { color: #666; font-size: 9px; }
@@ -539,6 +556,7 @@ try {
                         .lines-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
                         .lines-table th { border-bottom: 2px solid #000; padding: 10px; text-align: left; color: #000; font-size: 9px; text-transform: uppercase; }
                         .lines-table td { padding: 10px; border-bottom: 1px solid #999; color: #000; font-weight: bold; }
+                        .group-header { background: #f0f0f0; font-weight: bold; text-transform: uppercase; padding: 5px 10px !important; border-bottom: 2px solid #333 !important; }
                         
                         .summary-table { width: 100%; }
                         .payment-box { border: 1px solid #000; border-radius: 8px; padding: 15px; color: #000; font-size: 9px; }
@@ -562,11 +580,11 @@ try {
                                             </div>
                                         </td>
                                         <td>
-                                            <h1 class='company-name'>F2N LOGISTICS</h1>
-                                            <p class='company-tag'>Commissionnaire Agréé</p>
+                                            <h1 class='company-name'>F2N LOGISTICS SARL</h1>
+                                            <p class='company-tag'>Commissionnaire en Douane Agréé</p>
                                             <div class='company-details'>
                                                 BP 4056 Douala - Bonapriso - CAMEROUN<br>
-                                                Tél: +237 699 97 98 85 • NIU: M042517669133Q
+                                                Tél: +237 699 97 98 85 • NIU: M042517669133Q • RCCM : CM-DLA-01-2025-B12-000508
                                             </div>
                                         </td>
                                     </tr>
@@ -609,8 +627,8 @@ try {
                                 <table class='dossier-grid'>
                                     <tr>
                                         <td width='50%'>
-                                            <div class='dossier-label'>B/L / LTA</div>
-                                            <div class='dossier-value'>{$facture['numBL']}</div>
+                                            <div class='dossier-label'>Déclaration / BL</div>
+                                            <div class='dossier-value'>" . ($facture['numDeclaration'] ? "DEC: " . $facture['numDeclaration'] : "BL: " . $facture['numBL']) . "</div>
                                         </td>
                                         <td>
                                             <div class='dossier-label'>Navire / Voyage</div>
@@ -642,15 +660,36 @@ try {
                             </tr>
                         </thead>
                         <tbody>";
-                foreach($lignes as $l) {
-                    $rowTotal = $l['quantite'] * $l['prixUnitaire'];
-                    $html .= "<tr>
-                        <td>{$l['description']}</td>
-                        <td align='center'>{$l['quantite']}</td>
-                        <td align='right'>" . number_format($l['prixUnitaire'], 0, ',', ' ') . "</td>
-                        <td align='right'><strong>" . number_format($rowTotal, 0, ',', ' ') . "</strong></td>
-                    </tr>";
+                
+                $debours = array_filter($lignes, function($l) { return $l['type'] === 'debour'; });
+                $prestations = array_filter($lignes, function($l) { return $l['type'] === 'prestation'; });
+
+                if (!empty($debours)) {
+                    $html .= "<tr><td colspan='4' class='group-header'>Débours (Frais Tiers)</td></tr>";
+                    foreach($debours as $l) {
+                        $rowTotal = $l['quantite'] * $l['prixUnitaire'];
+                        $html .= "<tr>
+                            <td>{$l['description']}</td>
+                            <td align='center'>{$l['quantite']}</td>
+                            <td align='right'>" . number_format($l['prixUnitaire'], 0, ',', ' ') . "</td>
+                            <td align='right'><strong>" . number_format($rowTotal, 0, ',', ' ') . "</strong></td>
+                        </tr>";
+                    }
                 }
+
+                if (!empty($prestations)) {
+                    $html .= "<tr><td colspan='4' class='group-header'>Prestations de Service</td></tr>";
+                    foreach($prestations as $l) {
+                        $rowTotal = $l['quantite'] * $l['prixUnitaire'];
+                        $html .= "<tr>
+                            <td>{$l['description']}</td>
+                            <td align='center'>{$l['quantite']}</td>
+                            <td align='right'>" . number_format($l['prixUnitaire'], 0, ',', ' ') . "</td>
+                            <td align='right'><strong>" . number_format($rowTotal, 0, ',', ' ') . "</strong></td>
+                        </tr>";
+                    }
+                }
+
                 $html .= "</tbody>
                     </table>
 
