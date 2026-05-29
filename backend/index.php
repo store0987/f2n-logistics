@@ -28,12 +28,23 @@ try {
         status VARCHAR(20) DEFAULT 'pending'
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
     
-    // Définir un nom d'utilisateur pour le super administrateur (développeur)
-    const SUPER_ADMIN_USERNAME = 'enzo';
+    // Définir le super administrateur
+    if (!defined('SUPER_ADMIN_USERNAME')) {
+        define('SUPER_ADMIN_USERNAME', 'enzo');
+    }
 
-    // Ajout des colonnes 'role' et 'status' si elles n'existent pas (pour les mises à jour de la DB)
-    $pdo->exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(20) DEFAULT 'employee'");
-    $pdo->exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'pending'");
+    // Mise à jour sécurisée de la structure de la table (compatibilité MySQL standard)
+    try {
+        $pdo->exec("ALTER TABLE users ADD COLUMN role VARCHAR(20) DEFAULT 'employee'");
+    } catch (Exception $e) {
+        // La colonne existe déjà, on ignore l'erreur
+    }
+    
+    try {
+        $pdo->exec("ALTER TABLE users ADD COLUMN status VARCHAR(20) DEFAULT 'pending'");
+    } catch (Exception $e) {
+        // La colonne existe déjà, on ignore l'erreur
+    }
 
     // Table clients
     $pdo->exec("CREATE TABLE IF NOT EXISTS clients (
