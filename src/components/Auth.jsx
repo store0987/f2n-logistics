@@ -28,8 +28,10 @@ const Auth = () => {
             if (response.ok) {
                 if (isLogin) {
                     localStorage.setItem('f2n_user', JSON.stringify(data));
-                    // Force le rechargement pour initialiser proprement le dashboard
-                    window.location.href = '/';
+                    // On s'assure de revenir sur le tableau de bord par défaut
+                    localStorage.setItem('activeTab', 'dashboard');
+                    // Recharge la page actuelle au lieu de rediriger vers la racine du domaine
+                    window.location.reload();
                 } else {
                     alert("Compte créé avec succès ! Connectez-vous maintenant.");
                     setIsLogin(true);

@@ -35,7 +35,15 @@ import {
 function App() {
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem('f2n_user');
-    return saved ? JSON.parse(saved) : null;
+    if (!saved) return null;
+    const userData = JSON.parse(saved);
+
+    // Correctif de sécurité : Enzo est le super admin, on force son rôle 
+    // au cas où sa session locale serait obsolète.
+    if (userData.username === 'enzo') {
+      userData.role = 'admin';
+    }
+    return userData;
   });
 
   const [activeTab, setActiveTab] = useState(() => {
@@ -396,10 +404,10 @@ function App() {
 
       {/* Overlay pour fermer le menu mobile au clic extérieur */}
       {isSidebarOpen && (
-        <div 
-          className="sidebar-overlay" 
-          onClick={() => setIsSidebarOpen(false)} 
-          style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 999, display: 'none' }} 
+        <div
+          className="sidebar-overlay"
+          onClick={() => setIsSidebarOpen(false)}
+          style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 999, display: 'none' }}
         />
       )}
 
@@ -474,9 +482,9 @@ function App() {
 
           <div className="search-bar">
             <Search size={18} style={{ color: 'var(--text-secondary)' }} />
-            <input 
-              type="text" 
-              placeholder="Rechercher un dossier (ex: B/L, Facture)..." 
+            <input
+              type="text"
+              placeholder="Rechercher un dossier (ex: B/L, Facture)..."
               style={{ backgroundColor: 'transparent', border: 'none', color: 'var(--text-primary)', outline: 'none', width: '100%' }}
             />
           </div>
@@ -712,11 +720,11 @@ function App() {
         )}
 
         {activeTab === 'settings' && (
-          <SettingsView 
-            user={user} 
-            setUser={setUser} 
-            theme={theme} 
-            setTheme={setTheme} 
+          <SettingsView
+            user={user}
+            setUser={setUser}
+            theme={theme}
+            setTheme={setTheme}
           />
         )}
       </main>
