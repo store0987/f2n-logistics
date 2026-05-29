@@ -75,8 +75,8 @@ const UsersManagementView = ({ currentUser }) => {
                                 <tr key={u.id}>
                                     <td style={{ fontWeight: '600' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <div className="avatar" style={{ width: '30px', height: '30px', fontSize: '0.8rem', backgroundColor: u.username?.toLowerCase() === SUPER_ADMIN_USERNAME.toLowerCase() ? 'var(--accent-danger)' : '' }}>{u.username.charAt(0).toUpperCase()}</div>
-                                            {u.username}
+                                        <div className="avatar" style={{ width: '30px', height: '30px', fontSize: '0.8rem', backgroundColor: u.username?.toLowerCase() === SUPER_ADMIN_USERNAME.toLowerCase() ? 'var(--accent-danger)' : '' }}>{(u.username || 'U').charAt(0).toUpperCase()}</div>
+                                        {u.username || 'Utilisateur sans nom'}
                                             {u.username?.toLowerCase() === SUPER_ADMIN_USERNAME.toLowerCase() && (
                                                 <span className="badge" style={{ backgroundColor: 'var(--accent-danger)', color: 'white', fontSize: '0.7rem', padding: '4px 8px', borderRadius: '4px' }}>
                                                     Super Admin

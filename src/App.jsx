@@ -20,6 +20,7 @@ import {
   Settings,
   Ship,
   Plane,
+  Shield,
   Truck,
   Search,
   Bell,
@@ -75,15 +76,15 @@ function App() {
     try {
       const respDossiers = await fetch(`${API_BASE_URL}/api/dossiers`);
       const dataDossiers = await respDossiers.json();
-      setDossiers(dataDossiers);
+      if (Array.isArray(dataDossiers)) setDossiers(dataDossiers);
 
       const respFactures = await fetch(`${API_BASE_URL}/api/factures`);
       const dataFactures = await respFactures.json();
-      setFactures(dataFactures);
+      if (Array.isArray(dataFactures)) setFactures(dataFactures);
 
       const respDebours = await fetch(`${API_BASE_URL}/api/debours`);
       const dataDebours = await respDebours.json();
-      setDebours(dataDebours);
+      if (Array.isArray(dataDebours)) setDebours(dataDebours);
     } catch (error) {
       console.error('Erreur lors du chargement des données du dashboard:', error);
     } finally {
