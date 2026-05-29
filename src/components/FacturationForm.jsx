@@ -145,7 +145,8 @@ const FacturationForm = ({ onCancel, editData, user }) => {
       description: db.description,
       quantite: 1,
       prixUnitaire: db.montant,
-      taxable: false // Souvent les débours ne sont pas taxés (frais tiers)
+      taxable: false,
+      type: 'debour'
     };
     setLignes([...lignes, newLigne]);
     setImportedDeboursIds([...importedDeboursIds, db.id]);
@@ -232,7 +233,7 @@ const FacturationForm = ({ onCancel, editData, user }) => {
 
   const addLigne = () => {
     const newId = lignes.length > 0 ? Math.max(...lignes.map(l => l.id)) + 1 : 1;
-    setLignes([...lignes, { id: newId, description: '', quantite: 1, prixUnitaire: 0, taxable: true }]);
+    setLignes([...lignes, { id: newId, description: '', quantite: 1, prixUnitaire: 0, taxable: true, type: 'prestation' }]);
   };
 
   const removeLigne = (id) => {
@@ -250,13 +251,15 @@ const FacturationForm = ({ onCancel, editData, user }) => {
   const montantTVA = calculateTVA();
   const totalTTC = sousTotal + montantTVA;
 
-  const isProforma = factureInfo.numeroFacture.startsWith('PRO');
+  // Détection corrigée : C'est une proforma si le statut est "Proforma" ou si c'est une nouvelle facture (editData est null)
+  const isProforma = (editData?.statut || 'Proforma') === 'Proforma';
   // Une facture est modifiable si c'est une proforma OU si l'utilisateur est admin
   const canEdit = isProforma || user?.role === 'admin';
 
   return (
     <div className="dashboard-page">
       <style>{`
+        .print-only { display: none; }
         @media print {
           .facture-footer { 
             position: fixed !important; 
@@ -268,6 +271,7 @@ const FacturationForm = ({ onCancel, editData, user }) => {
             background: white !important;
           }
           .no-print { display: none !important; }
+          .print-only { display: block !important; }
           @page { margin: 1.5cm; }
         }
       `}</style>
@@ -382,7 +386,7 @@ const FacturationForm = ({ onCancel, editData, user }) => {
               <div>
                 <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }}><FileText size={12} /> N° Déclaration</span>
                 <input type="text" className="form-control no-print" name="numDeclaration" value={factureInfo.numDeclaration} onChange={handleInfoChange} style={{ width: '100%', padding: '4px 8px', fontSize: '0.85rem' }} placeholder="N° Déclaration" />
-                <span className="print-only" style={{ display: 'none', color: 'var(--text-primary)', fontWeight: '600' }}>{factureInfo.numDeclaration || '-'}</span>
+                <span className="print-only" style={{ color: 'var(--text-primary)', fontWeight: '600' }}>{factureInfo.numDeclaration || '-'}</span>
               </div>
               <div>
                 <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }}><Hash size={12} /> B/L / LTA</span>

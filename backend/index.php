@@ -111,6 +111,8 @@ try {
         sousTotal DECIMAL(10, 2),
         montantTva DECIMAL(10, 2),
         totalTtc DECIMAL(10, 2),
+        numDeclaration VARCHAR(255),
+        adresseFacturation TEXT,
         FOREIGN KEY (dossier_id) REFERENCES dossiers(id) ON DELETE SET NULL,
         FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE SET NULL
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
@@ -123,6 +125,7 @@ try {
         quantite DECIMAL(10, 2),
         prixUnitaire DECIMAL(10, 2),
         taxable TINYINT(1) DEFAULT 0,
+        type VARCHAR(20) DEFAULT 'prestation',
         FOREIGN KEY (facture_id) REFERENCES factures(numeroFacture) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
@@ -781,7 +784,7 @@ try {
                         $mail->setFrom(SMTP_FROM, 'F2N LOGISTICS SARL');
                         $mail->addAddress($facture['client_email'], $facture['client_nom']);
                         $mail->isHTML(true);
-                        $mail->Subject = "Document " . $id . " - F2N LOGISTICS";
+                        $mail->Subject = "Document " . $id . " - F2N LOGISTICS SARL";
                         $mail->Body    = "Bonjour " . $facture['client_nom'] . ",<br><br>Veuillez trouver ci-joint votre document " . $id . " d'un montant de " . number_format($facture['totalTtc'], 0, ',', ' ') . " FCFA.<br><br>Cordialement.";
                         $mail->send();
                         respond(["message" => "Email envoyé avec succès à {$facture['client_email']}"]);
