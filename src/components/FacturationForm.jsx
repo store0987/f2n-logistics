@@ -77,7 +77,7 @@ const FacturationForm = ({ onCancel, editData, user }) => {
   React.useEffect(() => {
     const fetchNextNumber = async () => {
       if (!editData) {
-        const response = await fetch(`${API_BASE_URL}/api/next-facture-number/PRO`);
+        const response = await fetch(`${API_BASE_URL}/api/next-facture-number/26F2N`);
         const data = await response.json();
         setFactureInfo(prev => ({ ...prev, numeroFacture: data.number }));
       }
@@ -188,7 +188,7 @@ const FacturationForm = ({ onCancel, editData, user }) => {
 
   const handleValidate = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/next-facture-number/FN2`);
+      const response = await fetch(`${API_BASE_URL}/api/next-facture-number/26F2N`);
       const data = await response.json();
       handleSave('Validée', data.number);
     } catch (error) {
@@ -243,6 +243,9 @@ const FacturationForm = ({ onCancel, editData, user }) => {
   const calculateTVA = () => lignes.reduce((t, l) => l.taxable ? t + (l.quantite * l.prixUnitaire * tvaRate) : t, 0);
   const formatCurrency = (amount) => new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA';
 
+  const deboursTotal = lignes.filter(l => l.type === 'debour').reduce((t, l) => t + (l.quantite * l.prixUnitaire), 0);
+  const prestationsTotal = lignes.filter(l => l.type === 'prestation').reduce((t, l) => t + (l.quantite * l.prixUnitaire), 0);
+
   const sousTotal = calculateSousTotalHT();
   const montantTVA = calculateTVA();
   const totalTTC = sousTotal + montantTVA;
@@ -285,7 +288,7 @@ const FacturationForm = ({ onCancel, editData, user }) => {
           {/* Logo & Identité */}
           <div style={{ display: 'flex', gap: '20px', alignItems: 'center', minWidth: 'min-content' }}>
             <div style={{
-              width: '80px', height: '80px',
+              width: '120px', height: '120px',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               overflow: 'hidden'
             }}>
@@ -346,9 +349,12 @@ const FacturationForm = ({ onCancel, editData, user }) => {
             </h3>
             <div style={{ marginBottom: '12px' }}>
               <span style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '4px' }}>{selectedDossier.client_nom}</span>
-              {selectedDossier.client_nif && <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', display: 'block' }}>NINEA / NIU: {selectedDossier.client_nif}</span>}
-              {selectedDossier.client_rccm && <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', display: 'block' }}>RCCM: {selectedDossier.client_rccm}</span>}
+              {selectedDossier.client_nif && <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', display: 'block' }}>NIU: {selectedDossier.client_nif}</span>}
               {selectedDossier.client_tel && <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', display: 'block' }}>Tél: {selectedDossier.client_tel}</span>}
+            </div>
+            <div className="no-print" style={{ marginTop: '16px' }}>
+              <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>Adresse de facturation spécifique</label>
+              <textarea className="form-control" name="adresseFacturation" value={factureInfo.adresseFacturation} onChange={handleInfoChange} style={{ width: '100%', padding: '8px', fontSize: '0.85rem' }} placeholder="Saisissez l'adresse pour ce document..." rows="2" />
             </div>
             {isProforma && (
               <div className="no-print">
@@ -373,6 +379,11 @@ const FacturationForm = ({ onCancel, editData, user }) => {
               <Box size={16} /> Détails de l'Expédition
             </h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px 24px' }}>
+              <div>
+                <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }}><FileText size={12} /> N° Déclaration</span>
+                <input type="text" className="form-control no-print" name="numDeclaration" value={factureInfo.numDeclaration} onChange={handleInfoChange} style={{ width: '100%', padding: '4px 8px', fontSize: '0.85rem' }} placeholder="N° Déclaration" />
+                <span className="print-only" style={{ display: 'none', color: 'var(--text-primary)', fontWeight: '600' }}>{factureInfo.numDeclaration || '-'}</span>
+              </div>
               <div>
                 <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }}><Hash size={12} /> B/L / LTA</span>
                 <span style={{ color: 'var(--text-primary)', fontWeight: '600', fontSize: '0.95rem' }}>{selectedDossier.numBL}</span>
@@ -414,6 +425,7 @@ const FacturationForm = ({ onCancel, editData, user }) => {
           <table style={{ width: '100%', borderCollapse: 'collapse' }} className="data-table">
             <thead>
               <tr>
+                <th className="no-print" style={{ width: '120px', textAlign: 'left', padding: '12px 16px', color: 'var(--text-secondary)', fontSize: '0.75rem', textTransform: 'uppercase', borderBottom: '2px solid var(--border-color)' }}>Type</th>
                 <th style={{ textAlign: 'left', padding: '12px 16px', color: 'var(--text-secondary)', fontSize: '0.75rem', textTransform: 'uppercase', borderBottom: '2px solid var(--border-color)' }}>Désignation des Frais</th>
                 <th style={{ textAlign: 'center', padding: '12px 16px', color: 'var(--text-secondary)', fontSize: '0.75rem', textTransform: 'uppercase', borderBottom: '2px solid var(--border-color)' }}>Qté</th>
                 <th style={{ textAlign: 'right', padding: '12px 16px', color: 'var(--text-secondary)', fontSize: '0.75rem', textTransform: 'uppercase', borderBottom: '2px solid var(--border-color)' }}>Prix Unitaire</th>
@@ -490,7 +502,7 @@ const FacturationForm = ({ onCancel, editData, user }) => {
 
         {/* --- BAS DE PAGE (FOOTER) --- */}
         <div className="facture-footer" style={{ marginTop: '40px', paddingTop: '16px', borderTop: '1px solid var(--border-color)', textAlign: 'center', fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
-          <p style={{ margin: 0, fontWeight: '600', color: 'var(--text-primary)' }}>F2N LOGISTICS / SOCIETE A RESPONSABILITE LIMITE au capital de 10 000 000 FCFA - BP 4056 Douala - Bonapriso - CAMEROUN</p>
+          <p style={{ margin: 0, fontWeight: '600', color: 'var(--text-primary)' }}>F2N LOGISTICS SARL / SOCIETE A RESPONSABILITE LIMITEE au capital de 10 000 000 FCFA - BP 4056 Douala - Bonapriso - CAMEROUN</p>
           <p style={{ margin: '4px 0' }}>N° RCCM : CM-DLA-01-2025-B12-000508 / NIU : M042517669133Q / N° CNPS : 351-0126148-000H</p>
           <p style={{ margin: '4px 0' }}>Compte First Bank N° 10005 00002 10137791001-95</p>
           <p style={{ margin: '4px 0' }}>Tél: +237 674 573 495 / +237 679 517 186 / +237 699 97 98 85</p>

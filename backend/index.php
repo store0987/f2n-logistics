@@ -407,18 +407,19 @@ try {
         case 'next-facture-number':
         // Note: l'URL attendue est /api/next-facture-number/PRO ou FACT
         $type = $id; // Dans ce cas, l'ID est le type (PRO ou FACT)
-        $year = date("Y");
-        $pattern = "$type-$year-%";
+        $prefix = "26F2N";
+        $suffix = "F";
+        $pattern = "$prefix-%-$suffix";
         $stmt = $pdo->prepare("SELECT numeroFacture FROM factures WHERE numeroFacture LIKE ? ORDER BY numeroFacture DESC LIMIT 1");
         $stmt->execute([$pattern]);
         $last = $stmt->fetchColumn();
         
         $nextNum = 1;
         if ($last) {
-            $parts = explode('-', $last);
+            $parts = explode('-', str_replace($suffix, '', $last));
             $nextNum = intval(end($parts)) + 1;
         }
-        respond(["number" => $type . "-" . $year . "-" . str_pad($nextNum, 3, '0', STR_PAD_LEFT)]);
+        respond(["number" => $prefix . "-" . str_pad($nextNum, 3, '0', STR_PAD_LEFT) . $suffix]);
         break;
 
         case 'factures':
@@ -552,6 +553,7 @@ try {
                         .lines-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
                         .lines-table th { border-bottom: 2px solid #000; padding: 10px; text-align: left; color: #000; font-size: 9px; text-transform: uppercase; }
                         .lines-table td { padding: 10px; border-bottom: 1px solid #999; color: #000; font-weight: bold; }
+                        .group-header { background: #f0f0f0; font-weight: bold; text-transform: uppercase; padding: 5px 10px !important; border-bottom: 2px solid #333 !important; }
                         
                         .summary-table { width: 100%; }
                         .payment-box { border: 1px solid #000; border-radius: 8px; padding: 15px; color: #000; font-size: 9px; }
@@ -609,11 +611,9 @@ try {
                                 <div class='section-title'>Facturé à</div>
                                 <span class='client-name'>{$facture['client_nom']}</span>
                                 <div class='company-details' style='margin-top: 5px;'>";
-                $html .= ($facture['client_nif'] ? "NINEA / NIU: {$facture['client_nif']}<br>" : "");
-                $html .= ($facture['client_rccm'] ? "RCCM: {$facture['client_rccm']}<br>" : "");
+                $html .= ($facture['client_nif'] ? "NIU: {$facture['client_nif']}<br>" : "");
                 $html .= ($facture['client_tel'] ? "Tél: {$facture['client_tel']}<br>" : "");
-                $html .= "
-                                    " . ($facture['client_adresse'] ?: '') . "<br>
+                $html .= ($facture['adresseFacturation'] ?: ($facture['client_adresse'] ?: '')) . "<br>
                                     " . ($facture['client_ville'] ?: '') . "
                                 </div>
                             </td>
@@ -622,7 +622,7 @@ try {
                                 <table class='dossier-grid'>
                                     <tr>
                                         <td width='50%'>
-                                            <div class='dossier-label'>Déclaration / BL</div>
+                                            <div class='dossier-label'>N° Déclaration / BL</div>
                                             <div class='dossier-value'>" . ($facture['numDeclaration'] ? "DEC: " . $facture['numDeclaration'] : "BL: " . $facture['numBL']) . "</div>
                                         </td>
                                         <td>
@@ -655,15 +655,40 @@ try {
                             </tr>
                         </thead>
                         <tbody>";
-                foreach($lignes as $l) {
-                    $rowTotal = $l['quantite'] * $l['prixUnitaire'];
-                    $html .= "<tr>
-                        <td>{$l['description']}</td>
-                        <td align='center'>{$l['quantite']}</td>
-                        <td align='right'>" . number_format($l['prixUnitaire'], 0, ',', ' ') . "</td>
-                        <td align='right'><strong>" . number_format($rowTotal, 0, ',', ' ') . "</strong></td>
-                    </tr>";
+                
+                $debours = array_filter($lignes, function($l) { return $l['type'] === 'debour'; });
+                $prestations = array_filter($lignes, function($l) { return $l['type'] === 'prestation'; });
+
+                if (!empty($debours)) {
+                    $html .= "<tr><td colspan='4' class='group-header'>Débours (Frais Tiers)</td></tr>";
+                    foreach($debours as $l) {
+                        $rowTotal = $l['quantite'] * $l['prixUnitaire'];
+                        $html .= "<tr>
+                            <td>{$l['description']}</td>
+                            <td align='center'>{$l['quantite']}</td>
+                            <td align='right'>" . number_format($l['prixUnitaire'], 0, ',', ' ') . "</td>
+                            <td align='right'><strong>" . number_format($rowTotal, 0, ',', ' ') . "</strong></td>
+                        </tr>";
+                    }
+                    $totalDebours = array_reduce($debours, function($carry, $item) { return $carry + ($item['quantite'] * $item['prixUnitaire']); }, 0);
+                    $html .= "<tr><td colspan='3' align='right'>Sous-total Débours :</td><td align='right'>" . number_format($totalDebours, 0, ',', ' ') . "</td></tr>";
                 }
+
+                if (!empty($prestations)) {
+                    $html .= "<tr><td colspan='4' class='group-header'>Prestations de Service</td></tr>";
+                    foreach($prestations as $l) {
+                        $rowTotal = $l['quantite'] * $l['prixUnitaire'];
+                        $html .= "<tr>
+                            <td>{$l['description']}</td>
+                            <td align='center'>{$l['quantite']}</td>
+                            <td align='right'>" . number_format($l['prixUnitaire'], 0, ',', ' ') . "</td>
+                            <td align='right'><strong>" . number_format($rowTotal, 0, ',', ' ') . "</strong></td>
+                        </tr>";
+                    }
+                    $totalPrestations = array_reduce($prestations, function($carry, $item) { return $carry + ($item['quantite'] * $item['prixUnitaire']); }, 0);
+                    $html .= "<tr><td colspan='3' align='right'>Sous-total Prestations :</td><td align='right'>" . number_format($totalPrestations, 0, ',', ' ') . "</td></tr>";
+                }
+
                 $html .= "</tbody>
                     </table>
 
@@ -699,7 +724,7 @@ try {
                     </table>
 
                     <div class='footer'>
-                        F2N LOGISTICS / SOCIETE A RESPONSABILITE LIMITE au capital de 10 000 000 FCFA - BP 4056 Douala - Bonapriso - CAMEROUN<br>
+                        F2N LOGISTICS SARL / SOCIETE A RESPONSABILITE LIMITEE au capital de 10 000 000 FCFA - BP 4056 Douala - Bonapriso - CAMEROUN<br>
                         N° RCCM : CM-DLA-01-2025-B12-000508 / NIU : M042517669133Q / N° CNPS : 351-0126148-000H<br>
                         Compte First Bank N° 10005 00002 10137791001-95 - Tél: +237 674 573 495 / +237 679 517 186 / +237 699 97 98 85<br>
                         Email: f2nlogistics@gmail.com / franklin.ngangoua@f2nlogistics.com - www.f2nlogistics.com
@@ -753,7 +778,7 @@ try {
                         $mail->Password   = SMTP_PASS;
                         $mail->SMTPSecure = \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
                         $mail->Port       = SMTP_PORT;
-                        $mail->setFrom(SMTP_FROM, 'F2N LOGISTICS');
+                        $mail->setFrom(SMTP_FROM, 'F2N LOGISTICS SARL');
                         $mail->addAddress($facture['client_email'], $facture['client_nom']);
                         $mail->isHTML(true);
                         $mail->Subject = "Document " . $id . " - F2N LOGISTICS";
