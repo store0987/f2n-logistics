@@ -659,7 +659,9 @@ try {
                             <td width='55%' valign='top'>
                                 <div class='payment-box'>
                                     <strong>Conditions de paiement :</strong><br>
-                                    Paiement à réception de la facture par chèque ou virement bancaire.
+                                    Paiement à réception de la facture par chèque à l'ordre de <strong>F2N LOGISTICS</strong> ou par virement bancaire :<br>
+                                    <br>
+                                    <strong>First Bank :</strong> 10005 00002 10137791001-95
                                 </div>
                             </td>
                             <td valign='top'>

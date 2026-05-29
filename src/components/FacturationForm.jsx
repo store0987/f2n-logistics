@@ -462,7 +462,8 @@ const FacturationForm = ({ onCancel, editData, user }) => {
 
           <div className="payment-box" style={{ flex: '1', minWidth: '280px', color: 'var(--text-secondary)', fontSize: '0.85rem', border: '1px solid var(--border-color)', padding: '16px', borderRadius: '8px' }}>
             <p style={{ marginBottom: '8px', color: 'var(--text-primary)' }}><strong>Conditions de paiement :</strong></p>
-            <p>Paiement à réception de la facture par chèque ou virement bancaire.</p>
+            <p>Paiement à réception de la facture par chèque à l'ordre de <strong>F2N LOGISTICS</strong> ou par virement bancaire :</p>
+            <p style={{ marginTop: '8px', color: 'var(--text-primary)' }}><strong>First Bank :</strong> 10005 00002 10137791001-95</p>
           </div>
 
           <div className="totals-box" style={{ width: '100%', maxWidth: '380px', border: '2px solid var(--border-color)', borderRadius: '8px', padding: '24px', marginLeft: 'auto' }}>
