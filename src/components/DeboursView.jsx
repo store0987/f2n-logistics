@@ -16,7 +16,7 @@ const LOGISTICS_DESIGNATIONS = [
   "Visite Douane / Inspection"
 ].sort();
 
-const DeboursView = () => {
+const DeboursView = ({ user }) => {
     const [debours, setDebours] = useState([]);
     const [dossiers, setDossiers] = useState([]);
     const [showForm, setShowForm] = useState(false);
@@ -178,7 +178,7 @@ const DeboursView = () => {
                                 </td>
                                 <td>
                                     <div style={{ display: 'flex', gap: '8px' }}>
-                                        {db.statut === 'En attente' && (
+                                        {(db.statut === 'En attente' || user?.role === 'admin') && (
                                             <>
                                                 <button className="btn btn-outline" style={{ padding: '4px 8px' }} onClick={() => handleEdit(db)}><Edit size={14} /></button>
                                                 <button className="btn btn-outline" style={{ padding: '4px 8px', color: 'var(--accent-danger)' }} onClick={() => handleDelete(db.id)}><Trash2 size={14} /></button>

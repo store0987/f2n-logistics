@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { API_BASE_URL } from '../api';
-import { User, Mail, Moon, Sun, Shield, Save, Lock, CheckCircle, AlertCircle } from 'lucide-react';
+import { User, Mail, Moon, Sun, Shield, Save, Lock, CheckCircle, AlertCircle, Users, Check, Trash } from 'lucide-react';
 
 const SettingsView = ({ user, setUser, theme, setTheme }) => {
     const [formData, setFormData] = useState({
@@ -14,6 +14,31 @@ const SettingsView = ({ user, setUser, theme, setTheme }) => {
     });
     const [message, setMessage] = useState('');
     const [passwordMessage, setPasswordMessage] = useState({ text: '', type: '' });
+
+    // Gestion des utilisateurs (Admin seulement)
+    const [allUsers, setAllUsers] = useState([]);
+    const isAdmin = user?.role === 'admin';
+
+    useEffect(() => {
+        if (isAdmin) {
+            fetchUsers();
+        }
+    }, [isAdmin]);
+
+    const fetchUsers = async () => {
+        const resp = await fetch(`${API_BASE_URL}/api/users`);
+        const data = await resp.json();
+        setAllUsers(data);
+    };
+
+    const handleUpdateUser = async (targetId, status, role) => {
+        await fetch(`${API_BASE_URL}/api/users/${targetId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status, role })
+        });
+        fetchUsers();
+    };
 
     const handleProfileSubmit = (e) => {
         e.preventDefault();

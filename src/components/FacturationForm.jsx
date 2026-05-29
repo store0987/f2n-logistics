@@ -18,7 +18,7 @@ const LOGISTICS_DESIGNATIONS = [
   "Visite Douane / Inspection"
 ].sort();
 
-const FacturationForm = ({ onCancel, editData }) => {
+const FacturationForm = ({ onCancel, editData, user }) => {
   const [availableDossiers, setAvailableDossiers] = useState([]);
   const [pendingDebours, setPendingDebours] = useState([]);
   const [importedDeboursIds, setImportedDeboursIds] = useState([]);
@@ -243,6 +243,8 @@ const FacturationForm = ({ onCancel, editData }) => {
   const totalTTC = sousTotal + montantTVA;
 
   const isProforma = factureInfo.numeroFacture.startsWith('PRO');
+  // Une facture est modifiable si c'est une proforma OU si l'utilisateur est admin
+  const canEdit = isProforma || user?.role === 'admin';
 
   return (
     <div className="dashboard-page">
@@ -419,25 +421,25 @@ const FacturationForm = ({ onCancel, editData }) => {
               {lignes.map((ligne) => (
                 <tr key={ligne.id}>
                   <td style={{ padding: '8px 16px', borderBottom: '1px solid var(--border-color)' }}>
-                    <input type="text" list="designations-list" className="form-control" style={{ width: '100%', padding: '8px', border: '1px solid transparent', fontWeight: '500' }} value={ligne.description} onChange={(e) => updateLigne(ligne.id, 'description', e.target.value)} placeholder="Description des frais..." readOnly={!isProforma} />
+                    <input type="text" list="designations-list" className="form-control" style={{ width: '100%', padding: '8px', border: '1px solid transparent', fontWeight: '500' }} value={ligne.description} onChange={(e) => updateLigne(ligne.id, 'description', e.target.value)} placeholder="Description des frais..." readOnly={!canEdit} />
                     <datalist id="designations-list">
                       {LOGISTICS_DESIGNATIONS.map(d => <option key={d} value={d} />)}
                     </datalist>
                   </td>
                   <td style={{ padding: '8px 16px', borderBottom: '1px solid var(--border-color)' }}>
-                    <input type="number" className="form-control" style={{ width: '100%', padding: '8px', border: '1px solid transparent', textAlign: 'center', fontWeight: '500' }} value={ligne.quantite} onChange={(e) => updateLigne(ligne.id, 'quantite', parseFloat(e.target.value) || 0)} readOnly={!isProforma} />
+                    <input type="number" className="form-control" style={{ width: '100%', padding: '8px', border: '1px solid transparent', textAlign: 'center', fontWeight: '500' }} value={ligne.quantite} onChange={(e) => updateLigne(ligne.id, 'quantite', parseFloat(e.target.value) || 0)} readOnly={!canEdit} />
                   </td>
                   <td style={{ padding: '8px 16px', borderBottom: '1px solid var(--border-color)' }}>
-                    <input type="number" className="form-control" style={{ width: '100%', padding: '8px', border: '1px solid transparent', textAlign: 'right', fontWeight: '500' }} value={ligne.prixUnitaire} onChange={(e) => updateLigne(ligne.id, 'prixUnitaire', parseFloat(e.target.value) || 0)} readOnly={!isProforma} />
+                    <input type="number" className="form-control" style={{ width: '100%', padding: '8px', border: '1px solid transparent', textAlign: 'right', fontWeight: '500' }} value={ligne.prixUnitaire} onChange={(e) => updateLigne(ligne.id, 'prixUnitaire', parseFloat(e.target.value) || 0)} readOnly={!canEdit} />
                   </td>
                   <td className="no-print" style={{ padding: '8px 16px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
-                    <input type="checkbox" checked={ligne.taxable} onChange={(e) => updateLigne(ligne.id, 'taxable', e.target.checked)} style={{ width: '18px', height: '18px', accentColor: 'var(--accent-secondary)' }} disabled={!isProforma} />
+                    <input type="checkbox" checked={ligne.taxable} onChange={(e) => updateLigne(ligne.id, 'taxable', e.target.checked)} style={{ width: '18px', height: '18px', accentColor: 'var(--accent-secondary)' }} disabled={!canEdit} />
                   </td>
                   <td style={{ padding: '8px 16px', textAlign: 'right', fontWeight: '700', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-color)' }}>
                     {formatCurrency(ligne.quantite * ligne.prixUnitaire)}
                   </td>
                   <td className="no-print" style={{ padding: '8px 16px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
-                    {isProforma && (
+                    {canEdit && (
                       <button type="button" onClick={() => removeLigne(ligne.id)} style={{ background: 'none', border: 'none', color: 'var(--accent-danger)', cursor: 'pointer', padding: '4px' }}>
                         <Trash2 size={18} />
                       </button>
@@ -448,7 +450,7 @@ const FacturationForm = ({ onCancel, editData }) => {
             </tbody>
           </table>
 
-          {isProforma && (
+          {canEdit && (
             <button type="button" className="btn btn-outline no-print" onClick={addLigne} style={{ marginTop: '16px' }}>
               <Plus size={16} /> Ajouter une ligne
             </button>

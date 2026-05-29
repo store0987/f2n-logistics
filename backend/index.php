@@ -23,7 +23,9 @@ try {
         id INT AUTO_INCREMENT PRIMARY KEY,
         username VARCHAR(255) UNIQUE NOT NULL,
         email VARCHAR(255) UNIQUE NOT NULL,
-        password VARCHAR(255) NOT NULL
+        password VARCHAR(255) NOT NULL,
+        role VARCHAR(20) DEFAULT 'employee',
+        status VARCHAR(20) DEFAULT 'pending'
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
     // Table clients
@@ -137,11 +139,16 @@ try {
     switch ($resource) {
         case 'register':
             if ($method === 'POST') {
+                // Le premier utilisateur sera admin approved, les autres employees pending
+                $count = $pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
+                $role = ($count == 0) ? 'admin' : 'employee';
+                $status = ($count == 0) ? 'approved' : 'pending';
+
                 $hashedPassword = password_hash($input['password'], PASSWORD_DEFAULT);
-                $sql = "INSERT INTO users (username, email, password) VALUES (?, ?, ?)";
+                $sql = "INSERT INTO users (username, email, password, role, status) VALUES (?, ?, ?, ?, ?)";
                 $stmt = $pdo->prepare($sql);
                 try {
-                    $stmt->execute([$input['username'], $input['email'], $hashedPassword]);
+                    $stmt->execute([$input['username'], $input['email'], $hashedPassword, $role, $status]);
                     respond(["message" => "Utilisateur créé avec succès", "id" => $pdo->lastInsertId()]);
                 } catch (PDOException $e) {
                     if ($e->getCode() == 23000) {
@@ -190,6 +197,25 @@ try {
                 } else {
                     respond(["error" => "Ancien mot de passe incorrect."], 401);
                 }
+            }
+            break;
+
+        case 'users':
+            if ($method === 'GET') {
+                $stmt = $pdo->query("SELECT id, username, email, role, status FROM users");
+                respond($stmt->fetchAll());
+            } elseif ($method === 'PUT' && $id) {
+                // Mise à jour du statut ou du rôle (Admin uniquement)
+                $sql = "UPDATE users SET status = ?, role = ? WHERE id = ?";
+                $pdo->prepare($sql)->execute([
+                    $input['status'] ?? 'pending',
+                    $input['role'] ?? 'employee',
+                    $id
+                ]);
+                respond(["message" => "Utilisateur mis à jour"]);
+            } elseif ($method === 'DELETE' && $id) {
+                $pdo->prepare("DELETE FROM users WHERE id = ?")->execute([$id]);
+                respond(["message" => "Utilisateur supprimé"]);
             }
             break;
 

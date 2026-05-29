@@ -669,7 +669,7 @@ function App() {
         )}
 
         {activeTab === 'debours' && (
-          <DeboursView />
+          <DeboursView user={user} />
         )}
 
         {activeTab === 'factures' && (
@@ -687,6 +687,7 @@ function App() {
           ) : (
             <FacturationForm
               editData={editFactureData}
+              user={user}
               onCancel={() => {
                 setFactureViewMode('list');
                 setEditFactureData(null);
