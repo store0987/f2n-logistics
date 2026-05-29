@@ -538,7 +538,7 @@ try {
 
                         .lines-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
                         .lines-table th { border-bottom: 2px solid #000; padding: 10px; text-align: left; color: #000; font-size: 9px; text-transform: uppercase; }
-                        .lines-table td { padding: 10px; border-bottom: 1px solid #999; }
+                        .lines-table td { padding: 10px; border-bottom: 1px solid #999; color: #000; font-weight: bold; }
                         
                         .summary-table { width: 100%; }
                         .payment-box { border: 1px solid #000; border-radius: 8px; padding: 15px; color: #000; font-size: 9px; }
