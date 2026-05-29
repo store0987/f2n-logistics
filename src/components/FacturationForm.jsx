@@ -279,8 +279,8 @@ const FacturationForm = ({ onCancel, editData }) => {
                 Commissionnaire Agréé
               </p>
               <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: '1.4' }}>
-                Zone Franche Industrielle, Douala, Cameroun<br />
-                Tél: +237 6 99 97 98 85 • NINEA/NIU: 000111222333
+                BP 4056 Douala - Bonapriso - CAMEROUN<br />
+                Tél: +237 699 97 98 85 • NIU: M042517669133Q
               </div>
             </div>
           </div>
@@ -462,6 +462,15 @@ const FacturationForm = ({ onCancel, editData }) => {
             </div>
           </div>
 
+        </div>
+
+        {/* --- BAS DE PAGE (FOOTER) --- */}
+        <div className="facture-footer" style={{ marginTop: '40px', paddingTop: '16px', borderTop: '1px solid var(--border-color)', textAlign: 'center', fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+          <p style={{ margin: 0, fontWeight: '600', color: 'var(--text-primary)' }}>F2N LOGISTICS / SOCIETE A RESPONSABILITE LIMITE au capital de 10 000 000 FCFA - BP 4056 Douala - Bonapriso - CAMEROUN</p>
+          <p style={{ margin: '4px 0' }}>N° RCCM : CM-DLA-01-2025-B12-000508 / NIU : M042517669133Q / N° CNPS : 351-0126148-000H</p>
+          <p style={{ margin: '4px 0' }}>Compte First Bank N° 10005 00002 10137791001-95</p>
+          <p style={{ margin: '4px 0' }}>Tél: +237 674 573 495 / +237 679 517 186 / +237 699 97 98 85</p>
+          <p style={{ margin: '4px 0' }}>Email: f2nlogistics@gmail.com / franklin.ngangoua@f2nlogistics.com - www.f2nlogistics.com</p>
         </div>
       </div>
 

@@ -465,6 +465,7 @@ try {
                         .totals-box { border: 2px solid #eee; border-radius: 8px; padding: 15px; }
                         .total-row { font-size: 12px; margin-bottom: 5px; }
                         .grand-total { border-top: 2px solid #eee; padding-top: 10px; margin-top: 10px; font-size: 16px; font-weight: bold; }
+                        .footer { position: fixed; bottom: -20px; left: 0; right: 0; text-align: center; font-size: 8px; color: #777; border-top: 1px solid #eee; padding-top: 10px; }
                         .clear { clear: both; }
                     </style>
                 </head>
@@ -484,8 +485,8 @@ try {
                                             <h1 class='company-name'>F2N LOGISTICS</h1>
                                             <p class='company-tag'>Commissionnaire Agréé</p>
                                             <div class='company-details'>
-                                                Zone Franche Industrielle, Douala, Cameroun<br>
-                                                Tél: +237 6 99 97 98 85 • NINEA/NIU: 000111222333
+                                                BP 4056 Douala - Bonapriso - CAMEROUN<br>
+                                                Tél: +237 699 97 98 85 • NIU: M042517669133Q
                                             </div>
                                         </td>
                                     </tr>
@@ -603,6 +604,13 @@ try {
                             </td>
                         </tr>
                     </table>
+
+                    <div class='footer'>
+                        F2N LOGISTICS / SOCIETE A RESPONSABILITE LIMITE au capital de 10 000 000 FCFA - BP 4056 Douala - Bonapriso - CAMEROUN<br>
+                        N° RCCM : CM-DLA-01-2025-B12-000508 / NIU : M042517669133Q / N° CNPS : 351-0126148-000H<br>
+                        Compte First Bank N° 10005 00002 10137791001-95 - Tél: +237 674 573 495 / +237 679 517 186 / +237 699 97 98 85<br>
+                        Email: f2nlogistics@gmail.com / franklin.ngangoua@f2nlogistics.com - www.f2nlogistics.com
+                    </div>
                 </div>
                 </body>
                 </html>";
