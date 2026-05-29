@@ -145,8 +145,7 @@ const FacturationForm = ({ onCancel, editData, user }) => {
       description: db.description,
       quantite: 1,
       prixUnitaire: db.montant,
-      taxable: false,
-      type: 'debour'
+      taxable: false // Souvent les débours ne sont pas taxés (frais tiers)
     };
     setLignes([...lignes, newLigne]);
     setImportedDeboursIds([...importedDeboursIds, db.id]);
@@ -233,7 +232,7 @@ const FacturationForm = ({ onCancel, editData, user }) => {
 
   const addLigne = () => {
     const newId = lignes.length > 0 ? Math.max(...lignes.map(l => l.id)) + 1 : 1;
-    setLignes([...lignes, { id: newId, description: '', quantite: 1, prixUnitaire: 0, taxable: true, type: 'prestation' }]);
+    setLignes([...lignes, { id: newId, description: '', quantite: 1, prixUnitaire: 0, taxable: true }]);
   };
 
   const removeLigne = (id) => {
@@ -243,9 +242,6 @@ const FacturationForm = ({ onCancel, editData, user }) => {
   const calculateSousTotalHT = () => lignes.reduce((t, l) => t + (l.quantite * l.prixUnitaire), 0);
   const calculateTVA = () => lignes.reduce((t, l) => l.taxable ? t + (l.quantite * l.prixUnitaire * tvaRate) : t, 0);
   const formatCurrency = (amount) => new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA';
-
-  const deboursTotal = lignes.filter(l => l.type === 'debour').reduce((t, l) => t + (l.quantite * l.prixUnitaire), 0);
-  const prestationsTotal = lignes.filter(l => l.type === 'prestation').reduce((t, l) => t + (l.quantite * l.prixUnitaire), 0);
 
   const sousTotal = calculateSousTotalHT();
   const montantTVA = calculateTVA();
@@ -287,9 +283,9 @@ const FacturationForm = ({ onCancel, editData, user }) => {
       <div className="form-container" style={{ maxWidth: '1040px', margin: '0 auto', padding: '40px' }}>
         <div className="facture-header-flex" style={{ display: 'flex', justifyContent: 'space-between', gap: '40px', marginBottom: '40px', alignItems: 'flex-start' }}>
           {/* Logo & Identité */}
-          <div style={{ display: 'flex', gap: '24px', alignItems: 'center', minWidth: 'min-content' }}>
+          <div style={{ display: 'flex', gap: '20px', alignItems: 'center', minWidth: 'min-content' }}>
             <div style={{
-              width: '120px', height: '120px',
+              width: '80px', height: '80px',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               overflow: 'hidden'
             }}>

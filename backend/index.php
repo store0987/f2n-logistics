@@ -56,7 +56,7 @@ try {
         $pdo->exec("ALTER TABLE facture_lignes ADD COLUMN type VARCHAR(20) DEFAULT 'prestation'");
     } catch (Exception $e) {}
     
-    // Mise à jour automatique de la raison sociale dans les scripts si nécessaire
+    // Mise à jour automatique de la raison sociale
     define('COMPANY_NAME', 'F2N LOGISTICS SARL');
 
     // Table clients
@@ -111,8 +111,6 @@ try {
         sousTotal DECIMAL(10, 2),
         montantTva DECIMAL(10, 2),
         totalTtc DECIMAL(10, 2),
-        numDeclaration VARCHAR(255),
-        adresseFacturation TEXT,
         FOREIGN KEY (dossier_id) REFERENCES dossiers(id) ON DELETE SET NULL,
         FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE SET NULL
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
@@ -125,7 +123,6 @@ try {
         quantite DECIMAL(10, 2),
         prixUnitaire DECIMAL(10, 2),
         taxable TINYINT(1) DEFAULT 0,
-        type VARCHAR(20) DEFAULT 'prestation',
         FOREIGN KEY (facture_id) REFERENCES factures(numeroFacture) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
@@ -410,19 +407,18 @@ try {
         case 'next-facture-number':
         // Note: l'URL attendue est /api/next-facture-number/PRO ou FACT
         $type = $id; // Dans ce cas, l'ID est le type (PRO ou FACT)
-        $prefix = "26F2N";
-        $suffix = "F";
-        $pattern = "$prefix-%-$suffix";
+        $year = date("Y");
+        $pattern = "$type-$year-%";
         $stmt = $pdo->prepare("SELECT numeroFacture FROM factures WHERE numeroFacture LIKE ? ORDER BY numeroFacture DESC LIMIT 1");
         $stmt->execute([$pattern]);
         $last = $stmt->fetchColumn();
         
         $nextNum = 1;
         if ($last) {
-            $parts = explode('-', str_replace($suffix, '', $last));
+            $parts = explode('-', $last);
             $nextNum = intval(end($parts)) + 1;
         }
-        respond(["number" => $prefix . "-" . str_pad($nextNum, 3, '0', STR_PAD_LEFT) . $suffix]);
+        respond(["number" => $type . "-" . $year . "-" . str_pad($nextNum, 3, '0', STR_PAD_LEFT)]);
         break;
 
         case 'factures':
@@ -537,7 +533,7 @@ try {
                         .header-table { width: 100%; margin-bottom: 40px; }
                         .logo-box { width: 120px; height: 120px; text-align: left; }
                         .company-name { font-size: 22px; font-weight: bold; color: #333; margin: 0; }
-                        .company-tag { color: #666; font-weight: bold; text-transform: uppercase; font-size: 10px; margin: 2px 0; }
+                        .company-tag { color: #666; font-weight: bold; text-transform: uppercase; font-size: 9px; margin: 2px 0; }
                         .company-details { color: #666; font-size: 9px; }
                         
                         .title-badge { border: 2px solid " . ($isProforma ? '#666' : '#2563eb') . "; padding: 5px 15px; font-size: 18px; font-weight: bold; display: inline-block; }
@@ -556,7 +552,6 @@ try {
                         .lines-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
                         .lines-table th { border-bottom: 2px solid #000; padding: 10px; text-align: left; color: #000; font-size: 9px; text-transform: uppercase; }
                         .lines-table td { padding: 10px; border-bottom: 1px solid #999; color: #000; font-weight: bold; }
-                        .group-header { background: #f0f0f0; font-weight: bold; text-transform: uppercase; padding: 5px 10px !important; border-bottom: 2px solid #333 !important; }
                         
                         .summary-table { width: 100%; }
                         .payment-box { border: 1px solid #000; border-radius: 8px; padding: 15px; color: #000; font-size: 9px; }
@@ -660,36 +655,15 @@ try {
                             </tr>
                         </thead>
                         <tbody>";
-                
-                $debours = array_filter($lignes, function($l) { return $l['type'] === 'debour'; });
-                $prestations = array_filter($lignes, function($l) { return $l['type'] === 'prestation'; });
-
-                if (!empty($debours)) {
-                    $html .= "<tr><td colspan='4' class='group-header'>Débours (Frais Tiers)</td></tr>";
-                    foreach($debours as $l) {
-                        $rowTotal = $l['quantite'] * $l['prixUnitaire'];
-                        $html .= "<tr>
-                            <td>{$l['description']}</td>
-                            <td align='center'>{$l['quantite']}</td>
-                            <td align='right'>" . number_format($l['prixUnitaire'], 0, ',', ' ') . "</td>
-                            <td align='right'><strong>" . number_format($rowTotal, 0, ',', ' ') . "</strong></td>
-                        </tr>";
-                    }
+                foreach($lignes as $l) {
+                    $rowTotal = $l['quantite'] * $l['prixUnitaire'];
+                    $html .= "<tr>
+                        <td>{$l['description']}</td>
+                        <td align='center'>{$l['quantite']}</td>
+                        <td align='right'>" . number_format($l['prixUnitaire'], 0, ',', ' ') . "</td>
+                        <td align='right'><strong>" . number_format($rowTotal, 0, ',', ' ') . "</strong></td>
+                    </tr>";
                 }
-
-                if (!empty($prestations)) {
-                    $html .= "<tr><td colspan='4' class='group-header'>Prestations de Service</td></tr>";
-                    foreach($prestations as $l) {
-                        $rowTotal = $l['quantite'] * $l['prixUnitaire'];
-                        $html .= "<tr>
-                            <td>{$l['description']}</td>
-                            <td align='center'>{$l['quantite']}</td>
-                            <td align='right'>" . number_format($l['prixUnitaire'], 0, ',', ' ') . "</td>
-                            <td align='right'><strong>" . number_format($rowTotal, 0, ',', ' ') . "</strong></td>
-                        </tr>";
-                    }
-                }
-
                 $html .= "</tbody>
                     </table>
 
