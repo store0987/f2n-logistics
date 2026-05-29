@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { API_BASE_URL } from '../api';
-import { Plus, Trash2, Printer, Save, CheckCircle, Ship, MapPin, Box, Hash, User, Download, Mail, FileDown } from 'lucide-react';
+import {
+  Plus, Trash2, Printer, Save, CheckCircle, Ship, MapPin, Box, Hash, User, Download, Mail, FileDown, ArrowLeft, X
+} from 'lucide-react';
 
 const LOGISTICS_DESIGNATIONS = [
   "Assurance Faculté (Transport)", "Cautionnement Conteneur", "Chargement / Empotage", "Correction de Manifeste",
@@ -122,6 +124,7 @@ const FacturationForm = ({ onCancel, editData }) => {
     client_id: null,
     client_nif: '',
     client_rccm: '',
+    client_tel: '',
     numVoyage: ''
   };
 
@@ -180,9 +183,8 @@ const FacturationForm = ({ onCancel, editData }) => {
 
   const handleValidate = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/next-facture-number/FACT`);
+      const response = await fetch(`${API_BASE_URL}/api/next-facture-number/FN2`);
       const data = await response.json();
-      setFactureInfo(prev => ({ ...prev, numeroFacture: data.number }));
       handleSave('Validée', data.number);
     } catch (error) {
       console.error("Erreur lors de la génération du numéro de facture:", error);
@@ -244,47 +246,63 @@ const FacturationForm = ({ onCancel, editData }) => {
 
   return (
     <div className="dashboard-page">
+      <style>{`
+        @media print {
+          .facture-footer { 
+            position: fixed !important; 
+            bottom: 0 !important; 
+            left: 0 !important; 
+            right: 0 !important; 
+            border-top: 1px solid #eee !important;
+            padding-bottom: 20px !important;
+            background: white !important;
+          }
+          .no-print { display: none !important; }
+          @page { margin: 1.5cm; }
+        }
+      `}</style>
+
       <div className="page-header no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
         <div>
-          <h1 className="page-title">Éditeur de Facture</h1>
+          <h1 className="page-title">{editData ? 'Édition Document' : 'Nouvelle Facturation'}</h1>
           <p className="page-subtitle">Créez vos documents de facturation logistique</p>
         </div>
+        <button className="btn btn-outline" onClick={onCancel}>
+          <ArrowLeft size={18} />
+          <span>Retour à la liste</span>
+        </button>
       </div>
 
-      <div className="form-container" style={{
-        maxWidth: '1040px',
-        padding: '32px',
-        border: '1px solid var(--border-color)',
-        position: 'relative',
-        margin: '0 auto'
-      }}>
-
-        {/* --- EN-TÊTE --- */}
-        <div className="facture-header-flex" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px', flexWrap: 'wrap', gap: '24px' }}>
-
+      <div className="form-container" style={{ maxWidth: '1040px', margin: '0 auto', padding: '40px' }}>
+        <div className="facture-header-flex" style={{ display: 'flex', justifyContent: 'space-between', gap: '40px', marginBottom: '40px', alignItems: 'flex-start' }}>
           {/* Logo & Identité */}
           <div style={{ display: 'flex', gap: '20px', alignItems: 'center', minWidth: 'min-content' }}>
             <div style={{
-              width: '64px', height: '64px', borderRadius: '12px',
-              backgroundColor: 'var(--accent-primary)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center'
+              width: '80px', height: '80px',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              overflow: 'hidden'
             }}>
-              <Ship size={32} color="white" />
+              <img
+                src={`${API_BASE_URL}/assets/logo.jpeg`}
+                alt="Logo"
+                style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 21c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1 .6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1'/%3E%3Cpath d='M19.38 20A11.6 11.6 0 0 0 21 14l-9-4-9 4c0 2.26 1.18 4.27 3 5.39'/%3E%3Cpath d='M11 13c1.33 0 2.67 0 4 0'/%3E%3Cpath d='M12 10v4'/%3E%3Cpath d='M11 10h2'/%3E%3C/svg%3E";
+                }}
+              />
             </div>
             <div>
               <h2 style={{ fontSize: '2rem', fontWeight: '800', margin: '0 0 4px 0', color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>
                 F2N LOGISTICS
               </h2>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: '700', letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 8px 0' }}>
-                Commissionnaire Agréé
-              </p>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: '700', letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 8px 0' }}>Commissionnaire Agréé</p>
               <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: '1.4' }}>
                 BP 4056 Douala - Bonapriso - CAMEROUN<br />
                 Tél: +237 699 97 98 85 • NIU: M042517669133Q
               </div>
             </div>
           </div>
-
           {/* Infos Facture */}
           <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', gap: '12px', minWidth: '180px', flex: '1' }}>
             <div className="title-badge" style={{
@@ -323,6 +341,7 @@ const FacturationForm = ({ onCancel, editData }) => {
               <span style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '4px' }}>{selectedDossier.client_nom}</span>
               {selectedDossier.client_nif && <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', display: 'block' }}>NINEA / NIU: {selectedDossier.client_nif}</span>}
               {selectedDossier.client_rccm && <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', display: 'block' }}>RCCM: {selectedDossier.client_rccm}</span>}
+              {selectedDossier.client_tel && <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', display: 'block' }}>Tél: {selectedDossier.client_tel}</span>}
             </div>
             {isProforma && (
               <div className="no-print">
@@ -439,15 +458,12 @@ const FacturationForm = ({ onCancel, editData }) => {
         {/* --- RÉSUMÉ FINANCIER --- */}
         <div className="facture-summary-grid" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '24px' }}>
 
-          <div style={{ flex: '1', minWidth: '280px', color: 'var(--text-secondary)', fontSize: '0.85rem', border: '1px solid var(--border-color)', padding: '16px', borderRadius: '8px' }}>
+          <div className="payment-box" style={{ flex: '1', minWidth: '280px', color: 'var(--text-secondary)', fontSize: '0.85rem', border: '1px solid var(--border-color)', padding: '16px', borderRadius: '8px' }}>
             <p style={{ marginBottom: '8px', color: 'var(--text-primary)' }}><strong>Conditions de paiement :</strong></p>
-            <p>Paiement à réception de la facture par chèque ou virement bancaire.<br /><br />
-              <strong>Banque BICIS</strong><br />
-              IBAN: SN010 01234 000000123456 78<br />
-              Code SWIFT: BICISNXXXX</p>
+            <p>Paiement à réception de la facture par chèque ou virement bancaire.</p>
           </div>
 
-          <div style={{ width: '100%', maxWidth: '380px', border: '2px solid var(--border-color)', borderRadius: '8px', padding: '24px', marginLeft: 'auto' }}>
+          <div className="totals-box" style={{ width: '100%', maxWidth: '380px', border: '2px solid var(--border-color)', borderRadius: '8px', padding: '24px', marginLeft: 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontSize: '1rem' }}>
               <span style={{ color: 'var(--text-secondary)' }}>Sous-total HT</span>
               <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{formatCurrency(sousTotal)}</span>
@@ -477,6 +493,10 @@ const FacturationForm = ({ onCancel, editData }) => {
       {/* --- BOUTONS D'ACTION (Hors Document) --- */}
       <div className="form-actions no-print" style={{ maxWidth: '1040px', margin: '24px auto 0 auto', borderTop: 'none', padding: '0', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          <button type="button" className="btn btn-outline" onClick={onCancel} style={{ marginRight: '8px' }}>
+            <ArrowLeft size={18} />
+            Retour
+          </button>
           <button type="button" className="btn btn-outline" onClick={() => window.print()}>
             <Printer size={18} />
             Imprimer
@@ -509,7 +529,6 @@ const FacturationForm = ({ onCancel, editData }) => {
           )}
         </div>
       </div>
-
     </div>
   );
 };

@@ -428,9 +428,8 @@ try {
                 $title = $isProforma ? 'PROFORMA' : 'FACTURE';
 
                 // Recherche du logo personnel (png, jpg ou svg)
-                $logoPath = __DIR__ . '/assets/logo.jpeg'; // Priorité au JPEG
+                $logoPath = __DIR__ . '/assets/logo.png';
                 if (!file_exists($logoPath)) $logoPath = __DIR__ . '/assets/logo.jpg';
-                if (!file_exists($logoPath)) $logoPath = __DIR__ . '/assets/logo.png';
                 if (!file_exists($logoPath)) $logoPath = __DIR__ . '/assets/ship.svg';
 
                 $logoData = file_get_contents($logoPath);
@@ -444,8 +443,9 @@ try {
                 <head>
                     <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/>
                     <style>
-                        body { font-family: 'DejaVu Sans', sans-serif; color: #333; font-size: 11px; line-height: 1.4; }
-                        .container { padding: 20px; }
+                        @page { margin: 1cm 1.5cm 3cm 1.5cm; }
+                        body { font-family: 'DejaVu Sans', sans-serif; color: #333; font-size: 10px; line-height: 1.4; }
+                        .container { width: 100%; }
                         .header-table { width: 100%; margin-bottom: 40px; }
                         .logo-box { width: 80px; height: 80px; text-align: left; }
                         .company-name { font-size: 22px; font-weight: bold; color: #333; margin: 0; }
@@ -453,12 +453,12 @@ try {
                         .company-details { color: #666; font-size: 9px; }
                         
                         .title-badge { border: 2px solid " . ($isProforma ? '#666' : '#2563eb') . "; padding: 5px 15px; font-size: 18px; font-weight: bold; display: inline-block; }
-                        .info-label { color: #666; text-transform: uppercase; font-size: 8px; margin-bottom: 2px; }
-                        .info-value { background: #f9f9f9; border: 1px solid #eee; padding: 5px; font-weight: bold; text-align: right; width: 120px; }
+                        .info-label { color: #000; text-transform: uppercase; font-size: 8px; margin-bottom: 2px; }
+                        .info-value { background: #f9f9f9; border: 1px solid #000; padding: 5px; font-weight: bold; text-align: right; width: 120px; }
 
-                        .context-table { width: 100%; border: 1px solid #eee; border-radius: 8px; margin-bottom: 30px; border-spacing: 0; }
+                        .context-table { width: 100%; border: 1px solid #000; border-radius: 8px; margin-bottom: 30px; border-spacing: 0; }
                         .context-td { padding: 15px; vertical-align: top; }
-                        .section-title { font-size: 9px; color: #666; text-transform: uppercase; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 10px; }
+                        .section-title { font-size: 10px; color: #000; text-transform: uppercase; border-bottom: 1px solid #000; padding-bottom: 5px; margin-bottom: 10px; }
                         .client-name { font-size: 14px; font-weight: bold; display: block; }
                         
                         .dossier-grid { width: 100%; }
@@ -466,15 +466,15 @@ try {
                         .dossier-value { font-weight: bold; font-size: 10px; }
 
                         .lines-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
-                        .lines-table th { border-bottom: 2px solid #eee; padding: 10px; text-align: left; color: #666; font-size: 9px; text-transform: uppercase; }
-                        .lines-table td { padding: 10px; border-bottom: 1px solid #eee; }
+                        .lines-table th { border-bottom: 2px solid #000; padding: 10px; text-align: left; color: #000; font-size: 9px; text-transform: uppercase; }
+                        .lines-table td { padding: 10px; border-bottom: 1px solid #999; }
                         
                         .summary-table { width: 100%; }
-                        .payment-box { border: 1px solid #eee; border-radius: 8px; padding: 15px; color: #666; font-size: 9px; }
-                        .totals-box { border: 2px solid #eee; border-radius: 8px; padding: 15px; }
+                        .payment-box { border: 1px solid #000; border-radius: 8px; padding: 15px; color: #000; font-size: 9px; }
+                        .totals-box { border: 2px solid #000; border-radius: 8px; padding: 15px; }
                         .total-row { font-size: 12px; margin-bottom: 5px; }
-                        .grand-total { border-top: 2px solid #eee; padding-top: 10px; margin-top: 10px; font-size: 16px; font-weight: bold; }
-                        .footer { margin-top: 40px; text-align: center; font-size: 8px; color: #777; border-top: 1px solid #eee; padding-top: 10px; }
+                        .grand-total { border-top: 2px solid #000; padding-top: 10px; margin-top: 10px; font-size: 16px; font-weight: bold; }
+                        .footer { position: fixed; bottom: -2cm; left: 0; right: 0; text-align: center; font-size: 8px; color: #777; border-top: 1px solid #eee; padding-top: 10px; height: 1.5cm; }
                         .clear { clear: both; }
                     </style>
                 </head>
