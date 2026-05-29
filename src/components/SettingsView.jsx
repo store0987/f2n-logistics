@@ -253,6 +253,7 @@ const SettingsView = ({ user, setUser, theme, setTheme }) => {
                                                     <option value="employee">Employé</option>
                                                     <option value="admin">Administrateur</option>
                                                 </select>
+                                                {u.id === user.id && <span style={{ marginLeft: '8px', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>(Votre rôle)</span>}
                                             </td>
                                             <td>
                                                 <span className={`badge ${u.status === 'approved' ? 'badge-success' : 'badge-warning'}`}>
@@ -264,8 +265,8 @@ const SettingsView = ({ user, setUser, theme, setTheme }) => {
                                                     {u.status === 'pending' && (
                                                         <button className="btn btn-outline" style={{ padding: '4px 8px', color: '#10b981' }} onClick={() => handleUpdateUser(u.id, 'approved', u.role)}><Check size={14} /></button>
                                                     )}
-                                                    {u.id !== user.id && (
-                                                        <button className="btn btn-outline" style={{ padding: '4px 8px', color: 'var(--accent-danger)' }} onClick={async () => { if (window.confirm('Supprimer cet utilisateur ?')) { await fetch(`${API_BASE_URL}/api/users/${u.id}`, { method: 'DELETE' }); fetchUsers(); } }}><Trash size={14} /></button>
+                                                    {u.id !== user.id && ( // Empêche l'admin de se supprimer lui-même
+                                                        <button className="btn btn-outline" style={{ padding: '4px 8px', color: 'var(--accent-danger)' }} onClick={async () => { if (window.confirm(`Voulez-vous vraiment supprimer l'utilisateur ${u.username} ?`)) { await fetch(`${API_BASE_URL}/api/users/${u.id}`, { method: 'DELETE' }); fetchUsers(); } }}><Trash size={14} /></button>
                                                     )}
                                                 </div>
                                             </td>
