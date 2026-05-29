@@ -28,6 +28,10 @@ try {
         status VARCHAR(20) DEFAULT 'pending'
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
+    // Ajout des colonnes 'role' et 'status' si elles n'existent pas (pour les mises à jour de la DB)
+    $pdo->exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(20) DEFAULT 'employee'");
+    $pdo->exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'pending'");
+
     // Table clients
     $pdo->exec("CREATE TABLE IF NOT EXISTS clients (
         id INT AUTO_INCREMENT PRIMARY KEY,
