@@ -360,6 +360,9 @@ const FacturationForm = ({ onCancel, editData, user }) => {
               <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>Adresse de facturation spécifique</label>
               <textarea className="form-control" name="adresseFacturation" value={factureInfo.adresseFacturation} onChange={handleInfoChange} style={{ width: '100%', padding: '8px', fontSize: '0.85rem' }} placeholder="Saisissez l'adresse pour ce document..." rows="2" />
             </div>
+            <div style={{ marginTop: '8px', fontSize: '0.9rem', color: 'var(--text-primary)', fontWeight: '500' }}>
+              {factureInfo.adresseFacturation || selectedDossier.client_adresse}
+            </div>
             {isProforma && (
               <div className="no-print">
                 <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '16px', marginBottom: '4px' }}>Changer le Dossier Lié</label>
@@ -386,7 +389,7 @@ const FacturationForm = ({ onCancel, editData, user }) => {
               <div>
                 <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }}><FileText size={12} /> N° Déclaration</span>
                 <input type="text" className="form-control no-print" name="numDeclaration" value={factureInfo.numDeclaration} onChange={handleInfoChange} style={{ width: '100%', padding: '4px 8px', fontSize: '0.85rem' }} placeholder="N° Déclaration" />
-                <span className="print-only" style={{ color: 'var(--text-primary)', fontWeight: '600' }}>{factureInfo.numDeclaration || '-'}</span>
+                <span style={{ display: 'block', color: 'var(--text-primary)', fontWeight: '600', marginTop: '4px' }}>{factureInfo.numDeclaration || '-'}</span>
               </div>
               <div>
                 <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }}><Hash size={12} /> B/L / LTA</span>
