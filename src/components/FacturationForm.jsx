@@ -353,6 +353,9 @@ const FacturationForm = ({ onCancel, editData, user }) => {
             </h3>
             <div style={{ marginBottom: '12px' }}>
               <span style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '4px' }}>{selectedDossier.client_nom}</span>
+              <div className="print-only" style={{ fontSize: '0.9rem', color: '#000', marginTop: '4px' }}>
+                {factureInfo.adresseFacturation || selectedDossier.client_adresse}
+              </div>
               {selectedDossier.client_nif && <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', display: 'block' }}>NIU: {selectedDossier.client_nif}</span>}
               {selectedDossier.client_tel && <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', display: 'block' }}>Tél: {selectedDossier.client_tel}</span>}
             </div>
@@ -389,7 +392,7 @@ const FacturationForm = ({ onCancel, editData, user }) => {
               <div style={{ padding: '12px', border: '1px solid var(--border-color)', borderRadius: '6px', backgroundColor: 'var(--input-bg)' }}>
                 <span style={{ color: 'var(--accent-primary)', fontSize: '0.75rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px', textTransform: 'uppercase', marginBottom: '8px' }}><FileText size={14} /> N° Déclaration</span>
                 <input type="text" className="form-control no-print" name="numDeclaration" value={factureInfo.numDeclaration} onChange={handleInfoChange} style={{ width: '100%', padding: '8px', fontSize: '0.85rem', fontWeight: '700' }} placeholder="Saisir le numéro..." readOnly={!canEdit} />
-                <span style={{ display: 'block', color: 'var(--text-primary)', fontWeight: '800', marginTop: '6px' }}>{factureInfo.numDeclaration || 'Non renseigné'}</span>
+                <span style={{ display: 'block', color: 'var(--text-primary)', fontWeight: '400', marginTop: '6px' }}>{factureInfo.numDeclaration || 'Non renseigné'}</span>
               </div>
               <div>
                 <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }}><Hash size={12} /> B/L / LTA</span>
@@ -397,7 +400,7 @@ const FacturationForm = ({ onCancel, editData, user }) => {
               </div>
               <div>
                 <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }}><Ship size={12} /> Navire / Voyage</span>
-                <span style={{ color: 'var(--text-primary)', fontWeight: '600', fontSize: '0.95rem' }}>{selectedDossier.navire} {selectedDossier.numVoyage ? `/ V.${selectedDossier.numVoyage}` : ''}</span>
+                <span style={{ color: 'var(--text-primary)', fontWeight: '600', fontSize: '0.95rem' }}>{selectedDossier.navire} {selectedDossier.numVoyage ? ` / V.${selectedDossier.numVoyage}` : ''}</span>
               </div>
               <div>
                 <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }}><MapPin size={12} /> Routage</span>

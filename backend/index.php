@@ -551,7 +551,7 @@ try {
                         
                         .dossier-grid { width: 100%; }
                         .dossier-label { color: #666; font-size: 8px; }
-                        .dossier-value { font-weight: bold; font-size: 10px; }
+                        .dossier-value { font-weight: normal; font-size: 10px; }
 
                         .lines-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
                         .lines-table th { border-bottom: 2px solid #000; padding: 10px; text-align: left; color: #000; font-size: 9px; text-transform: uppercase; }
@@ -700,7 +700,7 @@ try {
                             <td width='55%' valign='top'>
                                 <div class='payment-box'>
                                     <strong>Conditions de paiement :</strong><br>
-                                    Paiement à réception de la facture par chèque à l'ordre de <strong>F2N LOGISTICS</strong> ou par virement bancaire :<br>
+                                    Paiement à réception de la facture par chèque à l'ordre de <strong>F2N LOGISTICS SARL</strong> ou par virement bancaire :<br>
                                     <br>
                                     <strong>First Bank :</strong> 10005 00002 10137791001-95
                                 </div>
