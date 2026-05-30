@@ -39,7 +39,7 @@ const FacturationForm = ({ onCancel, editData, user }) => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/dossiers`);
       const data = await response.json();
-      setAvailableDossiers(data);
+      if (Array.isArray(data)) setAvailableDossiers(data);
       if (data.length > 0 && !editData) {
         setFactureInfo(prev => ({ ...prev, dossierLie: data[0].id }));
       }
@@ -77,7 +77,7 @@ const FacturationForm = ({ onCancel, editData, user }) => {
   React.useEffect(() => {
     const fetchNextNumber = async () => {
       if (!editData) {
-        const response = await fetch(`${API_BASE_URL}/api/next-facture-number/PRO`);
+        const response = await fetch(`${API_BASE_URL}/api/next-facture-number/26F2N`);
         const data = await response.json();
         setFactureInfo(prev => ({ ...prev, numeroFacture: data.number }));
       }
@@ -145,7 +145,8 @@ const FacturationForm = ({ onCancel, editData, user }) => {
       description: db.description,
       quantite: 1,
       prixUnitaire: db.montant,
-      taxable: false // Souvent les débours ne sont pas taxés (frais tiers)
+      taxable: false,
+      type: 'debour'
     };
     setLignes([...lignes, newLigne]);
     setImportedDeboursIds([...importedDeboursIds, db.id]);
@@ -188,7 +189,7 @@ const FacturationForm = ({ onCancel, editData, user }) => {
 
   const handleValidate = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/next-facture-number/FN2`);
+      const response = await fetch(`${API_BASE_URL}/api/next-facture-number/26F2N`);
       const data = await response.json();
       handleSave('Validée', data.number);
     } catch (error) {
@@ -232,7 +233,7 @@ const FacturationForm = ({ onCancel, editData, user }) => {
 
   const addLigne = () => {
     const newId = lignes.length > 0 ? Math.max(...lignes.map(l => l.id)) + 1 : 1;
-    setLignes([...lignes, { id: newId, description: '', quantite: 1, prixUnitaire: 0, taxable: true }]);
+    setLignes([...lignes, { id: newId, description: '', quantite: 1, prixUnitaire: 0, taxable: true, type: 'prestation' }]);
   };
 
   const removeLigne = (id) => {
@@ -247,7 +248,8 @@ const FacturationForm = ({ onCancel, editData, user }) => {
   const montantTVA = calculateTVA();
   const totalTTC = sousTotal + montantTVA;
 
-  const isProforma = factureInfo.numeroFacture.startsWith('PRO');
+  // Nouvelle logique de détection Proforma/Facture basée sur l'existence de données d'édition
+  const isProforma = editData ? editData.statut === 'Proforma' : true;
   // Une facture est modifiable si c'est une proforma OU si l'utilisateur est admin
   const canEdit = isProforma || user?.role === 'admin';
 
@@ -346,7 +348,7 @@ const FacturationForm = ({ onCancel, editData, user }) => {
             </h3>
             <div style={{ marginBottom: '12px' }}>
               <span style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '4px' }}>{selectedDossier.client_nom}</span>
-              {selectedDossier.client_nif && <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', display: 'block' }}>NINEA / NIU: {selectedDossier.client_nif}</span>}
+              {selectedDossier.client_nif && <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', display: 'block' }}>NIU: {selectedDossier.client_nif}</span>}
               {selectedDossier.client_rccm && <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', display: 'block' }}>RCCM: {selectedDossier.client_rccm}</span>}
               {selectedDossier.client_tel && <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', display: 'block' }}>Tél: {selectedDossier.client_tel}</span>}
             </div>
@@ -514,7 +516,7 @@ const FacturationForm = ({ onCancel, editData, user }) => {
 
         {/* --- BAS DE PAGE (FOOTER) --- */}
         <div className="facture-footer" style={{ marginTop: '40px', paddingTop: '16px', borderTop: '1px solid var(--border-color)', textAlign: 'center', fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
-          <p style={{ margin: 0, fontWeight: '600', color: 'var(--text-primary)' }}>F2N LOGISTICS / SOCIETE A RESPONSABILITE LIMITE au capital de 10 000 000 FCFA - BP 4056 Douala - Bonapriso - CAMEROUN</p>
+          <p style={{ margin: 0, fontWeight: '600', color: 'var(--text-primary)' }}>F2N LOGISTICS SARL / SOCIETE A RESPONSABILITE LIMITEE au capital de 10 000 000 FCFA - BP 4056 Douala - Bonapriso - CAMEROUN</p>
           <p style={{ margin: '4px 0' }}>N° RCCM : CM-DLA-01-2025-B12-000508 / NIU : M042517669133Q / N° CNPS : 351-0126148-000H</p>
           <p style={{ margin: '4px 0' }}>Compte First Bank N° 10005 00002 10137791001-95</p>
           <p style={{ margin: '4px 0' }}>Tél: +237 674 573 495 / +237 679 517 186 / +237 699 97 98 85</p>
