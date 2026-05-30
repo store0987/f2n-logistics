@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { API_BASE_URL } from '../api';
 import {
-  Plus, Trash2, Printer, Save, CheckCircle, Ship, MapPin, Box, Hash, User, Download, Mail, FileDown, ArrowLeft, X
+  Plus, Trash2, Printer, Save, CheckCircle, Ship, MapPin, Box, Hash, User, Download, Mail, FileDown, ArrowLeft, X, FileText
 } from 'lucide-react';
 
 const LOGISTICS_DESIGNATIONS = [
