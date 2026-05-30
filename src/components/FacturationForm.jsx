@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { API_BASE_URL } from '../api';
 import {
-  Plus, Trash2, Printer, Save, CheckCircle, Ship, MapPin, Box, Hash, User, Download, Mail, FileDown, ArrowLeft, X, FileText
+  Plus, Trash2, Printer, Save, CheckCircle, Ship, MapPin, Box, Hash, User, Download, Mail, FileDown, ArrowLeft, X
 } from 'lucide-react';
 
 const LOGISTICS_DESIGNATIONS = [
@@ -77,7 +77,7 @@ const FacturationForm = ({ onCancel, editData, user }) => {
   React.useEffect(() => {
     const fetchNextNumber = async () => {
       if (!editData) {
-        const response = await fetch(`${API_BASE_URL}/api/next-facture-number/26F2N`);
+        const response = await fetch(`${API_BASE_URL}/api/next-facture-number/PRO`);
         const data = await response.json();
         setFactureInfo(prev => ({ ...prev, numeroFacture: data.number }));
       }
@@ -145,8 +145,7 @@ const FacturationForm = ({ onCancel, editData, user }) => {
       description: db.description,
       quantite: 1,
       prixUnitaire: db.montant,
-      taxable: false,
-      type: 'debour'
+      taxable: false // Souvent les débours ne sont pas taxés (frais tiers)
     };
     setLignes([...lignes, newLigne]);
     setImportedDeboursIds([...importedDeboursIds, db.id]);
@@ -189,7 +188,7 @@ const FacturationForm = ({ onCancel, editData, user }) => {
 
   const handleValidate = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/next-facture-number/26F2N`);
+      const response = await fetch(`${API_BASE_URL}/api/next-facture-number/FN2`);
       const data = await response.json();
       handleSave('Validée', data.number);
     } catch (error) {
@@ -233,7 +232,7 @@ const FacturationForm = ({ onCancel, editData, user }) => {
 
   const addLigne = () => {
     const newId = lignes.length > 0 ? Math.max(...lignes.map(l => l.id)) + 1 : 1;
-    setLignes([...lignes, { id: newId, description: '', quantite: 1, prixUnitaire: 0, taxable: true, type: 'prestation' }]);
+    setLignes([...lignes, { id: newId, description: '', quantite: 1, prixUnitaire: 0, taxable: true }]);
   };
 
   const removeLigne = (id) => {
@@ -244,22 +243,17 @@ const FacturationForm = ({ onCancel, editData, user }) => {
   const calculateTVA = () => lignes.reduce((t, l) => l.taxable ? t + (l.quantite * l.prixUnitaire * tvaRate) : t, 0);
   const formatCurrency = (amount) => new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA';
 
-  const deboursTotal = lignes.filter(l => l.type === 'debour').reduce((t, l) => t + (l.quantite * l.prixUnitaire), 0);
-  const prestationsTotal = lignes.filter(l => l.type === 'prestation').reduce((t, l) => t + (l.quantite * l.prixUnitaire), 0);
-
   const sousTotal = calculateSousTotalHT();
   const montantTVA = calculateTVA();
   const totalTTC = sousTotal + montantTVA;
 
-  // Détection corrigée : C'est une proforma si le statut est "Proforma" ou si c'est une nouvelle facture (editData est null)
-  const isProforma = (editData?.statut || 'Proforma') === 'Proforma';
+  const isProforma = factureInfo.numeroFacture.startsWith('PRO');
   // Une facture est modifiable si c'est une proforma OU si l'utilisateur est admin
   const canEdit = isProforma || user?.role === 'admin';
 
   return (
     <div className="dashboard-page">
       <style>{`
-        .print-only { display: none; }
         @media print {
           .facture-footer { 
             position: fixed !important; 
@@ -271,7 +265,6 @@ const FacturationForm = ({ onCancel, editData, user }) => {
             background: white !important;
           }
           .no-print { display: none !important; }
-          .print-only { display: block !important; }
           @page { margin: 1.5cm; }
         }
       `}</style>
@@ -292,7 +285,7 @@ const FacturationForm = ({ onCancel, editData, user }) => {
           {/* Logo & Identité */}
           <div style={{ display: 'flex', gap: '20px', alignItems: 'center', minWidth: 'min-content' }}>
             <div style={{
-              width: '120px', height: '120px',
+              width: '80px', height: '80px',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               overflow: 'hidden'
             }}>
@@ -353,15 +346,9 @@ const FacturationForm = ({ onCancel, editData, user }) => {
             </h3>
             <div style={{ marginBottom: '12px' }}>
               <span style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '4px' }}>{selectedDossier.client_nom}</span>
-              {selectedDossier.client_nif && <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', display: 'block' }}>NIU: {selectedDossier.client_nif}</span>}
+              {selectedDossier.client_nif && <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', display: 'block' }}>NINEA / NIU: {selectedDossier.client_nif}</span>}
+              {selectedDossier.client_rccm && <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', display: 'block' }}>RCCM: {selectedDossier.client_rccm}</span>}
               {selectedDossier.client_tel && <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', display: 'block' }}>Tél: {selectedDossier.client_tel}</span>}
-            </div>
-            <div className="no-print" style={{ marginTop: '16px' }}>
-              <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>Adresse de facturation spécifique</label>
-              <textarea className="form-control" name="adresseFacturation" value={factureInfo.adresseFacturation} onChange={handleInfoChange} style={{ width: '100%', padding: '8px', fontSize: '0.85rem' }} placeholder="Saisissez l'adresse pour ce document..." rows="2" />
-            </div>
-            <div style={{ marginTop: '8px', fontSize: '0.9rem', color: 'var(--text-primary)', fontWeight: '500' }}>
-              {factureInfo.adresseFacturation || selectedDossier.client_adresse}
             </div>
             {isProforma && (
               <div className="no-print">
@@ -386,11 +373,6 @@ const FacturationForm = ({ onCancel, editData, user }) => {
               <Box size={16} /> Détails de l'Expédition
             </h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px 24px' }}>
-              <div>
-                <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }}><FileText size={12} /> N° Déclaration</span>
-                <input type="text" className="form-control no-print" name="numDeclaration" value={factureInfo.numDeclaration} onChange={handleInfoChange} style={{ width: '100%', padding: '4px 8px', fontSize: '0.85rem' }} placeholder="N° Déclaration" />
-                <span style={{ display: 'block', color: 'var(--text-primary)', fontWeight: '600', marginTop: '4px' }}>{factureInfo.numDeclaration || '-'}</span>
-              </div>
               <div>
                 <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }}><Hash size={12} /> B/L / LTA</span>
                 <span style={{ color: 'var(--text-primary)', fontWeight: '600', fontSize: '0.95rem' }}>{selectedDossier.numBL}</span>
@@ -442,34 +424,57 @@ const FacturationForm = ({ onCancel, editData, user }) => {
               </tr>
             </thead>
             <tbody>
-              {lignes.map((ligne) => (
-                <tr key={ligne.id}>
-                  <td style={{ padding: '8px 16px', borderBottom: '1px solid var(--border-color)' }}>
-                    <input type="text" list="designations-list" className="form-control" style={{ width: '100%', padding: '8px', border: '1px solid transparent', fontWeight: '700' }} value={ligne.description} onChange={(e) => updateLigne(ligne.id, 'description', e.target.value)} placeholder="Description des frais..." readOnly={!canEdit} />
-                    <datalist id="designations-list">
-                      {LOGISTICS_DESIGNATIONS.map(d => <option key={d} value={d} />)}
-                    </datalist>
-                  </td>
-                  <td style={{ padding: '8px 16px', borderBottom: '1px solid var(--border-color)' }}>
-                    <input type="number" className="form-control" style={{ width: '100%', padding: '8px', border: '1px solid transparent', textAlign: 'center', fontWeight: '700' }} value={ligne.quantite} onChange={(e) => updateLigne(ligne.id, 'quantite', parseFloat(e.target.value) || 0)} readOnly={!canEdit} />
-                  </td>
-                  <td style={{ padding: '8px 16px', borderBottom: '1px solid var(--border-color)' }}>
-                    <input type="number" className="form-control" style={{ width: '100%', padding: '8px', border: '1px solid transparent', textAlign: 'right', fontWeight: '700' }} value={ligne.prixUnitaire} onChange={(e) => updateLigne(ligne.id, 'prixUnitaire', parseFloat(e.target.value) || 0)} readOnly={!canEdit} />
-                  </td>
-                  <td className="no-print" style={{ padding: '8px 16px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
-                    <input type="checkbox" checked={ligne.taxable} onChange={(e) => updateLigne(ligne.id, 'taxable', e.target.checked)} style={{ width: '18px', height: '18px', accentColor: 'var(--accent-secondary)' }} disabled={!canEdit} />
-                  </td>
-                  <td style={{ padding: '8px 16px', textAlign: 'right', fontWeight: '700', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-color)' }}>
-                    {formatCurrency(ligne.quantite * ligne.prixUnitaire)}
-                  </td>
-                  <td className="no-print" style={{ padding: '8px 16px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
-                    {canEdit && (
-                      <button type="button" onClick={() => removeLigne(ligne.id)} style={{ background: 'none', border: 'none', color: 'var(--accent-danger)', cursor: 'pointer', padding: '4px' }}>
-                        <Trash2 size={18} />
-                      </button>
-                    )}
-                  </td>
-                </tr>
+              {['debour', 'prestation'].map(groupType => (
+                <React.Fragment key={groupType}>
+                  <tr style={{ backgroundColor: 'var(--input-bg)' }}>
+                    <td colSpan="7" style={{ padding: '8px 16px', fontWeight: '800', fontSize: '0.85rem', color: 'var(--accent-primary)', textTransform: 'uppercase' }}>
+                      {groupType === 'debour' ? 'Débours (Frais Tiers)' : 'Prestations de Service'}
+                    </td>
+                  </tr>
+                  {lignes.filter(l => l.type === groupType).map((ligne) => (
+                    <tr key={ligne.id}>
+                      <td className="no-print" style={{ padding: '8px 16px', borderBottom: '1px solid var(--border-color)' }}>
+                        <select className="form-control" style={{ width: '100%', padding: '6px' }} value={ligne.type} onChange={(e) => updateLigne(ligne.id, 'type', e.target.value)} disabled={!canEdit}>
+                          <option value="debour">Débours</option>
+                          <option value="prestation">Prestation</option>
+                        </select>
+                      </td>
+                      <td style={{ padding: '8px 16px', borderBottom: '1px solid var(--border-color)' }}>
+                        <input type="text" list="designations-list" className="form-control" style={{ width: '100%', padding: '8px', border: '1px solid transparent', fontWeight: '700' }} value={ligne.description} onChange={(e) => updateLigne(ligne.id, 'description', e.target.value)} placeholder="Description..." readOnly={!canEdit} />
+                        <datalist id="designations-list">
+                          {LOGISTICS_DESIGNATIONS.map(d => <option key={d} value={d} />)}
+                        </datalist>
+                      </td>
+                      <td style={{ padding: '8px 16px', borderBottom: '1px solid var(--border-color)' }}>
+                        <input type="number" className="form-control" style={{ width: '100%', padding: '8px', border: '1px solid transparent', textAlign: 'center', fontWeight: '700' }} value={ligne.quantite} onChange={(e) => updateLigne(ligne.id, 'quantite', parseFloat(e.target.value) || 0)} readOnly={!canEdit} />
+                      </td>
+                      <td style={{ padding: '8px 16px', borderBottom: '1px solid var(--border-color)' }}>
+                        <input type="number" className="form-control" style={{ width: '100%', padding: '8px', border: '1px solid transparent', textAlign: 'right', fontWeight: '700' }} value={ligne.prixUnitaire} onChange={(e) => updateLigne(ligne.id, 'prixUnitaire', parseFloat(e.target.value) || 0)} readOnly={!canEdit} />
+                      </td>
+                      <td className="no-print" style={{ padding: '8px 16px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
+                        <input type="checkbox" checked={ligne.taxable} onChange={(e) => updateLigne(ligne.id, 'taxable', e.target.checked)} style={{ width: '18px', height: '18px', accentColor: 'var(--accent-secondary)' }} disabled={!canEdit} />
+                      </td>
+                      <td style={{ padding: '8px 16px', textAlign: 'right', fontWeight: '700', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-color)' }}>
+                        {formatCurrency(ligne.quantite * ligne.prixUnitaire)}
+                      </td>
+                      <td className="no-print" style={{ padding: '8px 16px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
+                        {canEdit && (
+                          <button type="button" onClick={() => removeLigne(ligne.id)} style={{ background: 'none', border: 'none', color: 'var(--accent-danger)', cursor: 'pointer', padding: '4px' }}>
+                            <Trash2 size={18} />
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                  <tr style={{ backgroundColor: 'transparent' }}>
+                    <td className="no-print"></td>
+                    <td colSpan="4" style={{ textAlign: 'right', padding: '8px 16px', fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: '600' }}>
+                      Sous-total {groupType === 'debour' ? 'Débours' : 'Prestations'} :
+                    </td>
+                    <td style={{ textAlign: 'right', padding: '8px 16px', fontWeight: '800', borderBottom: '2px double var(--border-color)' }}>{formatCurrency(groupType === 'debour' ? deboursTotal : prestationsTotal)}</td>
+                    <td className="no-print"></td>
+                  </tr>
+                </React.Fragment>
               ))}
             </tbody>
           </table>
@@ -509,7 +514,7 @@ const FacturationForm = ({ onCancel, editData, user }) => {
 
         {/* --- BAS DE PAGE (FOOTER) --- */}
         <div className="facture-footer" style={{ marginTop: '40px', paddingTop: '16px', borderTop: '1px solid var(--border-color)', textAlign: 'center', fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
-          <p style={{ margin: 0, fontWeight: '600', color: 'var(--text-primary)' }}>F2N LOGISTICS SARL / SOCIETE A RESPONSABILITE LIMITEE au capital de 10 000 000 FCFA - BP 4056 Douala - Bonapriso - CAMEROUN</p>
+          <p style={{ margin: 0, fontWeight: '600', color: 'var(--text-primary)' }}>F2N LOGISTICS / SOCIETE A RESPONSABILITE LIMITE au capital de 10 000 000 FCFA - BP 4056 Douala - Bonapriso - CAMEROUN</p>
           <p style={{ margin: '4px 0' }}>N° RCCM : CM-DLA-01-2025-B12-000508 / NIU : M042517669133Q / N° CNPS : 351-0126148-000H</p>
           <p style={{ margin: '4px 0' }}>Compte First Bank N° 10005 00002 10137791001-95</p>
           <p style={{ margin: '4px 0' }}>Tél: +237 674 573 495 / +237 679 517 186 / +237 699 97 98 85</p>
