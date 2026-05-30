@@ -39,9 +39,11 @@ const FacturationForm = ({ onCancel, editData, user }) => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/dossiers`);
       const data = await response.json();
-      if (Array.isArray(data)) setAvailableDossiers(data);
-      if (data.length > 0 && !editData) {
-        setFactureInfo(prev => ({ ...prev, dossierLie: data[0].id }));
+      if (Array.isArray(data)) {
+        setAvailableDossiers(data);
+        if (data.length > 0 && !editData) {
+          setFactureInfo(prev => ({ ...prev, dossierLie: data[0].id }));
+        }
       }
     } catch (error) {
       console.error('Erreur lors du chargement des dossiers:', error);
@@ -382,7 +384,7 @@ const FacturationForm = ({ onCancel, editData, user }) => {
               </div>
               <div>
                 <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }}><Ship size={12} /> Navire / Voyage</span>
-                <span style={{ color: 'var(--text-primary)', fontWeight: '600', fontSize: '0.95rem' }}>{selectedDossier.navire} {selectedDossier.numVoyage ? `/ V.${selectedDossier.numVoyage}` : ''}</span>
+                <span style={{ color: 'var(--text-primary)', fontWeight: '600', fontSize: '0.95rem' }}>{selectedDossier.navire} {selectedDossier.numVoyage ? ` / V.${selectedDossier.numVoyage}` : ''}</span>
               </div>
               <div>
                 <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }}><MapPin size={12} /> Routage</span>
