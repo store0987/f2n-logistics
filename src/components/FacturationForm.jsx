@@ -39,11 +39,9 @@ const FacturationForm = ({ onCancel, editData, user }) => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/dossiers`);
       const data = await response.json();
-      if (Array.isArray(data)) {
-        setAvailableDossiers(data);
-        if (data.length > 0 && !editData) {
-          setFactureInfo(prev => ({ ...prev, dossierLie: data[0].id }));
-        }
+      setAvailableDossiers(data);
+      if (data.length > 0 && !editData) {
+        setFactureInfo(prev => ({ ...prev, dossierLie: data[0].id }));
       }
     } catch (error) {
       console.error('Erreur lors du chargement des dossiers:', error);
@@ -55,7 +53,7 @@ const FacturationForm = ({ onCancel, editData, user }) => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/debours?dossier_id=${dossierId}`);
       const data = await response.json();
-      setPendingDebours(data);
+      if (Array.isArray(data)) setPendingDebours(data);
     } catch (error) {
       console.error('Erreur lors du chargement des débours:', error);
     }
@@ -132,7 +130,6 @@ const FacturationForm = ({ onCancel, editData, user }) => {
     client_nif: '',
     client_rccm: '',
     client_tel: '',
-    client_adresse: '',
     numVoyage: ''
   };
 
@@ -247,18 +244,22 @@ const FacturationForm = ({ onCancel, editData, user }) => {
   const calculateTVA = () => lignes.reduce((t, l) => l.taxable ? t + (l.quantite * l.prixUnitaire * tvaRate) : t, 0);
   const formatCurrency = (amount) => new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA';
 
+  const deboursTotal = lignes.filter(l => l.type === 'debour').reduce((t, l) => t + (l.quantite * l.prixUnitaire), 0);
+  const prestationsTotal = lignes.filter(l => l.type === 'prestation').reduce((t, l) => t + (l.quantite * l.prixUnitaire), 0);
+
   const sousTotal = calculateSousTotalHT();
   const montantTVA = calculateTVA();
   const totalTTC = sousTotal + montantTVA;
 
-  // Nouvelle logique de détection Proforma/Facture basée sur l'existence de données d'édition
-  const isProforma = editData ? editData.statut === 'Proforma' : true;
+  // Détection corrigée : C'est une proforma si le statut est "Proforma" ou si c'est une nouvelle facture (editData est null)
+  const isProforma = (editData?.statut || 'Proforma') === 'Proforma';
   // Une facture est modifiable si c'est une proforma OU si l'utilisateur est admin
   const canEdit = isProforma || user?.role === 'admin';
 
   return (
     <div className="dashboard-page">
       <style>{`
+        .print-only { display: none; }
         @media print {
           .facture-footer { 
             position: fixed !important; 
@@ -270,6 +271,7 @@ const FacturationForm = ({ onCancel, editData, user }) => {
             background: white !important;
           }
           .no-print { display: none !important; }
+          .print-only { display: block !important; }
           @page { margin: 1.5cm; }
         }
       `}</style>
@@ -290,7 +292,7 @@ const FacturationForm = ({ onCancel, editData, user }) => {
           {/* Logo & Identité */}
           <div style={{ display: 'flex', gap: '20px', alignItems: 'center', minWidth: 'min-content' }}>
             <div style={{
-              width: '80px', height: '80px',
+              width: '120px', height: '120px',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               overflow: 'hidden'
             }}>
@@ -333,7 +335,7 @@ const FacturationForm = ({ onCancel, editData, user }) => {
               </div>
               <div style={{ textAlign: 'right' }}>
                 <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Date d'émission</label>
-                <input type="date" className="form-control" style={{ width: '140px', padding: '8px 12px', border: '1px solid var(--border-color)', color: 'var(--text-primary)', textAlign: 'right' }} name="date" value={factureInfo.date} onChange={handleInfoChange} disabled={!isProforma} />
+                <input type="date" className="form-control" style={{ width: '140px', padding: '8px 12px', border: '1px solid var(--border-color)', color: 'var(--text-primary)', textAlign: 'right' }} name="date" value={factureInfo.date} onChange={handleInfoChange} disabled={!canEdit} />
               </div>
             </div>
           </div>
@@ -352,8 +354,14 @@ const FacturationForm = ({ onCancel, editData, user }) => {
             <div style={{ marginBottom: '12px' }}>
               <span style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '4px' }}>{selectedDossier.client_nom}</span>
               {selectedDossier.client_nif && <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', display: 'block' }}>NIU: {selectedDossier.client_nif}</span>}
-              {selectedDossier.client_rccm && <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', display: 'block' }}>RCCM: {selectedDossier.client_rccm}</span>}
               {selectedDossier.client_tel && <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', display: 'block' }}>Tél: {selectedDossier.client_tel}</span>}
+            </div>
+            <div className="no-print" style={{ marginTop: '20px', padding: '12px', border: '1px solid var(--border-color)', borderRadius: '6px', backgroundColor: 'var(--input-bg)' }}>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--accent-primary)', marginBottom: '8px', textTransform: 'uppercase' }}>Adresse de Facturation</label>
+              <textarea className="form-control" name="adresseFacturation" value={factureInfo.adresseFacturation} onChange={handleInfoChange} style={{ width: '100%', padding: '8px', fontSize: '0.85rem', fontWeight: '600' }} placeholder="Adresse spécifique..." rows="2" readOnly={!canEdit} />
+              <div style={{ marginTop: '8px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                Aperçu : {factureInfo.adresseFacturation || selectedDossier.client_adresse || 'Adresse par défaut'}
+              </div>
             </div>
             {isProforma && (
               <div className="no-print">
@@ -378,13 +386,18 @@ const FacturationForm = ({ onCancel, editData, user }) => {
               <Box size={16} /> Détails de l'Expédition
             </h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px 24px' }}>
+              <div style={{ padding: '12px', border: '1px solid var(--border-color)', borderRadius: '6px', backgroundColor: 'var(--input-bg)' }}>
+                <span style={{ color: 'var(--accent-primary)', fontSize: '0.75rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px', textTransform: 'uppercase', marginBottom: '8px' }}><FileText size={14} /> N° Déclaration</span>
+                <input type="text" className="form-control no-print" name="numDeclaration" value={factureInfo.numDeclaration} onChange={handleInfoChange} style={{ width: '100%', padding: '8px', fontSize: '0.85rem', fontWeight: '700' }} placeholder="Saisir le numéro..." readOnly={!canEdit} />
+                <span style={{ display: 'block', color: 'var(--text-primary)', fontWeight: '800', marginTop: '6px' }}>{factureInfo.numDeclaration || 'Non renseigné'}</span>
+              </div>
               <div>
                 <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }}><Hash size={12} /> B/L / LTA</span>
                 <span style={{ color: 'var(--text-primary)', fontWeight: '600', fontSize: '0.95rem' }}>{selectedDossier.numBL}</span>
               </div>
               <div>
                 <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }}><Ship size={12} /> Navire / Voyage</span>
-                <span style={{ color: 'var(--text-primary)', fontWeight: '600', fontSize: '0.95rem' }}>{selectedDossier.navire} {selectedDossier.numVoyage ? ` / V.${selectedDossier.numVoyage}` : ''}</span>
+                <span style={{ color: 'var(--text-primary)', fontWeight: '600', fontSize: '0.95rem' }}>{selectedDossier.navire} {selectedDossier.numVoyage ? `/ V.${selectedDossier.numVoyage}` : ''}</span>
               </div>
               <div>
                 <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }}><MapPin size={12} /> Routage</span>
@@ -429,62 +442,37 @@ const FacturationForm = ({ onCancel, editData, user }) => {
               </tr>
             </thead>
             <tbody>
-              {['debour', 'prestation'].map(groupType => (
-                <React.Fragment key={groupType}>
-                  <tr style={{ backgroundColor: 'var(--input-bg)' }}>
-                    <td colSpan="7" style={{ padding: '8px 16px', fontWeight: '800', fontSize: '0.85rem', color: 'var(--accent-primary)', textTransform: 'uppercase' }}>
-                      {groupType === 'debour' ? 'Débours (Frais Tiers)' : 'Prestations de Service'}
-                    </td>
-                  </tr>
-                  {lignes.filter(l => l.type === groupType).map((ligne) => (
-                    <tr key={ligne.id}>
-                      <td className="no-print" style={{ padding: '8px 16px', borderBottom: '1px solid var(--border-color)' }}>
-                        <select className="form-control" style={{ width: '100%', padding: '6px' }} value={ligne.type} onChange={(e) => updateLigne(ligne.id, 'type', e.target.value)} disabled={!canEdit}>
-                          <option value="debour">Débours</option>
-                          <option value="prestation">Prestation</option>
-                        </select>
-                      </td>
-                      <td style={{ padding: '8px 16px', borderBottom: '1px solid var(--border-color)' }}>
-                        <input type="text" list="designations-list" className="form-control" style={{ width: '100%', padding: '8px', border: '1px solid transparent', fontWeight: '800', color: 'var(--text-primary)' }} value={ligne.description} onChange={(e) => updateLigne(ligne.id, 'description', e.target.value)} placeholder="Description..." readOnly={!canEdit} />
-                      </td>
-                      <td style={{ padding: '8px 16px', borderBottom: '1px solid var(--border-color)' }}>
-                        <input type="number" className="form-control" style={{ width: '100%', padding: '8px', border: '1px solid transparent', textAlign: 'center', fontWeight: '800', color: 'var(--text-primary)' }} value={ligne.quantite} onChange={(e) => updateLigne(ligne.id, 'quantite', parseFloat(e.target.value) || 0)} readOnly={!canEdit} />
-                      </td>
-                      <td style={{ padding: '8px 16px', borderBottom: '1px solid var(--border-color)' }}>
-                        <input type="number" className="form-control" style={{ width: '100%', padding: '8px', border: '1px solid transparent', textAlign: 'right', fontWeight: '800', color: 'var(--text-primary)' }} value={ligne.prixUnitaire} onChange={(e) => updateLigne(ligne.id, 'prixUnitaire', parseFloat(e.target.value) || 0)} readOnly={!canEdit} />
-                      </td>
-                      <td className="no-print" style={{ padding: '8px 16px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
-                        <input type="checkbox" checked={ligne.taxable} onChange={(e) => updateLigne(ligne.id, 'taxable', e.target.checked)} style={{ width: '18px', height: '18px', accentColor: 'var(--accent-secondary)' }} disabled={!canEdit} />
-                      </td>
-                      <td style={{ padding: '8px 16px', textAlign: 'right', fontWeight: '700', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-color)' }}>
-                        {formatCurrency(ligne.quantite * ligne.prixUnitaire)}
-                      </td>
-                      <td className="no-print" style={{ padding: '8px 16px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
-                        {canEdit && (
-                          <button type="button" onClick={() => removeLigne(ligne.id)} style={{ background: 'none', border: 'none', color: 'var(--accent-danger)', cursor: 'pointer', padding: '4px' }}>
-                            <Trash2 size={18} />
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                  <tr style={{ backgroundColor: 'transparent' }}>
-                    <td className="no-print"></td>
-                    <td colSpan="4" style={{ textAlign: 'right', padding: '8px 16px', fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: '600' }}>
-                      Sous-total {groupType === 'debour' ? 'Débours' : 'Prestations'} :
-                    </td>
-                    <td style={{ textAlign: 'right', padding: '8px 16px', fontWeight: '800', borderBottom: '2px double var(--border-color)' }}>
-                      {formatCurrency(groupType === 'debour' ? deboursTotal : prestationsTotal)}
-                    </td>
-                    <td className="no-print"></td>
-                  </tr>
-                </React.Fragment>
+              {lignes.map((ligne) => (
+                <tr key={ligne.id}>
+                  <td style={{ padding: '8px 16px', borderBottom: '1px solid var(--border-color)' }}>
+                    <input type="text" list="designations-list" className="form-control" style={{ width: '100%', padding: '8px', border: '1px solid transparent', fontWeight: '700' }} value={ligne.description} onChange={(e) => updateLigne(ligne.id, 'description', e.target.value)} placeholder="Description des frais..." readOnly={!canEdit} />
+                    <datalist id="designations-list">
+                      {LOGISTICS_DESIGNATIONS.map(d => <option key={d} value={d} />)}
+                    </datalist>
+                  </td>
+                  <td style={{ padding: '8px 16px', borderBottom: '1px solid var(--border-color)' }}>
+                    <input type="number" className="form-control" style={{ width: '100%', padding: '8px', border: '1px solid transparent', textAlign: 'center', fontWeight: '700' }} value={ligne.quantite} onChange={(e) => updateLigne(ligne.id, 'quantite', parseFloat(e.target.value) || 0)} readOnly={!canEdit} />
+                  </td>
+                  <td style={{ padding: '8px 16px', borderBottom: '1px solid var(--border-color)' }}>
+                    <input type="number" className="form-control" style={{ width: '100%', padding: '8px', border: '1px solid transparent', textAlign: 'right', fontWeight: '700' }} value={ligne.prixUnitaire} onChange={(e) => updateLigne(ligne.id, 'prixUnitaire', parseFloat(e.target.value) || 0)} readOnly={!canEdit} />
+                  </td>
+                  <td className="no-print" style={{ padding: '8px 16px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
+                    <input type="checkbox" checked={ligne.taxable} onChange={(e) => updateLigne(ligne.id, 'taxable', e.target.checked)} style={{ width: '18px', height: '18px', accentColor: 'var(--accent-secondary)' }} disabled={!canEdit} />
+                  </td>
+                  <td style={{ padding: '8px 16px', textAlign: 'right', fontWeight: '700', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-color)' }}>
+                    {formatCurrency(ligne.quantite * ligne.prixUnitaire)}
+                  </td>
+                  <td className="no-print" style={{ padding: '8px 16px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
+                    {canEdit && (
+                      <button type="button" onClick={() => removeLigne(ligne.id)} style={{ background: 'none', border: 'none', color: 'var(--accent-danger)', cursor: 'pointer', padding: '4px' }}>
+                        <Trash2 size={18} />
+                      </button>
+                    )}
+                  </td>
+                </tr>
               ))}
             </tbody>
           </table>
-          <datalist id="designations-list">
-            {LOGISTICS_DESIGNATIONS.map(d => <option key={d} value={d} />)}
-          </datalist>
 
           {canEdit && (
             <button type="button" className="btn btn-outline no-print" onClick={addLigne} style={{ marginTop: '16px' }}>
