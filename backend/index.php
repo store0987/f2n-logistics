@@ -512,7 +512,7 @@ try {
                 $stmtLignes->execute([$id]);
                 $lignes = $stmtLignes->fetchAll();
                 
-                $isProforma = strpos($id, 'PRO') !== false;
+                $isProforma = $facture['statut'] === 'Proforma';
                 $title = $isProforma ? 'PROFORMA' : 'FACTURE';
 
                 // Recherche du logo personnel (png, jpg ou svg)

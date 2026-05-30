@@ -137,7 +137,7 @@ const FacturesView = ({ onCreateFacture, onViewFacture }) => {
               </tr>
             )}
             {filteredFactures.map(facture => {
-              const isProforma = facture.numeroFacture.startsWith('PRO');
+              const isProforma = facture.statut === 'Proforma';
               return (
                 <tr key={facture.numeroFacture}>
                   <td style={{ fontWeight: '600' }}>{facture.numeroFacture}</td>
