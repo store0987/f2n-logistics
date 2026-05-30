@@ -270,6 +270,13 @@ const FacturationForm = ({ onCancel, editData, user }) => {
             padding-bottom: 20px !important;
             background: white !important;
           }
+          .facture-header-row td {
+            color: #000 !important;
+            font-weight: 800 !important;
+            border-bottom: 2px solid #000 !important;
+            background-color: #f0f0f0 !important;
+            -webkit-print-color-adjust: exact;
+          }
           .no-print { display: none !important; }
           .print-only { display: block !important; }
           @page { margin: 1.5cm; }
@@ -500,6 +507,14 @@ const FacturationForm = ({ onCancel, editData, user }) => {
           </div>
 
           <div className="totals-box" style={{ width: '100%', maxWidth: '380px', border: '2px solid var(--border-color)', borderRadius: '8px', padding: '24px', marginLeft: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.95rem' }}>
+              <span style={{ color: 'var(--text-secondary)' }}>Total Débours</span>
+              <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{formatCurrency(deboursTotal)}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.95rem' }}>
+              <span style={{ color: 'var(--text-secondary)' }}>Total Prestations (HT)</span>
+              <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{formatCurrency(prestationsTotal)}</span>
+            </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontSize: '1rem' }}>
               <span style={{ color: 'var(--text-secondary)' }}>Sous-total HT</span>
               <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{formatCurrency(sousTotal)}</span>

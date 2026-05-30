@@ -662,6 +662,10 @@ try {
                 $debours = array_filter($lignes, function($l) { return $l['type'] === 'debour'; });
                 $prestations = array_filter($lignes, function($l) { return $l['type'] === 'prestation'; });
 
+                // Calcul des totaux par groupe pour le résumé
+                $totalDebours = array_reduce($debours, function($carry, $item) { return $carry + ($item['quantite'] * $item['prixUnitaire']); }, 0);
+                $totalPrestations = array_reduce($prestations, function($carry, $item) { return $carry + ($item['quantite'] * $item['prixUnitaire']); }, 0);
+
                 if (!empty($debours)) {
                     $html .= "<tr><td colspan='4' class='group-header'>Débours (Frais Tiers)</td></tr>";
                     foreach($debours as $l) {
@@ -673,7 +677,6 @@ try {
                             <td align='right'><strong>" . number_format($rowTotal, 0, ',', ' ') . "</strong></td>
                         </tr>";
                     }
-                    $totalDebours = array_reduce($debours, function($carry, $item) { return $carry + ($item['quantite'] * $item['prixUnitaire']); }, 0);
                     $html .= "<tr><td colspan='3' align='right'>Sous-total Débours :</td><td align='right'>" . number_format($totalDebours, 0, ',', ' ') . "</td></tr>";
                 }
 
@@ -688,7 +691,6 @@ try {
                             <td align='right'><strong>" . number_format($rowTotal, 0, ',', ' ') . "</strong></td>
                         </tr>";
                     }
-                    $totalPrestations = array_reduce($prestations, function($carry, $item) { return $carry + ($item['quantite'] * $item['prixUnitaire']); }, 0);
                     $html .= "<tr><td colspan='3' align='right'>Sous-total Prestations :</td><td align='right'>" . number_format($totalPrestations, 0, ',', ' ') . "</td></tr>";
                 }
 
@@ -709,7 +711,15 @@ try {
                                 <div class='totals-box'>
                                     <table width='100%'>
                                         <tr>
-                                            <td style='color: #666;'>Sous-total HT</td>
+                                            <td style='color: #666;'>Total Débours</td>
+                                            <td align='right' style='font-weight: bold;'>" . number_format($totalDebours, 0, ',', ' ') . " FCFA</td>
+                                        </tr>
+                                        <tr>
+                                            <td style='color: #666; padding-top: 5px;'>Total Prestations (HT)</td>
+                                            <td align='right' style='font-weight: bold; padding-top: 5px;'>" . number_format($totalPrestations, 0, ',', ' ') . " FCFA</td>
+                                        </tr>
+                                        <tr>
+                                            <td style='color: #666; padding-top: 5px; border-top: 1px solid #eee;'>Sous-total HT</td>
                                             <td align='right' style='font-weight: bold;'>" . number_format($facture['sousTotal'], 0, ',', ' ') . " FCFA</td>
                                         </tr>
                                         <tr>
