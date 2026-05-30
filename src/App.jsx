@@ -702,6 +702,7 @@ function App() {
             />
           ) : (
             <FacturationForm
+              key={editFactureData?.numeroFacture || 'new-invoice'}
               editData={editFactureData}
               user={user}
               onCancel={() => {

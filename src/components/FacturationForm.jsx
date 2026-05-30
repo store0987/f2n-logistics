@@ -130,6 +130,7 @@ const FacturationForm = ({ onCancel, editData, user }) => {
     client_nif: '',
     client_rccm: '',
     client_tel: '',
+    client_adresse: '',
     numVoyage: ''
   };
 
@@ -443,9 +444,6 @@ const FacturationForm = ({ onCancel, editData, user }) => {
                       </td>
                       <td style={{ padding: '8px 16px', borderBottom: '1px solid var(--border-color)' }}>
                         <input type="text" list="designations-list" className="form-control" style={{ width: '100%', padding: '8px', border: '1px solid transparent', fontWeight: '800', color: 'var(--text-primary)' }} value={ligne.description} onChange={(e) => updateLigne(ligne.id, 'description', e.target.value)} placeholder="Description..." readOnly={!canEdit} />
-                        <datalist id="designations-list">
-                          {LOGISTICS_DESIGNATIONS.map(d => <option key={d} value={d} />)}
-                        </datalist>
                       </td>
                       <td style={{ padding: '8px 16px', borderBottom: '1px solid var(--border-color)' }}>
                         <input type="number" className="form-control" style={{ width: '100%', padding: '8px', border: '1px solid transparent', textAlign: 'center', fontWeight: '800', color: 'var(--text-primary)' }} value={ligne.quantite} onChange={(e) => updateLigne(ligne.id, 'quantite', parseFloat(e.target.value) || 0)} readOnly={!canEdit} />
@@ -473,13 +471,18 @@ const FacturationForm = ({ onCancel, editData, user }) => {
                     <td colSpan="4" style={{ textAlign: 'right', padding: '8px 16px', fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: '600' }}>
                       Sous-total {groupType === 'debour' ? 'Débours' : 'Prestations'} :
                     </td>
-                    <td style={{ textAlign: 'right', padding: '8px 16px', fontWeight: '800', borderBottom: '2px double var(--border-color)' }}>{formatCurrency(groupType === 'debour' ? deboursTotal : prestationsTotal)}</td>
+                    <td style={{ textAlign: 'right', padding: '8px 16px', fontWeight: '800', borderBottom: '2px double var(--border-color)' }}>
+                      {formatCurrency(groupType === 'debour' ? deboursTotal : prestationsTotal)}
+                    </td>
                     <td className="no-print"></td>
                   </tr>
                 </React.Fragment>
               ))}
             </tbody>
           </table>
+          <datalist id="designations-list">
+            {LOGISTICS_DESIGNATIONS.map(d => <option key={d} value={d} />)}
+          </datalist>
 
           {canEdit && (
             <button type="button" className="btn btn-outline no-print" onClick={addLigne} style={{ marginTop: '16px' }}>
