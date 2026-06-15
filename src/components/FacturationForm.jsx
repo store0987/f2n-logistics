@@ -248,7 +248,7 @@ const FacturationForm = ({ onCancel, editData, user }) => {
 
   const sousTotal = deboursTotal + prestationsTotal + commissionDebours;
   const calculateTVA = () => lignes.reduce((t, l) => l.taxable ? t + (l.quantite * l.prixUnitaire * tvaRate) : t, 0);
-  const montantTVA = calculateTVA() + (commissionDebours * tvaRate);
+  const montantTVA = calculateTVA();
   const totalTTC = sousTotal + montantTVA;
 
   // Détection corrigée : C'est une proforma si le statut est "Proforma" ou si c'est une nouvelle facture (editData est null)
