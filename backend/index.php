@@ -314,16 +314,31 @@ try {
                 $prefix = "26F2N";
                 $suffix = "D";
                 $pattern = "$prefix-%-$suffix";
-                $stmt = $pdo->prepare("SELECT id FROM dossiers WHERE id LIKE ? ORDER BY id DESC LIMIT 1");
+
+                // Extraire le numéro maximum réel (tri numérique, pas alphabétique)
+                $stmt = $pdo->prepare("SELECT id FROM dossiers WHERE id LIKE ?");
                 $stmt->execute([$pattern]);
-                $last = $stmt->fetchColumn();
-                
-                $nextNum = 1;
-                if ($last) {
-                    $parts = explode('-', str_replace($suffix, '', $last));
-                    $nextNum = intval(end($parts)) + 1;
+                $allIds = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+                $maxNum = 0;
+                foreach ($allIds as $existingId) {
+                    // Extraire la partie numérique : 26F2N-003D → 3
+                    if (preg_match('/^' . preg_quote($prefix, '/') . '-(\d+)' . preg_quote($suffix, '/') . '$/', $existingId, $m)) {
+                        $maxNum = max($maxNum, intval($m[1]));
+                    }
                 }
+                $nextNum = $maxNum + 1;
+
                 $newId = $input['id'] ?? ($prefix . "-" . str_pad($nextNum, 3, '0', STR_PAD_LEFT) . $suffix);
+                
+                // Sécurité supplémentaire : si l'ID existe déjà, incrémenter jusqu'à trouver un libre
+                $checkStmt = $pdo->prepare("SELECT COUNT(*) FROM dossiers WHERE id = ?");
+                while (true) {
+                    $checkStmt->execute([$newId]);
+                    if ($checkStmt->fetchColumn() == 0) break;
+                    $nextNum++;
+                    $newId = $prefix . "-" . str_pad($nextNum, 3, '0', STR_PAD_LEFT) . $suffix;
+                }
                 
                 $sql = "INSERT INTO dossiers (id, typeOperation, modeTransport, numBL, incoterm, compagnie, navire, numVoyage, etd, eta, origine, destination, client_id, expediteur, natureMarchandise, nombresColis, typeConteneur, poids, volume, valeurMarchandise, dateCreation, statutFacturation) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
                 $pdo->prepare($sql)->execute([
@@ -409,19 +424,23 @@ try {
 
         case 'next-facture-number':
         // Note: l'URL attendue est /api/next-facture-number/PRO ou FACT
-        $type = $id; // Dans ce cas, l'ID est le type (PRO ou FACT)
         $prefix = "26F2N";
         $suffix = "F";
         $pattern = "$prefix-%-$suffix";
-        $stmt = $pdo->prepare("SELECT numeroFacture FROM factures WHERE numeroFacture LIKE ? ORDER BY numeroFacture DESC LIMIT 1");
+
+        // Tri numérique réel : récupère tous les numéros et extrait le MAX
+        $stmt = $pdo->prepare("SELECT numeroFacture FROM factures WHERE numeroFacture LIKE ?");
         $stmt->execute([$pattern]);
-        $last = $stmt->fetchColumn();
-        
-        $nextNum = 1;
-        if ($last) {
-            $parts = explode('-', str_replace($suffix, '', $last));
-            $nextNum = intval(end($parts)) + 1;
+        $allNums = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+        $maxNum = 0;
+        foreach ($allNums as $num) {
+            if (preg_match('/^' . preg_quote($prefix, '/') . '-(\d+)' . preg_quote($suffix, '/') . '$/', $num, $m)) {
+                $maxNum = max($maxNum, intval($m[1]));
+            }
         }
+        $nextNum = $maxNum + 1;
+
         respond(["number" => $prefix . "-" . str_pad($nextNum, 3, '0', STR_PAD_LEFT) . $suffix]);
         break;
 
