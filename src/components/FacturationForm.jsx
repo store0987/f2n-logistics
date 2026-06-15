@@ -240,15 +240,15 @@ const FacturationForm = ({ onCancel, editData, user }) => {
     setLignes(lignes.filter(l => l.id !== id));
   };
 
-  const calculateSousTotalHT = () => lignes.reduce((t, l) => t + (l.quantite * l.prixUnitaire), 0);
-  const calculateTVA = () => lignes.reduce((t, l) => l.taxable ? t + (l.quantite * l.prixUnitaire * tvaRate) : t, 0);
   const formatCurrency = (amount) => new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA';
 
   const deboursTotal = lignes.filter(l => l.type === 'debour').reduce((t, l) => t + (l.quantite * l.prixUnitaire), 0);
   const prestationsTotal = lignes.filter(l => l.type === 'prestation').reduce((t, l) => t + (l.quantite * l.prixUnitaire), 0);
+  const commissionDebours = deboursTotal * 0.02;
 
-  const sousTotal = calculateSousTotalHT();
-  const montantTVA = calculateTVA();
+  const sousTotal = deboursTotal + prestationsTotal + commissionDebours;
+  const calculateTVA = () => lignes.reduce((t, l) => l.taxable ? t + (l.quantite * l.prixUnitaire * tvaRate) : t, 0);
+  const montantTVA = calculateTVA() + (commissionDebours * tvaRate);
   const totalTTC = sousTotal + montantTVA;
 
   // Détection corrigée : C'est une proforma si le statut est "Proforma" ou si c'est une nouvelle facture (editData est null)
@@ -511,6 +511,12 @@ const FacturationForm = ({ onCancel, editData, user }) => {
               <span style={{ color: 'var(--text-secondary)' }}>Total Débours</span>
               <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{formatCurrency(deboursTotal)}</span>
             </div>
+            {deboursTotal > 0 && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.95rem' }}>
+                <span style={{ color: 'var(--text-secondary)' }}>Commission sur Débours (2%)</span>
+                <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{formatCurrency(commissionDebours)}</span>
+              </div>
+            )}
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.95rem' }}>
               <span style={{ color: 'var(--text-secondary)' }}>Total Prestations (HT)</span>
               <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{formatCurrency(prestationsTotal)}</span>

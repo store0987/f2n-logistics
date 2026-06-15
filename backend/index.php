@@ -713,7 +713,16 @@ try {
                                         <tr>
                                             <td style='color: #666;'>Total Débours</td>
                                             <td align='right' style='font-weight: bold;'>" . number_format($totalDebours, 0, ',', ' ') . " FCFA</td>
-                                        </tr>
+                                        </tr>";
+                if ($totalDebours > 0) {
+                    $commissionDebours = $totalDebours * 0.02;
+                    $html .= "
+                                        <tr>
+                                            <td style='color: #666; padding-top: 5px;'>Commission sur Débours (2%)</td>
+                                            <td align='right' style='font-weight: bold; padding-top: 5px;'>" . number_format($commissionDebours, 0, ',', ' ') . " FCFA</td>
+                                        </tr>";
+                }
+                $html .= "
                                         <tr>
                                             <td style='color: #666; padding-top: 5px;'>Total Prestations (HT)</td>
                                             <td align='right' style='font-weight: bold; padding-top: 5px;'>" . number_format($totalPrestations, 0, ',', ' ') . " FCFA</td>
