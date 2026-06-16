@@ -593,8 +593,18 @@ try {
             }
         }
         $nextNum = $maxNum + 1;
+        $nextNumber = $prefix . "-" . str_pad($nextNum, 3, '0', STR_PAD_LEFT) . $suffix;
 
-        respond(["number" => $prefix . "-" . str_pad($nextNum, 3, '0', STR_PAD_LEFT) . $suffix]);
+        // Sécurité : boucle jusqu'à trouver un numéro vraiment libre
+        $checkStmt = $pdo->prepare("SELECT COUNT(*) FROM factures WHERE numeroFacture = ?");
+        while (true) {
+            $checkStmt->execute([$nextNumber]);
+            if ($checkStmt->fetchColumn() == 0) break;
+            $nextNum++;
+            $nextNumber = $prefix . "-" . str_pad($nextNum, 3, '0', STR_PAD_LEFT) . $suffix;
+        }
+
+        respond(["number" => $nextNumber]);
         break;
 
         case 'factures':
@@ -622,6 +632,14 @@ try {
             
             $pdo->beginTransaction();
             try {
+                // Sécurité : ne pas écraser une facture déjà Validée avec une Proforma
+                $checkExisting = $pdo->prepare("SELECT statut FROM factures WHERE numeroFacture = ?");
+                $checkExisting->execute([$info['numeroFacture']]);
+                $existingFacture = $checkExisting->fetch();
+                if ($existingFacture && $existingFacture['statut'] === 'Validée' && $info['statut'] === 'Proforma') {
+                    throw new Exception("Impossible de modifier une facture déjà validée en Proforma. Le numéro " . $info['numeroFacture'] . " est déjà utilisé.");
+                }
+
                 $sqlFact = "INSERT INTO factures (numeroFacture, date, dossier_id, client_id, statut, sousTotal, montantTva, totalTtc, numDeclaration, adresseFacturation) 
                             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
                             ON DUPLICATE KEY UPDATE date=VALUES(date), dossier_id=VALUES(dossier_id), client_id=VALUES(client_id), statut=VALUES(statut), sousTotal=VALUES(sousTotal), montantTva=VALUES(montantTva), totalTtc=VALUES(totalTtc), numDeclaration=VALUES(numDeclaration), adresseFacturation=VALUES(adresseFacturation)";

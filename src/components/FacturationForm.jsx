@@ -153,11 +153,16 @@ const FacturationForm = ({ onCancel, editData, user }) => {
     setPendingDebours(pendingDebours.filter(d => d.id !== db.id));
   };
 
-  const handleSave = async (statut = 'Proforma', customNumFacture = null) => {
+  const handleSave = async (statut = 'Proforma') => {
+    // Sécurité : ne pas enregistrer si le numéro n'est pas encore chargé
+    if (!factureInfo.numeroFacture || factureInfo.numeroFacture === 'Chargement...') {
+      alert("Le numéro de facture est en cours de chargement. Veuillez patienter.");
+      return;
+    }
+
     const payload = {
       factureInfo: {
         ...factureInfo,
-        numeroFacture: customNumFacture || factureInfo.numeroFacture,
         client_id: selectedDossier.client_id,
         statut
       },
@@ -177,25 +182,20 @@ const FacturationForm = ({ onCancel, editData, user }) => {
         body: JSON.stringify(payload)
       });
       if (response.ok) {
-        alert(statut === 'Proforma' ? 'Proforma enregistrée avec succès !' : `Facture validée et enregistrée avec succès !`);
+        alert(statut === 'Proforma' ? 'Proforma enregistrée avec succès !' : 'Facture validée et enregistrée avec succès !');
         if (onCancel) onCancel();
       } else {
-        alert("Erreur lors de l'enregistrement de la facture.");
+        const errData = await response.json().catch(() => ({}));
+        alert(`Erreur lors de l'enregistrement : ${errData.error || response.statusText}`);
       }
     } catch (error) {
       console.error("Erreur lors de l'enregistrement de la facture:", error);
+      alert("Erreur réseau. Vérifiez votre connexion.");
     }
   };
 
-  const handleValidate = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/next-facture-number/26F2N`);
-      const data = await response.json();
-      handleSave('Validée', data.number);
-    } catch (error) {
-      console.error("Erreur lors de la génération du numéro de facture:", error);
-    }
-  };
+  // La validation utilise le même numéro que la proforma — pas de nouveau numéro généré
+  const handleValidate = () => handleSave('Validée');
 
   const handleDownloadPDF = () => {
     if (editData || factureInfo.numeroFacture) {
