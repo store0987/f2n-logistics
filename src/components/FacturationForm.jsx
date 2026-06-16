@@ -260,6 +260,7 @@ const FacturationForm = ({ onCancel, editData, user }) => {
     <div className="dashboard-page">
       <style>{`
         .print-only { display: none; }
+        .type-badge { display: none; }
         @media print {
           .facture-footer { 
             position: fixed !important; 
@@ -279,6 +280,11 @@ const FacturationForm = ({ onCancel, editData, user }) => {
           }
           .no-print { display: none !important; }
           .print-only { display: block !important; }
+          .type-badge { display: inline-block !important; font-size: 0.6rem; font-weight: 700; padding: 2px 6px; border-radius: 3px; margin-right: 6px; vertical-align: middle; text-transform: uppercase; letter-spacing: 0.5px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          .type-badge.debour { background-color: #dbeafe !important; color: #1e40af !important; border: 1px solid #93c5fd !important; }
+          .type-badge.prestation { background-color: #d1fae5 !important; color: #065f46 !important; border: 1px solid #6ee7b7 !important; }
+          .tr-debour td { background-color: #f8faff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          .tr-prestation td { background-color: #f0fdf4 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           @page { margin: 1.5cm; }
         }
       `}</style>
@@ -453,7 +459,7 @@ const FacturationForm = ({ onCancel, editData, user }) => {
             </thead>
             <tbody>
               {lignes.map((ligne) => (
-                <tr key={ligne.id}>
+                <tr key={ligne.id} className={ligne.type === 'debour' ? 'tr-debour' : 'tr-prestation'}>
                   <td className="no-print" style={{ padding: '8px 16px', borderBottom: '1px solid var(--border-color)' }}>
                     <select className="form-control" style={{ width: '100%', padding: '6px' }} value={ligne.type} onChange={(e) => updateLigne(ligne.id, 'type', e.target.value)} disabled={!canEdit}>
                       <option value="debour">Débours</option>
@@ -461,6 +467,9 @@ const FacturationForm = ({ onCancel, editData, user }) => {
                     </select>
                   </td>
                   <td style={{ padding: '8px 16px', borderBottom: '1px solid var(--border-color)' }}>
+                    <span className={`type-badge ${ligne.type === 'debour' ? 'debour' : 'prestation'}`}>
+                      {ligne.type === 'debour' ? 'Débours' : 'Prestation'}
+                    </span>
                     <input type="text" list="designations-list" className="form-control" style={{ width: '100%', padding: '8px', border: '1px solid transparent', fontWeight: '700' }} value={ligne.description} onChange={(e) => updateLigne(ligne.id, 'description', e.target.value)} placeholder="Description des frais..." readOnly={!canEdit} />
                     <datalist id="designations-list">
                       {LOGISTICS_DESIGNATIONS.map(d => <option key={d} value={d} />)}
