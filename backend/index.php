@@ -169,6 +169,159 @@ function respond($data, $status = 200) {
     exit;
 }
 
+function numberToFrenchWords($number) {
+    $hyphen      = '-';
+    $conjunction = ' et ';
+    $separator   = ', ';
+    $negative    = 'moins ';
+    $decimal     = ' virgule ';
+    $dictionary  = array(
+        0                   => 'zéro',
+        1                   => 'un',
+        2                   => 'deux',
+        3                   => 'trois',
+        4                   => 'quatre',
+        5                   => 'cinq',
+        6                   => 'six',
+        7                   => 'sept',
+        8                   => 'huit',
+        9                   => 'neuf',
+        10                  => 'dix',
+        11                  => 'onze',
+        12                  => 'douze',
+        13                  => 'treize',
+        14                  => 'quatorze',
+        15                  => 'quinze',
+        16                  => 'seize',
+        17                  => 'dix-sept',
+        18                  => 'dix-huit',
+        19                  => 'dix-neuf',
+        20                  => 'vingt',
+        30                  => 'trente',
+        40                  => 'quarante',
+        50                  => 'cinquante',
+        60                  => 'soixante',
+        70                  => 'soixante-dix',
+        71                  => 'soixante-et-un',
+        72                  => 'soixante-douze',
+        73                  => 'soixante-treize',
+        74                  => 'soixante-quatorze',
+        75                  => 'soixante-quinze',
+        76                  => 'soixante-seize',
+        77                  => 'soixante-dix-sept',
+        78                  => 'soixante-dix-huit',
+        79                  => 'soixante-dix-neuf',
+        80                  => 'quatre-vingt',
+        81                  => 'quatre-vingt-un',
+        90                  => 'quatre-vingt-dix',
+        91                  => 'quatre-vingt-onze',
+        99                  => 'quatre-vingt-dix-neuf',
+        100                 => 'cent',
+        1000                => 'mille',
+        1000000             => 'million',
+        1000000000          => 'milliard'
+    );
+
+    if (!is_numeric($number)) {
+        return false;
+    }
+
+    if ($number < 0) {
+        return $negative . numberToFrenchWords(abs($number));
+    }
+
+    $string = null;
+
+    switch (true) {
+        case $number < 21:
+            $string = $dictionary[$number];
+            break;
+        case $number < 70:
+            $tens   = ((int) ($number / 10)) * 10;
+            $units  = $number % 10;
+            $string = $dictionary[$tens];
+            if ($units) {
+                if ($units == 1) {
+                    $string .= $conjunction . $dictionary[$units];
+                } else {
+                    $string .= $hyphen . $dictionary[$units];
+                }
+            }
+            break;
+        case $number < 80:
+            $units  = $number % 10;
+            $string = 'soixante';
+            if ($units == 1) {
+                $string .= ' et onze';
+            } else {
+                $string .= $hyphen . $dictionary[10 + $units];
+            }
+            break;
+        case $number < 90:
+            $units  = $number % 10;
+            $string = 'quatre-vingt';
+            if ($units) {
+                $string .= $hyphen . $dictionary[$units];
+            } else {
+                $string .= 's'; // quatre-vingts
+            }
+            break;
+        case $number < 100:
+            $units  = $number % 10;
+            $string = 'quatre-vingt';
+            $string .= $hyphen . $dictionary[10 + $units];
+            break;
+        case $number < 100:
+            $units  = $number % 10;
+            $string = 'quatre-vingt';
+            $string .= $hyphen . $dictionary[10 + $units];
+            break;
+        case $number < 1000:
+            $hundreds  = (int) ($number / 100);
+            $remainder = $number % 100;
+            if ($hundreds == 1) {
+                $string = 'cent';
+            } else {
+                $string = $dictionary[$hundreds] . ' cent';
+                if (!$remainder) {
+                    $string .= 's';
+                }
+            }
+            if ($remainder) {
+                $string .= ' ' . numberToFrenchWords($remainder);
+            }
+            break;
+        case $number < 1000000:
+            $thousands = (int) ($number / 1000);
+            $remainder = $number % 1000;
+            if ($thousands == 1) {
+                $string = 'mille';
+            } else {
+                $string = numberToFrenchWords($thousands) . ' mille';
+            }
+            if ($remainder) {
+                $string .= ' ' . numberToFrenchWords($remainder);
+            }
+            break;
+        case $number < 1000000000:
+            $millions  = (int) ($number / 1000000);
+            $remainder = $number % 1000000;
+            $string    = numberToFrenchWords($millions) . ' million';
+            if ($millions > 1) {
+                $string .= 's';
+            }
+            if ($remainder) {
+                $string .= ' ' . numberToFrenchWords($remainder);
+            }
+            break;
+        default:
+            $string = 'nombre trop grand';
+            break;
+    }
+
+    return $string;
+}
+
 try {
     switch ($resource) {
         case 'register':
@@ -572,15 +725,18 @@ try {
                         .dossier-label { color: #666; font-size: 8px; }
                         .dossier-value { font-weight: normal; font-size: 10px; }
 
-                        .lines-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-                        .lines-table th { border-bottom: 2px solid #000; padding: 8px 10px; text-align: left; color: #000; font-size: 9px; text-transform: uppercase; background: #f9f9f9; }
-                        .lines-table td { padding: 7px 10px; border-bottom: 1px solid #ccc; color: #000; font-size: 9px; }
-                        .group-header { background: #2563eb !important; color: #fff !important; font-weight: bold; text-transform: uppercase; padding: 6px 10px !important; border-bottom: 2px solid #1d4ed8 !important; font-size: 9px; }
+                        .lines-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+                        .lines-table th { border-bottom: 2px solid #000; padding: 10px; text-align: left; color: #000; font-size: 9px; text-transform: uppercase; }
+                        .lines-table td { padding: 8px 10px; border-bottom: 1px solid #ccc; color: #333; font-size: 9px; }
+                        .group-header { background: #f0f0f0; font-weight: bold; text-transform: uppercase; padding: 5px 10px !important; border-bottom: 2px solid #333 !important; }
+                        
                         .summary-table { width: 100%; }
-                        .payment-box { border: 1px solid #000; border-radius: 6px; padding: 12px; color: #000; font-size: 9px; }
-                        .totals-box { border: 2px solid #000; border-radius: 6px; padding: 12px; }
-                        .grand-total { border-top: 2px solid #000; font-size: 12px; font-weight: bold; }
-                        .footer { position: fixed; bottom: -2cm; left: 0; right: 0; text-align: center; font-size: 8px; color: #777; border-top: 1px solid #eee; padding-top: 8px; height: 1.5cm; }
+                        .payment-box { border: 1px solid #000; border-radius: 8px; padding: 15px; color: #000; font-size: 9px; }
+                        .totals-box { border: 2px solid #000; border-radius: 8px; padding: 15px; }
+                        .total-row { font-size: 12px; margin-bottom: 5px; }
+                        .grand-total { border-top: 2px solid #000; padding-top: 10px; margin-top: 10px; font-size: 16px; font-weight: bold; }
+                        .footer { position: fixed; bottom: -2cm; left: 0; right: 0; text-align: center; font-size: 8px; color: #777; border-top: 1px solid #eee; padding-top: 10px; height: 1.5cm; }
+                        .clear { clear: both; }
                     </style>
                 </head>
                 <body>
@@ -591,12 +747,17 @@ try {
                                 <table cellspacing='0' cellpadding='0'>
                                     <tr>
                                         <td style='padding-right: 15px;'>
-                                            <div class='logo-box'><img src='$logoSrc' style='max-width: 80px; max-height: 80px;' /></div>
+                                            <div class='logo-box'>
+                                                <img src='$logoSrc' style='max-width: 80px; max-height: 80px;' />
+                                            </div>
                                         </td>
                                         <td>
                                             <h1 class='company-name'>F2N LOGISTICS SARL</h1>
-                                            <p class='company-tag'>Commissionnaire en Douane Agree</p>
-                                            <div class='company-details'>BP 4056 Douala - Bonapriso - CAMEROUN<br>Tel: +237 699 97 98 85 &bull; NIU: M042517669133Q &bull; RCCM: CM-DLA-01-2025-B12-000508</div>
+                                            <p class='company-tag'>Commissionnaire en Douane Agréé</p>
+                                            <div class='company-details'>
+                                                BP 4056 Douala - Bonapriso - CAMEROUN<br>
+                                                Tél: +237 699 97 98 85 • NIU: M042517669133Q • RCCM : CM-DLA-01-2025-B12-000508
+                                            </div>
                                         </td>
                                     </tr>
                                 </table>
@@ -606,11 +767,11 @@ try {
                                 <table style='margin-top: 10px;' align='right'>
                                     <tr>
                                         <td align='right' style='padding-right: 10px;'>
-                                            <div class='info-label'>Numero</div>
+                                            <div class='info-label'>Numéro</div>
                                             <div class='info-value'>{$facture['numeroFacture']}</div>
                                         </td>
                                         <td align='right'>
-                                            <div class='info-label'>Date d'emission</div>
+                                            <div class='info-label'>Date d'émission</div>
                                             <div class='info-value'>{$facture['date']}</div>
                                         </td>
                                     </tr>
@@ -622,21 +783,22 @@ try {
                     <table class='context-table'>
                         <tr>
                             <td class='context-td' width='35%' style='border-right: 1px solid #eee;'>
-                                <div class='section-title'>Facture a</div>
+                                <div class='section-title'>Facturé à</div>
                                 <span class='client-name'>{$facture['client_nom']}</span>
                                 <div class='company-details' style='margin-top: 5px;'>";
                 $html .= ($facture['client_nif'] ? "NIU: {$facture['client_nif']}<br>" : "");
-                $html .= ($facture['client_tel'] ? "Tel: {$facture['client_tel']}<br>" : "");
-                $html .= ($facture['adresseFacturation'] ?: ($facture['client_adresse'] ?: '')) . "<br>" . ($facture['client_ville'] ?: '') . "
+                $html .= ($facture['client_tel'] ? "Tél: {$facture['client_tel']}<br>" : "");
+                $html .= ($facture['adresseFacturation'] ?: ($facture['client_adresse'] ?: '')) . "<br>
+                                    " . ($facture['client_ville'] ?: '') . "
                                 </div>
                             </td>
                             <td class='context-td'>
-                                <div class='section-title'>Details de l'Expedition</div>
+                                <div class='section-title'>Détails de l'Expédition</div>
                                 <table class='dossier-grid'>
                                     <tr>
                                         <td width='50%'>
-                                            <div class='dossier-label'>N Dec / BL</div>
-                                            <div class='dossier-value'>" . ($facture['numDeclaration'] ? "DEC: ".$facture['numDeclaration'] : "BL: ".$facture['numBL']) . "</div>
+                                            <div class='dossier-label'>N° Déclaration / BL</div>
+                                            <div class='dossier-value'>" . ($facture['numDeclaration'] ? "DEC: " . $facture['numDeclaration'] : "BL: " . $facture['numBL']) . "</div>
                                         </td>
                                         <td>
                                             <div class='dossier-label'>Navire / Voyage</div>
@@ -659,87 +821,141 @@ try {
                     </table>
 
                     <table class='lines-table'>
-                        <thead><tr>
-                            <th width='45%'>DESCRIPTION</th>
-                            <th align='center' width='8%'>QTE</th>
-                            <th align='right' width='18%'>P.U (FCFA)</th>
-                            <th align='right' width='14%'>MONTANT</th>
-                        </tr></thead>
+                        <thead>
+                            <tr>
+                                <th>Désignation des Frais</th>
+                                <th align='center' width='45'>Qté</th>
+                                <th align='right' width='90'>Débours</th>
+                                <th align='right' width='95'>Prestations</th>
+                                <th align='right' width='95'>TVA (19,25%)</th>
+                                <th align='right' width='105'>Montant</th>
+                            </tr>
+                        </thead>
                         <tbody>";
+                
+                $debours = array_filter($lignes, function($l) { return $l['type'] === 'debour'; });
+                $prestations = array_filter($lignes, function($l) { return $l['type'] === 'prestation'; });
 
+                // Calcul des totaux par groupe pour le résumé
+                $totalDebours = array_reduce($debours, function($carry, $item) { return $carry + ($item['quantite'] * $item['prixUnitaire']); }, 0);
+                $totalDeboursPU = array_reduce($debours, function($carry, $item) { return $carry + $item['prixUnitaire']; }, 0);
 
-                $debours     = array_filter($lignes, fn($l) => $l['type'] === 'debour');
-                $prestations = array_filter($lignes, fn($l) => $l['type'] === 'prestation');
+                $commissionDebours = $totalDebours * 0.02;
 
-                $sousTotal1 = (float)array_reduce($debours,     fn($c,$i) => $c + ($i['quantite']*$i['prixUnitaire']), 0);
-                $prestBase  = (float)array_reduce($prestations, fn($c,$i) => $c + ($i['quantite']*$i['prixUnitaire']), 0);
-                $commission = ($sousTotal1 > 0) ? round($sousTotal1 * 0.02) : 0;
-                $sousTotal2 = $commission + $prestBase;
-                $tvaBase    = (float)array_reduce($lignes,      fn($c,$i) => $i['taxable'] ? $c+($i['quantite']*$i['prixUnitaire']*0.1925) : $c, 0);
-                $totalGene  = $sousTotal1 + $sousTotal2 + $tvaBase;
+                $totalPrestationsExclComm = array_reduce($prestations, function($carry, $item) { return $carry + ($item['quantite'] * $item['prixUnitaire']); }, 0);
+                $totalPrestationsPUExclComm = array_reduce($prestations, function($carry, $item) { return $carry + $item['prixUnitaire']; }, 0);
 
-                $html .= "<tr><td colspan='4' class='group-header'>DEBOURS</td></tr>";
-                foreach($debours as $l) {
-                    $rt = $l['quantite'] * $l['prixUnitaire'];
-                    $html .= "<tr><td>{$l['description']}</td><td align='center'>{$l['quantite']}</td><td align='right'>" . number_format($l['prixUnitaire'],0,',',' ') . "</td><td align='right'><strong>" . number_format($rt,0,',',' ') . "</strong></td></tr>";
+                $totalPrestations = $totalPrestationsExclComm + $commissionDebours;
+                $totalPrestationsPU = $totalPrestationsPUExclComm + $commissionDebours;
+
+                $totalTvaPrestations = 0;
+
+                if (!empty($debours)) {
+                    $html .= "<tr><td colspan='6' class='group-header'>Débours (Frais Tiers)</td></tr>";
+                    foreach($debours as $l) {
+                        $rowTotal = $l['quantite'] * $l['prixUnitaire'];
+                        $html .= "<tr>
+                            <td>{$l['description']}</td>
+                            <td align='center'>{$l['quantite']}</td>
+                            <td align='right'>" . number_format($l['prixUnitaire'], 0, ',', ' ') . "</td>
+                            <td align='right'>-</td>
+                            <td align='right'>-</td>
+                            <td align='right'><strong>" . number_format($rowTotal, 0, ',', ' ') . "</strong></td>
+                        </tr>";
+                    }
+                    $html .= "<tr style='background-color: #f9f9f9; font-weight: bold;'>
+                        <td>SOUS/TOTAL 1</td>
+                        <td align='center'>-</td>
+                        <td align='right'>" . number_format($totalDeboursPU, 0, ',', ' ') . "</td>
+                        <td align='right'>-</td>
+                        <td align='right'>-</td>
+                        <td align='right'>" . number_format($totalDebours, 0, ',', ' ') . "</td>
+                    </tr>";
                 }
-                $html .= "<tr style='background:#f0f0f0;'><td colspan='3' align='right' style='font-weight:bold;padding:8px 10px;'>SOUS/TOTAL 1</td><td align='right' style='font-weight:bold;padding:8px 10px;'>" . number_format($sousTotal1,0,',',' ') . "</td></tr>";
 
-                $html .= "<tr><td colspan='4' class='group-header'>PRESTATIONS</td></tr>";
-                if ($commission > 0) {
-                    $html .= "<tr><td>COMMISSIONS SUR DEBOURS</td><td align='center'>2%</td><td align='right'>" . number_format($sousTotal1,0,',',' ') . "</td><td align='right'><strong>" . number_format($commission,0,',',' ') . "</strong></td></tr>";
-                }
-                foreach($prestations as $l) {
-                    $rt = $l['quantite'] * $l['prixUnitaire'];
-                    $html .= "<tr><td>{$l['description']}</td><td align='center'>{$l['quantite']}</td><td align='right'>" . number_format($l['prixUnitaire'],0,',',' ') . "</td><td align='right'><strong>" . number_format($rt,0,',',' ') . "</strong></td></tr>";
-                }
-                $html .= "<tr style='background:#f0f0f0;'><td colspan='3' align='right' style='font-weight:bold;padding:8px 10px;'>SOUS/TOTAL 2</td><td align='right' style='font-weight:bold;padding:8px 10px;'>" . number_format($sousTotal2,0,',',' ') . "</td></tr>";
-                $html .= "<tr><td colspan='3' align='right' style='padding:6px 10px;'>TVA (19,25%)</td><td align='right' style='padding:6px 10px;font-weight:bold;'>" . number_format($tvaBase,0,',',' ') . "</td></tr>";
-                $html .= "<tr style='border-top:2px solid #000;'><td colspan='3' align='right' style='font-size:13px;font-weight:bold;padding:10px;'>TOTAL GENERAL A REGLER (FCFA)</td><td align='right' style='font-size:13px;font-weight:bold;padding:10px;'>" . number_format($totalGene,0,',',' ') . "</td></tr>";
-                $html .= "</tbody></table>";
+                if (!empty($prestations) || $commissionDebours > 0) {
+                    $html .= "<tr><td colspan='6' class='group-header'>Prestations de Service</td></tr>";
+                    
+                    if ($commissionDebours > 0) {
+                        $html .= "<tr>
+                            <td>COMMISSIONS SUR DEBOURS</td>
+                            <td align='center'>2%</td>
+                            <td align='right'>-</td>
+                            <td align='right'>" . number_format($commissionDebours, 0, ',', ' ') . "</td>
+                            <td align='right'>-</td>
+                            <td align='right'><strong>" . number_format($commissionDebours, 0, ',', ' ') . "</strong></td>
+                        </tr>";
+                    }
 
-                function f2n_en_lettres(int $n): string {
-                    $u=['','un','deux','trois','quatre','cinq','six','sept','huit','neuf','dix','onze','douze','treize','quatorze','quinze','seize','dix-sept','dix-huit','dix-neuf'];
-                    $d=['','','vingt','trente','quarante','cinquante','soixante','soixante','quatre-vingt','quatre-vingt'];
-                    if($n<0) return 'moins '.f2n_en_lettres(-$n);
-                    if($n===0) return 'zero';
-                    if($n<20) return $u[$n];
-                    if($n<100){$di=intdiv($n,10);$rem=$n%10;if($di===7||$di===9){$rem+=10;$di--;}$sep=($rem===1&&$di!==8&&$di!==9)?'-et-':($rem?'-':'');$suf=($di===8&&$rem===0)?'s':'';return $d[$di].$suf.$sep.($rem?$u[$rem]:'');}
-                    if($n<1000){$c=intdiv($n,100);$rem=$n%100;return($c===1?'cent':f2n_en_lettres($c).' cent').($rem?' '.f2n_en_lettres($rem):($c>1?'s':''));}
-                    if($n<1000000){$m=intdiv($n,1000);$rem=$n%1000;return($m===1?'mille':f2n_en_lettres($m).' mille').($rem?' '.f2n_en_lettres($rem):'');}
-                    $m=intdiv($n,1000000);$rem=$n%1000000;return f2n_en_lettres($m).' million'.($m>1?'s':'').($rem?' '.f2n_en_lettres($rem):'');
-                }
-                $lettres = ucfirst(f2n_en_lettres((int)round($totalGene)));
+                    foreach($prestations as $l) {
+                        $rowTotal = $l['quantite'] * $l['prixUnitaire'];
+                        $rowTva = $l['taxable'] ? ($rowTotal * 0.1925) : 0;
+                        $totalTvaPrestations += $rowTva;
+                        
+                        $html .= "<tr>
+                            <td>{$l['description']}</td>
+                            <td align='center'>{$l['quantite']}</td>
+                            <td align='right'>-</td>
+                            <td align='right'>" . number_format($l['prixUnitaire'], 0, ',', ' ') . "</td>
+                            <td align='right'>" . ($rowTva > 0 ? number_format($rowTva, 0, ',', ' ') : "-") . "</td>
+                            <td align='right'><strong>" . number_format($rowTotal, 0, ',', ' ') . "</strong></td>
+                        </tr>";
+                    }
 
-                $html .= "
-                    <div style='margin:16px 0;padding:12px;border:1px solid #000;border-radius:6px;font-size:10px;font-style:italic;'>
-                        Arrete la presente facture a <strong>$lettres</strong> francs CFA
+                    $html .= "<tr style='background-color: #f9f9f9; font-weight: bold;'>
+                        <td>SOUS/TOTAL 2</td>
+                        <td align='center'>-</td>
+                        <td align='right'>-</td>
+                        <td align='right'>" . number_format($totalPrestationsPU, 0, ',', ' ') . "</td>
+                        <td align='right'>" . ($totalTvaPrestations > 0 ? number_format($totalTvaPrestations, 0, ',', ' ') : "-") . "</td>
+                        <td align='right'>" . number_format($totalPrestations, 0, ',', ' ') . "</td>
+                    </tr>";
+                }
+
+                $calculatedTotalTtc = $totalDebours + $totalPrestations + $totalTvaPrestations;
+
+                $html .= "<tr style='background-color: #f9f9f9; font-weight: bold; border-top: 1px solid #000;'>
+                    <td>TOTAL GENERAL.</td>
+                    <td align='center'>-</td>
+                    <td align='right'>" . number_format($totalDebours, 0, ',', ' ') . "</td>
+                    <td align='right'>" . number_format($totalPrestations, 0, ',', ' ') . "</td>
+                    <td align='right'>" . ($totalTvaPrestations > 0 ? number_format($totalTvaPrestations, 0, ',', ' ') : "-") . "</td>
+                    <td align='right'>" . number_format($calculatedTotalTtc, 0, ',', ' ') . "</td>
+                </tr>";
+
+                $html .= "<tr style='background-color: #f0f0f0; font-weight: bold; border-top: 2px solid #000;'>
+                    <td style='font-size: 11px;'>TOTAL GENERAL A REGLER (FCFA)</td>
+                    <td align='center'>-</td>
+                    <td align='right'>-</td>
+                    <td align='right'>-</td>
+                    <td align='right'>" . ($totalTvaPrestations > 0 ? number_format($totalTvaPrestations, 0, ',', ' ') : "-") . "</td>
+                    <td align='right' style='font-size: 12px; color: #2563eb;'><strong>" . number_format($calculatedTotalTtc, 0, ',', ' ') . "</strong></td>
+                </tr>";
+
+                $html .= "</tbody>
+                    </table>
+
+                    <div style='margin-bottom: 25px; font-weight: bold; border: 1px solid #000; padding: 10px; border-radius: 6px; font-size: 9px; line-height: 1.4;'>
+                        Arrêté la présente facture à la somme de : <span style='text-transform: uppercase;'>" . numberToFrenchWords(round($calculatedTotalTtc)) . "</span> Francs CFA
                     </div>
-                    <table class='summary-table' style='margin-top:16px;'>
+
+                    <table class='summary-table'>
                         <tr>
-                            <td width='55%' valign='top'>
+                            <td width='100%' valign='top'>
                                 <div class='payment-box'>
                                     <strong>Conditions de paiement :</strong><br>
-                                    Paiement a reception de la facture par cheque a l'ordre de <strong>F2N LOGISTICS SARL</strong> ou par virement bancaire :<br><br>
+                                    Paiement à réception de la facture par chèque à l'ordre de <strong>F2N LOGISTICS SARL</strong> ou par virement bancaire :<br>
+                                    <br>
                                     <strong>First Bank :</strong> 10005 00002 10137791001-95
-                                </div>
-                            </td>
-                            <td valign='top'>
-                                <div class='totals-box'>
-                                    <table width='100%'>
-                                        <tr><td style='color:#666;'>SOUS-TOTAL 1 (Debours)</td><td align='right' style='font-weight:bold;'>" . number_format($sousTotal1,0,',',' ') . " FCFA</td></tr>
-                                        <tr><td style='color:#666;padding-top:5px;'>SOUS-TOTAL 2 (Prestations)</td><td align='right' style='font-weight:bold;padding-top:5px;'>" . number_format($sousTotal2,0,',',' ') . " FCFA</td></tr>
-                                        <tr><td style='color:#666;padding-top:5px;'>TVA (19,25%)</td><td align='right' style='font-weight:bold;padding-top:5px;'>" . number_format($tvaBase,0,',',' ') . " FCFA</td></tr>
-                                        <tr class='grand-total'><td style='padding-top:10px;'>TOTAL GENERAL A REGLER</td><td align='right' style='padding-top:10px;'>" . number_format($totalGene,0,',',' ') . " FCFA</td></tr>
-                                    </table>
                                 </div>
                             </td>
                         </tr>
                     </table>
+
                     <div class='footer'>
                         F2N LOGISTICS SARL / SOCIETE A RESPONSABILITE LIMITEE au capital de 10 000 000 FCFA - BP 4056 Douala - Bonapriso - CAMEROUN<br>
-                        N RCCM : CM-DLA-01-2025-B12-000508 / NIU : M042517669133Q / N CNPS : 351-0126148-000H<br>
-                        Compte First Bank N 10005 00002 10137791001-95 - Tel: +237 674 573 495 / +237 679 517 186 / +237 699 97 98 85<br>
+                        N° RCCM : CM-DLA-01-2025-B12-000508 / NIU : M042517669133Q / N° CNPS : 351-0126148-000H<br>
+                        Compte First Bank N° 10005 00002 10137791001-95 - Tél: +237 674 573 495 / +237 679 517 186 / +237 699 97 98 85<br>
                         Email: f2nlogistics@gmail.com / franklin.ngangoua@f2nlogistics.com - www.f2nlogistics.com
                     </div>
                 </div>

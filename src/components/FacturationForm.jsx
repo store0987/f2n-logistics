@@ -508,19 +508,29 @@ const FacturationForm = ({ onCancel, editData, user }) => {
 
           <div className="totals-box" style={{ width: '100%', maxWidth: '380px', border: '2px solid var(--border-color)', borderRadius: '8px', padding: '24px', marginLeft: 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.95rem' }}>
-              <span style={{ color: 'var(--text-secondary)' }}>SOUS-TOTAL 1 (Débours)</span>
-              <span style={{ fontWeight: '700', color: 'var(--text-primary)' }}>{formatCurrency(deboursTotal)}</span>
+              <span style={{ color: 'var(--text-secondary)' }}>Total Débours</span>
+              <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{formatCurrency(deboursTotal)}</span>
             </div>
+            {deboursTotal > 0 && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.95rem' }}>
+                <span style={{ color: 'var(--text-secondary)' }}>Commission sur Débours (2%)</span>
+                <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{formatCurrency(commissionDebours)}</span>
+              </div>
+            )}
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.95rem' }}>
-              <span style={{ color: 'var(--text-secondary)' }}>SOUS-TOTAL 2 (Prestations)</span>
-              <span style={{ fontWeight: '700', color: 'var(--text-primary)' }}>{formatCurrency(prestationsTotal + commissionDebours)}</span>
+              <span style={{ color: 'var(--text-secondary)' }}>Total Prestations (HT)</span>
+              <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{formatCurrency(prestationsTotal)}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontSize: '1rem' }}>
+              <span style={{ color: 'var(--text-secondary)' }}>Sous-total HT</span>
+              <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{formatCurrency(sousTotal)}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px', fontSize: '1rem' }}>
               <span style={{ color: 'var(--text-secondary)' }}>TVA (19,25%)</span>
-              <span style={{ fontWeight: '700', color: 'var(--text-primary)' }}>{formatCurrency(montantTVA)}</span>
+              <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{formatCurrency(montantTVA)}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '16px', borderTop: '2px solid var(--border-color)', fontSize: '1.25rem', fontWeight: '800', color: 'var(--text-primary)' }}>
-              <span>TOTAL GENERAL A REGLER</span>
+              <span>TOTAL TTC</span>
               <span>{formatCurrency(totalTTC)}</span>
             </div>
           </div>
