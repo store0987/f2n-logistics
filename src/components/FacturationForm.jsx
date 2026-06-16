@@ -470,16 +470,19 @@ const FacturationForm = ({ onCancel, editData, user }) => {
                     <span className={`type-badge ${ligne.type === 'debour' ? 'debour' : 'prestation'}`}>
                       {ligne.type === 'debour' ? 'Débours' : 'Prestation'}
                     </span>
-                    <input type="text" list="designations-list" className="form-control" style={{ width: '100%', padding: '8px', border: '1px solid transparent', fontWeight: '700' }} value={ligne.description} onChange={(e) => updateLigne(ligne.id, 'description', e.target.value)} placeholder="Description des frais..." readOnly={!canEdit} />
+                    <input type="text" list="designations-list" className="form-control no-print" style={{ width: '100%', padding: '8px', border: '1px solid transparent', fontWeight: '700' }} value={ligne.description} onChange={(e) => updateLigne(ligne.id, 'description', e.target.value)} placeholder="Description des frais..." readOnly={!canEdit} />
+                    <span className="print-only" style={{ fontWeight: '700', fontSize: '0.9rem' }}>{ligne.description || '—'}</span>
                     <datalist id="designations-list">
                       {LOGISTICS_DESIGNATIONS.map(d => <option key={d} value={d} />)}
                     </datalist>
                   </td>
-                  <td style={{ padding: '8px 16px', borderBottom: '1px solid var(--border-color)' }}>
-                    <input type="number" className="form-control" style={{ width: '100%', padding: '8px', border: '1px solid transparent', textAlign: 'center', fontWeight: '700' }} value={ligne.quantite} onChange={(e) => updateLigne(ligne.id, 'quantite', parseFloat(e.target.value) || 0)} readOnly={!canEdit} />
+                  <td style={{ padding: '8px 16px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
+                    <input type="number" className="form-control no-print" style={{ width: '100%', padding: '8px', border: '1px solid transparent', textAlign: 'center', fontWeight: '700' }} value={ligne.quantite} onChange={(e) => updateLigne(ligne.id, 'quantite', parseFloat(e.target.value) || 0)} readOnly={!canEdit} />
+                    <span className="print-only" style={{ fontWeight: '700' }}>{ligne.quantite}</span>
                   </td>
-                  <td style={{ padding: '8px 16px', borderBottom: '1px solid var(--border-color)' }}>
-                    <input type="number" className="form-control" style={{ width: '100%', padding: '8px', border: '1px solid transparent', textAlign: 'right', fontWeight: '700' }} value={ligne.prixUnitaire} onChange={(e) => updateLigne(ligne.id, 'prixUnitaire', parseFloat(e.target.value) || 0)} readOnly={!canEdit} />
+                  <td style={{ padding: '8px 16px', textAlign: 'right', borderBottom: '1px solid var(--border-color)' }}>
+                    <input type="number" className="form-control no-print" style={{ width: '100%', padding: '8px', border: '1px solid transparent', textAlign: 'right', fontWeight: '700' }} value={ligne.prixUnitaire} onChange={(e) => updateLigne(ligne.id, 'prixUnitaire', parseFloat(e.target.value) || 0)} readOnly={!canEdit} />
+                    <span className="print-only" style={{ fontWeight: '700' }}>{new Intl.NumberFormat('fr-FR').format(ligne.prixUnitaire)}</span>
                   </td>
                   <td className="no-print" style={{ padding: '8px 16px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
                     <input type="checkbox" checked={ligne.taxable} onChange={(e) => updateLigne(ligne.id, 'taxable', e.target.checked)} style={{ width: '18px', height: '18px', accentColor: 'var(--accent-secondary)' }} disabled={!canEdit} />
