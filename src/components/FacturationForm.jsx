@@ -454,17 +454,17 @@ const FacturationForm = ({ onCancel, editData, user }) => {
             <tbody>
               {lignes.map((ligne) => (
                 <tr key={ligne.id}>
-                  <td style={{ padding: '8px 16px', borderBottom: '1px solid var(--border-color)' }}>
-                    <input type="text" list="designations-list" className="form-control" style={{ width: '100%', padding: '8px', border: '1px solid transparent', fontWeight: '700' }} value={ligne.description} onChange={(e) => updateLigne(ligne.id, 'description', e.target.value)} placeholder="Description des frais..." readOnly={!canEdit} />
-                    <datalist id="designations-list">
-                      {LOGISTICS_DESIGNATIONS.map(d => <option key={d} value={d} />)}
-                    </datalist>
-                  </td>
                   <td className="no-print" style={{ padding: '8px 16px', borderBottom: '1px solid var(--border-color)' }}>
                     <select className="form-control" style={{ width: '100%', padding: '6px' }} value={ligne.type} onChange={(e) => updateLigne(ligne.id, 'type', e.target.value)} disabled={!canEdit}>
                       <option value="debour">Débours</option>
                       <option value="prestation">Prestation</option>
                     </select>
+                  </td>
+                  <td style={{ padding: '8px 16px', borderBottom: '1px solid var(--border-color)' }}>
+                    <input type="text" list="designations-list" className="form-control" style={{ width: '100%', padding: '8px', border: '1px solid transparent', fontWeight: '700' }} value={ligne.description} onChange={(e) => updateLigne(ligne.id, 'description', e.target.value)} placeholder="Description des frais..." readOnly={!canEdit} />
+                    <datalist id="designations-list">
+                      {LOGISTICS_DESIGNATIONS.map(d => <option key={d} value={d} />)}
+                    </datalist>
                   </td>
                   <td style={{ padding: '8px 16px', borderBottom: '1px solid var(--border-color)' }}>
                     <input type="number" className="form-control" style={{ width: '100%', padding: '8px', border: '1px solid transparent', textAlign: 'center', fontWeight: '700' }} value={ligne.quantite} onChange={(e) => updateLigne(ligne.id, 'quantite', parseFloat(e.target.value) || 0)} readOnly={!canEdit} />
